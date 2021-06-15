@@ -1,7 +1,7 @@
-#include <iostream>
+#include "util/log.hpp"
 
 int main()
 {
-  std::cout << "Hello, world!" << std::endl;
+  log_info << "Hello, world!" << std::endl;
   return 0;
 }
