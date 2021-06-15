@@ -1,5 +1,5 @@
 //  Harbor - A portable and highly customisable game engine
-//  Copyright (C) 2021 A. Semphris <semphris@protonmail.com>
+//  Copyright (C) 2021 Semphris <semphris@protonmail.com>
 //
 //  This program is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU Lesser General Public License as
@@ -17,10 +17,19 @@
 #ifndef _HEADER_HARBOR_VIDEO_WINDOW_HPP
 #define _HEADER_HARBOR_VIDEO_WINDOW_HPP
 
+#include <memory>
 #include <string>
 
 class Window
 {
+public:
+  enum class VideoSystem {
+    SDL
+  };
+
+public:
+  static std::unique_ptr<Window> create_window(VideoSystem vs);
+
 public:
   Window() = default;
   virtual ~Window() = default;

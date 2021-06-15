@@ -1,5 +1,5 @@
 //  Harbor - A portable and highly customisable game engine
-//  Copyright (C) 2021 A. Semphris <semphris@protonmail.com>
+//  Copyright (C) 2021 Semphris <semphris@protonmail.com>
 //
 //  This program is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU Lesser General Public License as
@@ -20,8 +20,8 @@
 
 int main()
 {
-  SDLWindow w;
-  w.set_title("Hello, world!");
+  auto w = Window::create_window(Window::VideoSystem::SDL);
+  w->set_title("Hello, world!");
 
   SDL_Event e;
   bool quit = false;

@@ -14,32 +14,21 @@
 //  You should have received a copy of the GNU Lesser General Public License
 //  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+#include "video/window.hpp"
+
+#include "make_unique.hpp"
+
 #include "video/sdl/sdl_window.hpp"
 
-SDLWindow::SDLWindow() :
-  m_window()
+std::unique_ptr<Window>
+Window::create_window(VideoSystem vs)
 {
-  m_window = SDL_CreateWindow("",
-                              SDL_WINDOWPOS_UNDEFINED,
-                              SDL_WINDOWPOS_UNDEFINED,
-                              640,
-                              400,
-                              SDL_WINDOW_SHOWN);
-}
+  switch(vs)
+  {
+    case VideoSystem::SDL:
+      return std::make_unique<SDLWindow>();
 
-SDLWindow::~SDLWindow()
-{
-  SDL_DestroyWindow(m_window);
-}
-
-void
-SDLWindow::set_title(const std::string& title)
-{
-  SDL_SetWindowTitle(m_window, title.c_str());
-}
-
-std::string
-SDLWindow::get_title() const
-{
-  return std::string(SDL_GetWindowTitle(m_window));
+    default:
+      return nullptr;
+  }
 }

@@ -14,32 +14,22 @@
 //  You should have received a copy of the GNU Lesser General Public License
 //  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#include "video/sdl/sdl_window.hpp"
+#include <memory>
+#if __cplusplus <= 201103L
 
-SDLWindow::SDLWindow() :
-  m_window()
+namespace std {
+
+template<typename T, typename... A>
+std::unique_ptr<T>
+make_unique(A&&... args)
 {
-  m_window = SDL_CreateWindow("",
-                              SDL_WINDOWPOS_UNDEFINED,
-                              SDL_WINDOWPOS_UNDEFINED,
-                              640,
-                              400,
-                              SDL_WINDOW_SHOWN);
+  return unique_ptr<T>(new T(std::forward<A>(args)...));
 }
 
-SDLWindow::~SDLWindow()
-{
-  SDL_DestroyWindow(m_window);
+// make_shared, unlike make_unique, is already defined in C++11
+
 }
 
-void
-SDLWindow::set_title(const std::string& title)
-{
-  SDL_SetWindowTitle(m_window, title.c_str());
-}
+#endif
 
-std::string
-SDLWindow::get_title() const
-{
-  return std::string(SDL_GetWindowTitle(m_window));
-}
+/* EOF */

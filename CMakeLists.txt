@@ -1,3 +1,19 @@
+# Harbor - A portable and highly customisable game engine
+# Copyright (C) 2021 Semphris <semphris@protonmail.com>
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Lesser General Public License as
+# published by the Free Software Foundation, either version 3 of the
+# License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
 project(harbor)
 
 cmake_minimum_required(VERSION 3.0)
@@ -9,7 +25,9 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 file(GLOB_RECURSE HARBOR_LIB_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/*/*.cpp)
 list(SORT HARBOR_LIB_FILES)
 add_library(harbor_lib ${HARBOR_LIB_FILES})
-target_include_directories(harbor_lib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src/)
+target_include_directories(harbor_lib PUBLIC
+                          ${CMAKE_CURRENT_SOURCE_DIR}/src/
+                          ${CMAKE_CURRENT_SOURCE_DIR}/polyfill/)
 
 add_executable(harbor ${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp)
 target_include_directories(harbor PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src/)
