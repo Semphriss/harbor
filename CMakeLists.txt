@@ -2,6 +2,10 @@ project(harbor)
 
 cmake_minimum_required(VERSION 3.0)
 
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+
 file(GLOB_RECURSE HARBOR_LIB_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/*/*.cpp)
 list(SORT HARBOR_LIB_FILES)
 add_library(harbor_lib ${HARBOR_LIB_FILES})

@@ -1,6 +1,6 @@
-#include "video/window.hpp"
+#include "video/sdl/sdl_window.hpp"
 
-Window::Window() :
+SDLWindow::SDLWindow() :
   m_window()
 {
   m_window = SDL_CreateWindow("",
@@ -11,19 +11,19 @@ Window::Window() :
                               SDL_WINDOW_SHOWN);
 }
 
-Window::~Window()
+SDLWindow::~SDLWindow()
 {
   SDL_DestroyWindow(m_window);
 }
 
 void
-Window::set_title(const std::string& title)
+SDLWindow::set_title(const std::string& title)
 {
   SDL_SetWindowTitle(m_window, title.c_str());
 }
 
 std::string
-Window::get_title() const
+SDLWindow::get_title() const
 {
   return std::string(SDL_GetWindowTitle(m_window));
 }

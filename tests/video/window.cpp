@@ -16,11 +16,11 @@
 
 #include "gtest/gtest.h"
 
-#include "video/window.hpp"
+#include "video/sdl/sdl_window.hpp"
 
-TEST(Video_Window, set_title)
+TEST(Video_SDL_SDLWindow, set_title)
 {
-  Window w;
+  SDLWindow w;
 
   w.set_title("Lorem ipsum dolor");
   ASSERT_EQ(w.get_title(), "Lorem ipsum dolor");

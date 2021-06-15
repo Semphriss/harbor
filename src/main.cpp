@@ -1,10 +1,10 @@
 #include "SDL.h"
 
-#include "video/window.hpp"
+#include "video/sdl/sdl_window.hpp"
 
 int main()
 {
-  Window w;
+  SDLWindow w;
   w.set_title("Hello, world!");
 
   SDL_Event e;

@@ -1,20 +1,20 @@
-#include <string>
+#ifndef _HEADER_HARBOR_VIDEO_WINDOW_HPP
+#define _HEADER_HARBOR_VIDEO_WINDOW_HPP
 
-#include "SDL.h"
+#include <string>
 
 class Window
 {
 public:
-  Window();
-  ~Window();
+  Window() = default;
+  virtual ~Window() = default;
 
-  std::string get_title() const;
-  void set_title(const std::string& title);
-
-private:
-  SDL_Window* m_window;
+  virtual std::string get_title() const = 0;
+  virtual void set_title(const std::string& title) = 0;
 
 private:
   Window(const Window&) = delete;
   Window& operator=(const Window&) = delete;
 };
+
+#endif
