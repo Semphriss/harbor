@@ -21,3 +21,9 @@ Window::set_title(const std::string& title)
 {
   SDL_SetWindowTitle(m_window, title.c_str());
 }
+
+std::string
+Window::get_title() const
+{
+  return std::string(SDL_GetWindowTitle(m_window));
+}

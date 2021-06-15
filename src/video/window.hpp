@@ -8,6 +8,7 @@ public:
   Window();
   ~Window();
 
+  std::string get_title() const;
   void set_title(const std::string& title);
 
 private:
