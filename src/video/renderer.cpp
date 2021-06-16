@@ -47,3 +47,8 @@ Renderer::is_drawing() const
 {
   return m_drawing;
 }
+
+Renderer::Renderer() :
+  m_drawing(false)
+{
+}

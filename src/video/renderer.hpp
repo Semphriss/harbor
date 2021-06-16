@@ -45,7 +45,7 @@ public:
   bool is_drawing() const;
 
 protected:
-  Renderer() = default;
+  Renderer();
 
 private:
   bool m_drawing;
