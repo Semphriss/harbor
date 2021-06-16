@@ -14,44 +14,53 @@
 //  You should have received a copy of the GNU Lesser General Public License
 //  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#include "SDL.h"
-
-#include "util/color.hpp"
-#include "util/rect.hpp"
 #include "video/drawing_context.hpp"
-#include "video/sdl/sdl_window.hpp"
 
-int main()
+#include "make_unique.hpp"
+
+#include "video/renderer.hpp"
+
+void
+DrawingContext::FillRectRequest::render(Renderer& renderer) const
 {
-  auto w = Window::create_window(Window::VideoSystem::SDL);
-  w->set_title("Hello, world!");
+  renderer.draw_filled_rect(m_rect, m_color, m_blend);
+}
 
-  SDL_Event e;
-  bool quit = false;
-  while(!quit)
+DrawingContext::DrawingContext(Renderer& renderer) :
+  m_renderer(renderer)
+{
+}
+
+void
+DrawingContext::draw_filled_rect(const Rect& rect, const Color& color,
+                                const Renderer::Blend& blend, int layer)
+{
+  auto req = std::make_unique<FillRectRequest>();
+  req->m_color = color;
+  req->m_blend = blend;
+  req->m_rect = rect;
+
+  m_requests[layer].push_back(std::move(req));
+}
+
+void
+DrawingContext::render() const
+{
+  m_renderer.start_draw();
+
+  for (const auto& reqs : m_requests)
   {
-    SDL_Event e;
-    while (SDL_PollEvent(&e))
+    for (const auto& req : reqs.second)
     {
-      switch(e.type)
-      {
-        case SDL_QUIT:
-          quit = true;
-          break;
-
-        default:
-          break;
-      }
+      req->render(m_renderer);
     }
-
-    auto& r = w->get_renderer();
-    DrawingContext dc(r);
-    dc.draw_filled_rect(Rect(20, 10, 100, 300), Color(0.5f, 0.25f, 0.125f),
-                        Renderer::Blend::BLEND, 5);
-    dc.draw_filled_rect(Rect(10, 5, 400, 50), Color(0.5f, 0.25f, 1.f),
-                        Renderer::Blend::BLEND, 1);
-    dc.render();
   }
 
-  return 0;
+  m_renderer.end_draw();
+}
+
+void
+DrawingContext::clear()
+{
+  m_requests.clear();
 }
