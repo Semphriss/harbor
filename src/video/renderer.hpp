@@ -14,45 +14,45 @@
 //  You should have received a copy of the GNU Lesser General Public License
 //  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#include "video/sdl/sdl_window.hpp"
+#ifndef _HEADER_HARBOR_VIDEO_RENDERER_HPP
+#define _HEADER_HARBOR_VIDEO_RENDERER_HPP
 
-SDLWindow::SDLWindow() :
-  m_sdl_window(SDL_CreateWindow("",
-                                SDL_WINDOWPOS_UNDEFINED,
-                                SDL_WINDOWPOS_UNDEFINED,
-                                640,
-                                400,
-                                SDL_WINDOW_HIDDEN)),
-  m_renderer(*this)
-{
-  SDL_ShowWindow(m_sdl_window);
-}
+#include <SDL.h>
 
-SDLWindow::~SDLWindow()
-{
-  SDL_DestroyWindow(m_sdl_window);
-}
+class Blend;
+class Color;
+class Rect;
+class Window;
 
-void
-SDLWindow::set_title(const std::string& title)
+class Renderer
 {
-  SDL_SetWindowTitle(m_sdl_window, title.c_str());
-}
+public:
+  enum class Blend {
+    NONE = SDL_BLENDMODE_NONE,
+    BLEND = SDL_BLENDMODE_BLEND,
+    ADD = SDL_BLENDMODE_ADD,
+    MODULATE = SDL_BLENDMODE_MOD
+  };
 
-std::string
-SDLWindow::get_title() const
-{
-  return std::string(SDL_GetWindowTitle(m_sdl_window));
-}
+public:
+  virtual ~Renderer() = default;
 
-SDL_Window*
-SDLWindow::get_sdl_window() const
-{
-  return m_sdl_window;
-}
+  virtual void draw_filled_rect(const Rect& rect, const Color& color,
+                                const Blend& blend) = 0;
+  virtual void start_draw();
+  virtual void end_draw();
 
-Renderer&
-SDLWindow::get_renderer()
-{
-  return m_renderer;
-}
+  bool is_drawing() const;
+
+protected:
+  Renderer() = default;
+
+private:
+  bool m_drawing;
+
+private:
+  Renderer(const Renderer&) = delete;
+  Renderer& operator=(const Renderer&) = delete;
+};
+
+#endif

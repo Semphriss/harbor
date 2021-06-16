@@ -14,45 +14,19 @@
 //  You should have received a copy of the GNU Lesser General Public License
 //  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#include "video/sdl/sdl_window.hpp"
+#ifndef _HEADER_HARBOR_UTIL_COLOR_HPP
+#define _HEADER_HARBOR_UTIL_COLOR_HPP
 
-SDLWindow::SDLWindow() :
-  m_sdl_window(SDL_CreateWindow("",
-                                SDL_WINDOWPOS_UNDEFINED,
-                                SDL_WINDOWPOS_UNDEFINED,
-                                640,
-                                400,
-                                SDL_WINDOW_HIDDEN)),
-  m_renderer(*this)
+class Color final
 {
-  SDL_ShowWindow(m_sdl_window);
-}
+public:
+  Color();
+  Color(const Color& c) = default;
+  Color(float _r, float _g, float _b, float _a = 1.f);
+  Color(const Color& c, float _a);
 
-SDLWindow::~SDLWindow()
-{
-  SDL_DestroyWindow(m_sdl_window);
-}
+public:
+  float r, g, b, a;
+};
 
-void
-SDLWindow::set_title(const std::string& title)
-{
-  SDL_SetWindowTitle(m_sdl_window, title.c_str());
-}
-
-std::string
-SDLWindow::get_title() const
-{
-  return std::string(SDL_GetWindowTitle(m_sdl_window));
-}
-
-SDL_Window*
-SDLWindow::get_sdl_window() const
-{
-  return m_sdl_window;
-}
-
-Renderer&
-SDLWindow::get_renderer()
-{
-  return m_renderer;
-}
+#endif

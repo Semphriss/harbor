@@ -21,7 +21,9 @@
 
 #include "SDL.h"
 
-class SDLWindow :
+#include "video/sdl/sdl_renderer.hpp"
+
+class SDLWindow final :
   public Window
 {
 public:
@@ -31,8 +33,12 @@ public:
   virtual std::string get_title() const override;
   virtual void set_title(const std::string& title) override;
 
+  SDL_Window* get_sdl_window() const;
+  virtual Renderer& get_renderer() override;
+
 private:
-  SDL_Window* m_window;
+  SDL_Window* m_sdl_window;
+  SDLRenderer m_renderer;
 
 private:
   SDLWindow(const SDLWindow&) = delete;

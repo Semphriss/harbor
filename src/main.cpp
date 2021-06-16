@@ -16,6 +16,8 @@
 
 #include "SDL.h"
 
+#include "util/color.hpp"
+#include "util/rect.hpp"
 #include "video/sdl/sdl_window.hpp"
 
 int main()
@@ -40,6 +42,11 @@ int main()
           break;
       }
     }
+
+    auto& r = w->get_renderer();
+    r.start_draw();
+    r.draw_filled_rect({10, 10, 100, 300}, {127, 64, 32}, Renderer::Blend::BLEND);
+    r.end_draw();
   }
 
   return 0;

@@ -14,45 +14,33 @@
 //  You should have received a copy of the GNU Lesser General Public License
 //  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#include "video/sdl/sdl_window.hpp"
+#ifndef _HEADER_HARBOR_VIDEO_SDL_SDLRENDERER_HPP
+#define _HEADER_HARBOR_VIDEO_SDL_SDLRENDERER_HPP
 
-SDLWindow::SDLWindow() :
-  m_sdl_window(SDL_CreateWindow("",
-                                SDL_WINDOWPOS_UNDEFINED,
-                                SDL_WINDOWPOS_UNDEFINED,
-                                640,
-                                400,
-                                SDL_WINDOW_HIDDEN)),
-  m_renderer(*this)
-{
-  SDL_ShowWindow(m_sdl_window);
-}
+#include "video/renderer.hpp"
 
-SDLWindow::~SDLWindow()
-{
-  SDL_DestroyWindow(m_sdl_window);
-}
+class SDLWindow;
 
-void
-SDLWindow::set_title(const std::string& title)
+class SDLRenderer final :
+  public Renderer
 {
-  SDL_SetWindowTitle(m_sdl_window, title.c_str());
-}
+public:
+  SDLRenderer() = delete;
+  SDLRenderer(SDLWindow& window);
+  virtual ~SDLRenderer() override = default;
 
-std::string
-SDLWindow::get_title() const
-{
-  return std::string(SDL_GetWindowTitle(m_sdl_window));
-}
+  virtual void draw_filled_rect(const Rect& rect, const Color& color,
+                                const Blend& blend) override;
 
-SDL_Window*
-SDLWindow::get_sdl_window() const
-{
-  return m_sdl_window;
-}
+  virtual void start_draw() override;
+  virtual void end_draw() override;
 
-Renderer&
-SDLWindow::get_renderer()
-{
-  return m_renderer;
-}
+private:
+  SDL_Renderer* m_sdl_renderer;
+
+private:
+  SDLRenderer(const SDLRenderer&) = delete;
+  SDLRenderer& operator=(const SDLRenderer&) = delete;
+};
+
+#endif

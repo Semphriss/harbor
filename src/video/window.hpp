@@ -20,6 +20,8 @@
 #include <memory>
 #include <string>
 
+class Renderer;
+
 class Window
 {
 public:
@@ -31,11 +33,14 @@ public:
   static std::unique_ptr<Window> create_window(VideoSystem vs);
 
 public:
-  Window() = default;
   virtual ~Window() = default;
 
+  virtual Renderer& get_renderer() = 0;
   virtual std::string get_title() const = 0;
   virtual void set_title(const std::string& title) = 0;
+
+protected:
+  Window() = default;
 
 private:
   Window(const Window&) = delete;

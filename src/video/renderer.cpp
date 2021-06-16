@@ -14,45 +14,36 @@
 //  You should have received a copy of the GNU Lesser General Public License
 //  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#include "video/sdl/sdl_window.hpp"
+#include "video/renderer.hpp"
 
-SDLWindow::SDLWindow() :
-  m_sdl_window(SDL_CreateWindow("",
-                                SDL_WINDOWPOS_UNDEFINED,
-                                SDL_WINDOWPOS_UNDEFINED,
-                                640,
-                                400,
-                                SDL_WINDOW_HIDDEN)),
-  m_renderer(*this)
-{
-  SDL_ShowWindow(m_sdl_window);
-}
+#include <stdexcept>
 
-SDLWindow::~SDLWindow()
+void
+Renderer::start_draw()
 {
-  SDL_DestroyWindow(m_sdl_window);
+  if (m_drawing)
+  {
+    throw std::runtime_error("Called Renderer::start_draw() on already drawing "
+                             "renderer");
+  }
+
+  m_drawing = true;
 }
 
 void
-SDLWindow::set_title(const std::string& title)
+Renderer::end_draw()
 {
-  SDL_SetWindowTitle(m_sdl_window, title.c_str());
+  if (!m_drawing)
+  {
+    throw std::runtime_error("Called Renderer::end_draw() on non-drawing "
+                             "renderer");
+  }
+
+  m_drawing = false;
 }
 
-std::string
-SDLWindow::get_title() const
+bool
+Renderer::is_drawing() const
 {
-  return std::string(SDL_GetWindowTitle(m_sdl_window));
-}
-
-SDL_Window*
-SDLWindow::get_sdl_window() const
-{
-  return m_sdl_window;
-}
-
-Renderer&
-SDLWindow::get_renderer()
-{
-  return m_renderer;
+  return m_drawing;
 }
