@@ -14,6 +14,11 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+if(${CMAKE_CURRENT_BINARY_DIR} STREQUAL ${CMAKE_CURRENT_SOURCE_DIR})
+  message(FATAL_ERROR "Prevented in-tree build. Please run `mkdir -p build && "
+                      "cd build`, then retry with `cmake .. [OPTIONS...]`")
+endif(${CMAKE_CURRENT_BINARY_DIR} STREQUAL ${CMAKE_CURRENT_SOURCE_DIR})
+
 project(harbor)
 
 cmake_minimum_required(VERSION 3.0)

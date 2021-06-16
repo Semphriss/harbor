@@ -3,10 +3,15 @@ build/
 build.*/
 **/CMakeFiles/
 **/CMakeCache.txt
+**/Debug/
+**/Release/
+**/*.tmp
+**/cmake_install.cmake
+**/*.a
+**/*.so
+**/*.so.*
+**/Makefile
 .clickable/
-Debug/
-Release/
-*.tmp
 
 # IDE files
 .vscode/
