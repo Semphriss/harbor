@@ -14,41 +14,33 @@
 //  You should have received a copy of the GNU Lesser General Public License
 //  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#include "video/renderer.hpp"
+#ifndef _HEADER_HARBOR_VIDEO_TEXTURE_HPP
+#define _HEADER_HARBOR_VIDEO_TEXTURE_HPP
 
-#include <stdexcept>
+#include "util/size.hpp"
 
-void
-Renderer::start_draw(Texture* /* texture */)
+class Renderer;
+
+/**
+ * Class that represents a readable texture.
+ */
+class Texture
 {
-  if (m_drawing)
-  {
-    throw std::runtime_error("Called Renderer::start_draw() on already drawing "
-                             "renderer");
-  }
+public:
+  virtual ~Texture() = default;
 
-  m_drawing = true;
-}
+protected:
+  Texture(const Size& size);
 
-void
-Renderer::end_draw()
-{
-  if (!m_drawing)
-  {
-    throw std::runtime_error("Called Renderer::end_draw() on non-drawing "
-                             "renderer");
-  }
+public:
+  Size get_size() const;
 
-  m_drawing = false;
-}
+protected:
+  Size m_size;
 
-bool
-Renderer::is_drawing() const
-{
-  return m_drawing;
-}
+private:
+  Texture(const Texture&) = delete;
+  Texture& operator=(const Texture&) = delete;
+};
 
-Renderer::Renderer() :
-  m_drawing(false)
-{
-}
+#endif

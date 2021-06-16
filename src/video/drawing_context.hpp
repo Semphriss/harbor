@@ -65,13 +65,32 @@ public:
     Rect m_rect;
   };
 
+  /**
+   * Holds the data to perform a Texture request on a Renderer.
+   */
+  class TextureRequest final :
+    public DrawRequest
+  {
+  public:
+    TextureRequest(const Texture& texture);
+
+    virtual void render(Renderer& renderer) const override;
+
+  public:
+    const Texture& m_texture;
+    Rect m_srcrect, m_dstrect;
+  };
+
 public:
   DrawingContext() = delete;
   DrawingContext(Renderer& renderer);
 
   void draw_filled_rect(const Rect& rect, const Color& color,
                         const Renderer::Blend& blend, int layer);
-  void render() const;
+  void draw_texture(const Texture& texture, const Rect& srcrect,
+                    const Rect& dstrect, const Color& color,
+                    const Renderer::Blend& blend, int layer);
+  void render(Texture* texture = nullptr) const;
   void clear();
 
 private:

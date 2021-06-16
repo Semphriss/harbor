@@ -30,11 +30,14 @@ public:
   SDLWindow();
   virtual ~SDLWindow();
 
+  virtual Texture& load_texture(const std::string& file) override;
+  virtual std::unique_ptr<Texture> create_texture(const Size& size) override;
+  virtual Renderer& get_renderer() override;
   virtual std::string get_title() const override;
   virtual void set_title(const std::string& title) override;
 
   SDL_Window* get_sdl_window() const;
-  virtual Renderer& get_renderer() override;
+  SDLRenderer& get_sdlrenderer();
 
 private:
   SDL_Window* m_sdl_window;

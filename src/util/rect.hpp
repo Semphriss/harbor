@@ -17,10 +17,14 @@
 #ifndef _HEADER_HARBOR_UTIL_RECT_HPP
 #define _HEADER_HARBOR_UTIL_RECT_HPP
 
+class Size;
+class Vector;
+
 class Rect final
 {
 public:
   Rect();
+  Rect(const Vector& top_left, const Size& size);
   Rect(float _x1, float _y1, float _x2, float _y2);
 
   float width() const;

@@ -16,6 +16,10 @@
 
 #include "video/sdl/sdl_window.hpp"
 
+#include "make_unique.hpp"
+
+#include "video/sdl/sdl_texture.hpp"
+
 SDLWindow::SDLWindow() :
   m_sdl_window(SDL_CreateWindow("",
                                 SDL_WINDOWPOS_UNDEFINED,
@@ -33,6 +37,27 @@ SDLWindow::~SDLWindow()
   SDL_DestroyWindow(m_sdl_window);
 }
 
+Texture&
+SDLWindow::load_texture(const std::string& file)
+{
+  const auto& texture_ptr = m_texture_cache[std::string(file)];
+
+  if (!texture_ptr)
+  {
+    auto new_texture = std::make_unique<SDLTexture>(*this, file);
+    m_texture_cache[std::string(file)] = std::move(new_texture);
+    return *m_texture_cache[std::string(file)];
+  }
+
+  return *texture_ptr;
+}
+
+std::unique_ptr<Texture>
+SDLWindow::create_texture(const Size& size)
+{
+  return std::make_unique<SDLTexture>(*this, size);
+}
+
 void
 SDLWindow::set_title(const std::string& title)
 {
@@ -45,14 +70,20 @@ SDLWindow::get_title() const
   return std::string(SDL_GetWindowTitle(m_sdl_window));
 }
 
+Renderer&
+SDLWindow::get_renderer()
+{
+  return m_renderer;
+}
+
 SDL_Window*
 SDLWindow::get_sdl_window() const
 {
   return m_sdl_window;
 }
 
-Renderer&
-SDLWindow::get_renderer()
+SDLRenderer&
+SDLWindow::get_sdlrenderer()
 {
   return m_renderer;
 }

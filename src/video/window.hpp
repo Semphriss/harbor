@@ -19,6 +19,9 @@
 
 #include <memory>
 #include <string>
+#include <unordered_map>
+
+#include "video/texture.hpp"
 
 class Renderer;
 
@@ -35,12 +38,19 @@ public:
 public:
   virtual ~Window() = default;
 
+  virtual Texture& load_texture(const std::string& file) = 0;
+  virtual std::unique_ptr<Texture> create_texture(const Size& size) = 0;
   virtual Renderer& get_renderer() = 0;
   virtual std::string get_title() const = 0;
   virtual void set_title(const std::string& title) = 0;
 
+  void flush_texture_cache();
+
 protected:
   Window() = default;
+
+protected:
+  std::unordered_map<std::string, std::unique_ptr<Texture>> m_texture_cache;
 
 private:
   Window(const Window&) = delete;

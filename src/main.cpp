@@ -18,6 +18,7 @@
 
 #include "util/color.hpp"
 #include "util/rect.hpp"
+#include "util/vector.hpp"
 #include "video/drawing_context.hpp"
 #include "video/sdl/sdl_window.hpp"
 
@@ -46,11 +47,25 @@ int main()
 
     auto& r = w->get_renderer();
     DrawingContext dc(r);
+    auto& t = w->load_texture("../data/missing.png");
     dc.draw_filled_rect(Rect(20, 10, 100, 300), Color(0.5f, 0.25f, 0.125f),
                         Renderer::Blend::BLEND, 5);
     dc.draw_filled_rect(Rect(10, 5, 400, 50), Color(0.5f, 0.25f, 1.f),
                         Renderer::Blend::BLEND, 1);
+
+    Rect t_rect(Vector(), t.get_size());
+    dc.draw_texture(t, t_rect, t_rect, Color(1.f, 1.f, 1.f),
+                    Renderer::Blend::BLEND, 3);
+
+    auto canvas = w->create_texture(Size(50.f, 75.f));
+    dc.render(canvas.get());
+
+    dc.draw_texture(*canvas, Rect(Vector(), canvas->get_size()),
+                    Rect(Vector(300, 100), Size(100.f, 150.f)),
+                    Color(1.f, 1.f, 1.f), Renderer::Blend::ADD, 10);
+
     dc.render();
+    dc.clear();
   }
 
   return 0;

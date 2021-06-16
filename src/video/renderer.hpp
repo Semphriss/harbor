@@ -22,6 +22,7 @@
 class Blend;
 class Color;
 class Rect;
+class Texture;
 class Window;
 
 class Renderer
@@ -39,7 +40,10 @@ public:
 
   virtual void draw_filled_rect(const Rect& rect, const Color& color,
                                 const Blend& blend) = 0;
-  virtual void start_draw();
+  virtual void draw_texture(const Texture& texture, const Rect& srcrect,
+                            const Rect& dstrect, const Color& color,
+                            const Blend& blend) = 0;
+  virtual void start_draw(Texture* texture = nullptr);
   virtual void end_draw();
 
   bool is_drawing() const;

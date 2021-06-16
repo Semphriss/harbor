@@ -14,41 +14,35 @@
 //  You should have received a copy of the GNU Lesser General Public License
 //  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#include "video/renderer.hpp"
+#ifndef _HEADER_HARBOR_UTIL_SIZE_HPP
+#define _HEADER_HARBOR_UTIL_SIZE_HPP
 
-#include <stdexcept>
+#include <ostream>
 
-void
-Renderer::start_draw(Texture* /* texture */)
+class Vector;
+
+class Size final
 {
-  if (m_drawing)
-  {
-    throw std::runtime_error("Called Renderer::start_draw() on already drawing "
-                             "renderer");
-  }
+public:
+  Size();
+  Size(float _w, float _h);
+  Size(const Vector& v);
 
-  m_drawing = true;
-}
+  Vector vector() const;
 
-void
-Renderer::end_draw()
-{
-  if (!m_drawing)
-  {
-    throw std::runtime_error("Called Renderer::end_draw() on non-drawing "
-                             "renderer");
-  }
+  Size operator*(const Size& s) const;
+  Size operator*(float f) const;
+  Size operator/(float f) const;
+  Size operator/(const Size s) const;
+  Size& operator*=(const Size& s);
+  Size operator+(const Size& s) const;
+  bool operator==(const Size& v) const;
+  bool operator!=(const Size& v) const;
 
-  m_drawing = false;
-}
+  friend std::ostream& operator<<(std::ostream& out, const Size& s);
 
-bool
-Renderer::is_drawing() const
-{
-  return m_drawing;
-}
+public:
+  float w, h;
+};
 
-Renderer::Renderer() :
-  m_drawing(false)
-{
-}
+#endif

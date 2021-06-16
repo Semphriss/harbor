@@ -20,6 +20,7 @@
 
 #include <SDL.h>
 
+#include "video/sdl/sdl_texture.hpp"
 #include "video/sdl/sdl_window.hpp"
 #include "util/color.hpp"
 #include "util/rect.hpp"
@@ -27,7 +28,6 @@
 SDLRenderer::SDLRenderer(SDLWindow& window) :
   m_sdl_renderer(SDL_CreateRenderer(window.get_sdl_window(), -1, 0))
 {
-
 }
 
 void
@@ -56,10 +56,62 @@ SDLRenderer::draw_filled_rect(const Rect& rect, const Color& color,
 }
 
 void
-SDLRenderer::start_draw()
+SDLRenderer::draw_texture(const Texture& texture, const Rect& srcrect,
+                          const Rect& dstrect, const Color& color,
+                          const Blend& blend)
+{
+  if (!is_drawing())
+  {
+    throw std::runtime_error("Call to SDLRenderer::draw_texture while not "
+                             "drawing");
+  }
+
+  const SDLTexture* t = dynamic_cast<const SDLTexture*>(&texture);
+
+  if (!t)
+  {
+    throw std::runtime_error("Attempt to use SDLRenderer::draw_texture() "
+                             "with a non-SDL texture");
+  }
+
+  SDL_SetTextureColorMod(t->get_sdl_texture(),
+                         static_cast<Uint8>(color.r * 255.f),
+                         static_cast<Uint8>(color.g * 255.f),
+                         static_cast<Uint8>(color.b * 255.f));
+  SDL_SetTextureBlendMode(t->get_sdl_texture(),
+                          static_cast<SDL_BlendMode>(blend));
+  SDL_SetTextureAlphaMod(t->get_sdl_texture(),
+                         static_cast<Uint8>(color.a * 255.f));
+
+  SDL_Rect src, dst;
+  src.x = static_cast<int>(srcrect.x1);
+  src.y = static_cast<int>(srcrect.y1);
+  src.w = static_cast<int>(srcrect.width());
+  src.h = static_cast<int>(srcrect.height());
+  dst.x = static_cast<int>(dstrect.x1);
+  dst.y = static_cast<int>(dstrect.y1);
+  dst.w = static_cast<int>(dstrect.width());
+  dst.h = static_cast<int>(dstrect.height());
+
+  SDL_RenderCopy(m_sdl_renderer, t->get_sdl_texture(), &src, &dst);
+}
+
+void
+SDLRenderer::start_draw(Texture* texture)
 {
   Renderer::start_draw();
-  SDL_SetRenderTarget(m_sdl_renderer, nullptr);
+
+  auto* sdl_texture = dynamic_cast<SDLTexture*>(texture);
+
+  if (texture && !sdl_texture)
+  {
+    throw std::runtime_error("Attempt to call SDLRenderer::start_draw() with "
+                             "non-null but non-SDL texture");
+  }
+
+  SDL_SetRenderTarget(m_sdl_renderer, texture
+                                      ? sdl_texture->get_sdl_texture()
+                                      : nullptr);
 }
 
 void
@@ -78,4 +130,10 @@ SDLRenderer::end_draw()
 
   SDL_SetRenderDrawColor(m_sdl_renderer, 0, 0, 0, 0);
   SDL_RenderClear(m_sdl_renderer);
+}
+
+SDL_Renderer*
+SDLRenderer::get_sdl_renderer() const
+{
+  return m_sdl_renderer;
 }

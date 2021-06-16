@@ -14,41 +14,40 @@
 //  You should have received a copy of the GNU Lesser General Public License
 //  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#include "video/renderer.hpp"
+#include "video/sdl/sdl_texture.hpp"
 
-#include <stdexcept>
+#include "gtest/gtest.h"
+#include "SDL.h"
 
-void
-Renderer::start_draw(Texture* /* texture */)
+#include "util/size.hpp"
+#include "video/sdl/sdl_window.hpp"
+
+TEST(Video_SDL_SDLTexture, from_file)
 {
-  if (m_drawing)
-  {
-    throw std::runtime_error("Called Renderer::start_draw() on already drawing "
-                             "renderer");
-  }
+  SDLWindow w;
+  SDLTexture t(w, "../data/missing.png");
 
-  m_drawing = true;
+  int width, height;
+  SDL_QueryTexture(t.get_sdl_texture(), nullptr, nullptr, &width, &height);
+
+  ASSERT_EQ(width, t.get_size().w);
+  ASSERT_EQ(height, t.get_size().h);
+
+  ASSERT_EQ(t.get_size().w, 128);
+  ASSERT_EQ(t.get_size().h, 128);
 }
 
-void
-Renderer::end_draw()
+TEST(Video_SDL_SDLTexture, canvas)
 {
-  if (!m_drawing)
-  {
-    throw std::runtime_error("Called Renderer::end_draw() on non-drawing "
-                             "renderer");
-  }
+  SDLWindow w;
+  SDLTexture t(w, Size(137, 141));
 
-  m_drawing = false;
-}
+  int width, height;
+  SDL_QueryTexture(t.get_sdl_texture(), nullptr, nullptr, &width, &height);
 
-bool
-Renderer::is_drawing() const
-{
-  return m_drawing;
-}
+  ASSERT_EQ(width, t.get_size().w);
+  ASSERT_EQ(height, t.get_size().h);
 
-Renderer::Renderer() :
-  m_drawing(false)
-{
+  ASSERT_EQ(t.get_size().w, 137);
+  ASSERT_EQ(t.get_size().h, 141);
 }

@@ -32,3 +32,9 @@ Window::create_window(VideoSystem vs)
       return nullptr;
   }
 }
+
+void
+Window::flush_texture_cache()
+{
+  m_texture_cache.clear();
+}

@@ -18,11 +18,22 @@
 
 #include <algorithm>
 
+#include "util/size.hpp"
+#include "util/vector.hpp"
+
 Rect::Rect() :
   x1(),
   y1(),
   x2(),
   y2()
+{
+}
+
+Rect::Rect(const Vector& top_left, const Size& size) :
+  x1(top_left.x),
+  y1(top_left.y),
+  x2(top_left.x + size.w),
+  y2(top_left.y + size.h)
 {
 }
 

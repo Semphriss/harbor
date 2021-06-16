@@ -31,9 +31,13 @@ public:
 
   virtual void draw_filled_rect(const Rect& rect, const Color& color,
                                 const Blend& blend) override;
-
-  virtual void start_draw() override;
+  virtual void draw_texture(const Texture& texture, const Rect& srcrect,
+                            const Rect& dstrect, const Color& color,
+                            const Blend& blend) override;
+  virtual void start_draw(Texture* texture = nullptr) override;
   virtual void end_draw() override;
+
+  SDL_Renderer* get_sdl_renderer() const;
 
 private:
   SDL_Renderer* m_sdl_renderer;

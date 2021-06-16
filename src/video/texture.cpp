@@ -14,41 +14,15 @@
 //  You should have received a copy of the GNU Lesser General Public License
 //  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#include "video/renderer.hpp"
+#include "video/texture.hpp"
 
-#include <stdexcept>
-
-void
-Renderer::start_draw(Texture* /* texture */)
+Texture::Texture(const Size& size) :
+  m_size(size)
 {
-  if (m_drawing)
-  {
-    throw std::runtime_error("Called Renderer::start_draw() on already drawing "
-                             "renderer");
-  }
-
-  m_drawing = true;
 }
 
-void
-Renderer::end_draw()
+Size
+Texture::get_size() const
 {
-  if (!m_drawing)
-  {
-    throw std::runtime_error("Called Renderer::end_draw() on non-drawing "
-                             "renderer");
-  }
-
-  m_drawing = false;
-}
-
-bool
-Renderer::is_drawing() const
-{
-  return m_drawing;
-}
-
-Renderer::Renderer() :
-  m_drawing(false)
-{
+  return m_size;
 }
