@@ -14,6 +14,9 @@
 //  You should have received a copy of the GNU Lesser General Public License
 //  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+#ifndef _POLYFILL_MAKE_UNIQUE
+#define _POLYFILL_MAKE_UNIQUE
+
 #include <memory>
 #if __cplusplus <= 201103L
 
@@ -32,4 +35,4 @@ make_unique(A&&... args)
 
 #endif
 
-/* EOF */
+#endif

@@ -25,7 +25,7 @@
 TEST(Video_SDL_SDLTexture, from_file)
 {
   SDLWindow w;
-  SDLTexture t(w, "../data/missing.png");
+  SDLTexture t(w, "../data/images/missing.png");
 
   int width, height;
   SDL_QueryTexture(t.get_sdl_texture(), nullptr, nullptr, &width, &height);

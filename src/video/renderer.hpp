@@ -17,12 +17,16 @@
 #ifndef _HEADER_HARBOR_VIDEO_RENDERER_HPP
 #define _HEADER_HARBOR_VIDEO_RENDERER_HPP
 
-#include <SDL.h>
+#include <string>
+
+#include "SDL.h"
 
 class Blend;
 class Color;
+class Font;
 class Rect;
 class Texture;
+class Vector;
 class Window;
 
 class Renderer
@@ -35,6 +39,23 @@ public:
     MODULATE = SDL_BLENDMODE_MOD
   };
 
+  enum class TextAlign
+  {
+    TOP_LEFT,
+    TOP_MID,
+    TOP_RIGHT,
+    MID_LEFT,
+    CENTER,
+    MID_RIGHT,
+    BOTTOM_LEFT,
+    BOTTOM_MID,
+    BOTTOM_RIGHT
+  };
+
+protected:
+  static SDL_Surface* get_font_surface(const Font& font,
+                                       const std::string& text);
+
 public:
   virtual ~Renderer() = default;
 
@@ -43,6 +64,9 @@ public:
   virtual void draw_texture(const Texture& texture, const Rect& srcrect,
                             const Rect& dstrect, const Color& color,
                             const Blend& blend) = 0;
+  virtual void draw_text(const std::string& text, const Vector& pos,
+                         TextAlign align, const std::string& fontfile, int size,
+                         const Color& color, const Blend& blend) = 0;
   virtual void start_draw(Texture* texture = nullptr);
   virtual void end_draw();
 

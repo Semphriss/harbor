@@ -24,6 +24,7 @@
 #include "video/renderer.hpp"
 #include "util/color.hpp"
 #include "util/rect.hpp"
+#include "util/vector.hpp"
 
 /**
  * Class that acts as a buffer to collect drawing requests to be performed on a
@@ -81,6 +82,25 @@ public:
     Rect m_srcrect, m_dstrect;
   };
 
+  /**
+   * Holds the data to perform a Text request on a Renderer.
+   */
+  class TextRequest final :
+    public DrawRequest
+  {
+  public:
+    TextRequest() = default;
+
+    virtual void render(Renderer& renderer) const override;
+
+  public:
+    std::string m_text;
+    std::string m_font;
+    int m_size;
+    Vector m_pos;
+    Renderer::TextAlign m_align;
+  };
+
 public:
   DrawingContext() = delete;
   DrawingContext(Renderer& renderer);
@@ -90,6 +110,10 @@ public:
   void draw_texture(const Texture& texture, const Rect& srcrect,
                     const Rect& dstrect, const Color& color,
                     const Renderer::Blend& blend, int layer);
+  void draw_text(const std::string& text, const Vector& pos,
+                 Renderer::TextAlign align, const std::string& fontfile,
+                 int size, const Color& color, const Renderer::Blend& blend,
+                 int layer);
   void render(Texture* texture = nullptr) const;
   void clear();
 

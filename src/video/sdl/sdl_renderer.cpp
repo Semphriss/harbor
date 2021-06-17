@@ -18,12 +18,14 @@
 
 #include <stdexcept>
 
-#include <SDL.h>
+#include "SDL.h"
 
+#include "video/font.hpp"
 #include "video/sdl/sdl_texture.hpp"
 #include "video/sdl/sdl_window.hpp"
 #include "util/color.hpp"
 #include "util/rect.hpp"
+#include "util/vector.hpp"
 
 SDLRenderer::SDLRenderer(SDLWindow& window) :
   m_sdl_renderer(SDL_CreateRenderer(window.get_sdl_window(), -1, 0))
@@ -94,6 +96,38 @@ SDLRenderer::draw_texture(const Texture& texture, const Rect& srcrect,
   dst.h = static_cast<int>(dstrect.height());
 
   SDL_RenderCopy(m_sdl_renderer, t->get_sdl_texture(), &src, &dst);
+}
+
+void
+SDLRenderer::draw_text(const std::string& text, const Vector& pos,
+                       TextAlign align, const std::string& fontfile, int size,
+                       const Color& color, const Blend& blend)
+{
+  if (!is_drawing())
+  {
+    throw std::runtime_error("Call to SDLRenderer::draw_text while not "
+                             "drawing");
+  }
+
+  auto& font = Font::get_font(fontfile, size);
+
+  SDL_Surface* surface = get_font_surface(font, text);
+  SDL_Texture* texture = SDL_CreateTextureFromSurface(m_sdl_renderer, surface);
+
+  SDL_SetTextureColorMod(texture,
+                         static_cast<Uint8>(color.r * 255.f),
+                         static_cast<Uint8>(color.g * 255.f),
+                         static_cast<Uint8>(color.b * 255.f));
+  SDL_SetTextureBlendMode(texture, static_cast<SDL_BlendMode>(blend));
+  SDL_SetTextureAlphaMod(texture, static_cast<Uint8>(color.a * 255.f));
+
+  SDL_Rect dst;
+  dst.x = static_cast<int>(pos.x);
+  dst.y = static_cast<int>(pos.y);
+  dst.w = surface->w;
+  dst.h = surface->h;
+
+  SDL_RenderCopy(m_sdl_renderer, texture, nullptr, &dst);
 }
 
 void

@@ -38,6 +38,12 @@ DrawingContext::TextureRequest::render(Renderer& renderer) const
   renderer.draw_texture(m_texture, m_srcrect, m_dstrect, m_color, m_blend);
 }
 
+void
+DrawingContext::TextRequest::render(Renderer& renderer) const
+{
+  renderer.draw_text(m_text, m_pos, m_align, m_font, m_size, m_color, m_blend);
+}
+
 DrawingContext::DrawingContext(Renderer& renderer) :
   m_renderer(renderer)
 {
@@ -66,6 +72,24 @@ DrawingContext::draw_texture(const Texture& texture,
   req->m_blend = blend;
   req->m_srcrect = srcrect;
   req->m_dstrect = dstrect;
+
+  m_requests[layer].push_back(std::move(req));
+}
+
+void
+DrawingContext::draw_text(const std::string& text, const Vector& pos,
+                Renderer::TextAlign align, const std::string& fontfile,
+                int size, const Color& color, const Renderer::Blend& blend,
+                int layer)
+{
+  auto req = std::make_unique<TextRequest>();
+  req->m_color = color;
+  req->m_blend = blend;
+  req->m_align = align;
+  req->m_font = fontfile;
+  req->m_pos = pos;
+  req->m_size = size;
+  req->m_text = text;
 
   m_requests[layer].push_back(std::move(req));
 }

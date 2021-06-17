@@ -21,8 +21,8 @@
 #include <stdexcept>
 #include <string>
 
-#include <SDL.h>
-#include <SDL_image.h>
+#include "SDL.h"
+#include "SDL_image.h"
 
 SDLTexture::SDLTexture(SDLWindow& window, const Size& size) :
   Texture(size),

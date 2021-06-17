@@ -15,6 +15,8 @@
 //  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #include "SDL.h"
+#include "SDL_image.h"
+#include "SDL_ttf.h"
 
 #include "util/color.hpp"
 #include "util/rect.hpp"
@@ -24,6 +26,10 @@
 
 int main()
 {
+  SDL_Init(SDL_INIT_VIDEO);
+  IMG_Init(0);
+  TTF_Init();
+
   auto w = Window::create_window(Window::VideoSystem::SDL);
   w->set_title("Hello, world!");
 
@@ -47,7 +53,7 @@ int main()
 
     auto& r = w->get_renderer();
     DrawingContext dc(r);
-    auto& t = w->load_texture("../data/missing.png");
+    auto& t = w->load_texture("../data/images/missing.png");
     dc.draw_filled_rect(Rect(20, 10, 100, 300), Color(0.5f, 0.25f, 0.125f),
                         Renderer::Blend::BLEND, 5);
     dc.draw_filled_rect(Rect(10, 5, 400, 50), Color(0.5f, 0.25f, 1.f),
@@ -63,6 +69,9 @@ int main()
     dc.draw_texture(*canvas, Rect(Vector(), canvas->get_size()),
                     Rect(Vector(300, 100), Size(100.f, 150.f)),
                     Color(1.f, 1.f, 1.f), Renderer::Blend::ADD, 10);
+    dc.draw_text("Hello, world!", Vector(10, 10), Renderer::TextAlign::TOP_LEFT,
+                 "../data/fonts/SuperTux-Medium.ttf", 16, Color(1.f, 1.f, 1.f),
+                 Renderer::Blend::BLEND, 11);
 
     dc.render();
     dc.clear();
