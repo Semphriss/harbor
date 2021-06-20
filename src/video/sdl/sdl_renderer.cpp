@@ -127,6 +127,47 @@ SDLRenderer::draw_text(const std::string& text, const Vector& pos,
   dst.w = surface->w;
   dst.h = surface->h;
 
+  switch(align) {
+    case TextAlign::TOP_LEFT:
+      break;
+
+    case TextAlign::TOP_MID:
+      dst.x -= surface->w / 2;
+      break;
+
+    case TextAlign::TOP_RIGHT:
+      dst.x -= surface->w;
+      break;
+
+    case TextAlign::MID_LEFT:
+      dst.y -= surface->h / 2;
+      break;
+
+    case TextAlign::CENTER:
+      dst.x -= surface->w / 2;
+      dst.y -= surface->h / 2;
+      break;
+
+    case TextAlign::MID_RIGHT:
+      dst.x -= surface->w;
+      dst.y -= surface->h / 2;
+      break;
+
+    case TextAlign::BOTTOM_LEFT:
+      dst.y -= surface->h;
+      break;
+
+    case TextAlign::BOTTOM_MID:
+      dst.x -= surface->w / 2;
+      dst.y -= surface->h;
+      break;
+
+    case TextAlign::BOTTOM_RIGHT:
+      dst.x -= surface->w;
+      dst.y -= surface->h;
+      break;
+  }
+
   SDL_RenderCopy(m_sdl_renderer, texture, nullptr, &dst);
 }
 
