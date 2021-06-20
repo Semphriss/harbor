@@ -18,7 +18,61 @@
 
 #include <stdexcept>
 
+#include "util/size.hpp"
+#include "util/vector.hpp"
 #include "video/font.hpp"
+
+Rect
+Renderer::get_text_rect(const std::string& font, int size, 
+                        const std::string& text, const Vector& pos,
+                        Renderer::TextAlign align)
+{
+  auto surface = get_font_surface(Font::get_font(font, size), text);
+  Vector corner = pos;
+
+  switch(align) {
+    case TextAlign::TOP_LEFT:
+      break;
+
+    case TextAlign::TOP_MID:
+      corner.x -= surface->w / 2;
+      break;
+
+    case TextAlign::TOP_RIGHT:
+      corner.x -= surface->w;
+      break;
+
+    case TextAlign::MID_LEFT:
+      corner.y -= surface->h / 2;
+      break;
+
+    case TextAlign::CENTER:
+      corner.x -= surface->w / 2;
+      corner.y -= surface->h / 2;
+      break;
+
+    case TextAlign::MID_RIGHT:
+      corner.x -= surface->w;
+      corner.y -= surface->h / 2;
+      break;
+
+    case TextAlign::BOTTOM_LEFT:
+      corner.y -= surface->h;
+      break;
+
+    case TextAlign::BOTTOM_MID:
+      corner.x -= surface->w / 2;
+      corner.y -= surface->h;
+      break;
+
+    case TextAlign::BOTTOM_RIGHT:
+      corner.x -= surface->w;
+      corner.y -= surface->h;
+      break;
+  }
+
+  return Rect(corner, Size(surface->w, surface->h));
+}
 
 SDL_Surface*
 Renderer::get_font_surface(const Font& font, const std::string& text)

@@ -56,3 +56,9 @@ Rect::height() const
 {
   return y2 - y1;
 }
+
+Rect
+Rect::grown(float f) const
+{
+  return Rect(x1 - f, y1 - f, x2 + f, y2 + f);
+}

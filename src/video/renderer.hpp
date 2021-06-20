@@ -21,10 +21,11 @@
 
 #include "SDL.h"
 
+#include "util/rect.hpp"
+
 class Blend;
 class Color;
 class Font;
-class Rect;
 class Texture;
 class Vector;
 class Window;
@@ -51,6 +52,11 @@ public:
     BOTTOM_MID,
     BOTTOM_RIGHT
   };
+
+public:
+  static Rect get_text_rect(const std::string& font, int size,
+                            const std::string& text, const Vector& pos,
+                            TextAlign align);
 
 protected:
   static SDL_Surface* get_font_surface(const Font& font,

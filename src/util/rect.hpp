@@ -30,6 +30,8 @@ public:
   float width() const;
   float height() const;
 
+  Rect grown(float f) const;
+
 public:
   float x1, y1, x2, y2;
 };
