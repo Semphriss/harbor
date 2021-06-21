@@ -35,7 +35,8 @@ DrawingContext::TextureRequest::TextureRequest(const Texture& texture) :
 void
 DrawingContext::TextureRequest::render(Renderer& renderer) const
 {
-  renderer.draw_texture(m_texture, m_srcrect, m_dstrect, m_color, m_blend);
+  renderer.draw_texture(m_texture, m_srcrect, m_dstrect, m_angle, m_color,
+                        m_blend);
 }
 
 void
@@ -64,14 +65,15 @@ DrawingContext::draw_filled_rect(const Rect& rect, const Color& color,
 void
 DrawingContext::draw_texture(const Texture& texture,
                              const Rect& srcrect, const Rect& dstrect,
-                             const Color& color, const Renderer::Blend& blend,
-                             int layer)
+                             float angle, const Color& color,
+                             const Renderer::Blend& blend, int layer)
 {
   auto req = std::make_unique<TextureRequest>(texture);
   req->m_color = color;
   req->m_blend = blend;
   req->m_srcrect = srcrect;
   req->m_dstrect = dstrect;
+  req->m_angle = angle;
 
   m_requests[layer].push_back(std::move(req));
 }

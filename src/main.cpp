@@ -60,14 +60,14 @@ int main()
                         Renderer::Blend::BLEND, 1);
 
     Rect t_rect(Vector(), t.get_size());
-    dc.draw_texture(t, t_rect, t_rect, Color(1.f, 1.f, 1.f),
+    dc.draw_texture(t, t_rect, t_rect, 0.f, Color(1.f, 1.f, 1.f),
                     Renderer::Blend::BLEND, 3);
 
     auto canvas = w->create_texture(Size(50.f, 75.f));
     dc.render(canvas.get());
 
     dc.draw_texture(*canvas, Rect(Vector(), canvas->get_size()),
-                    Rect(Vector(300, 100), Size(100.f, 150.f)),
+                    Rect(Vector(300, 100), Size(100.f, 150.f)), 25.f,
                     Color(1.f, 1.f, 1.f), Renderer::Blend::ADD, 10);
     dc.draw_text("Hello, world!", Vector(10, 10), Renderer::TextAlign::TOP_LEFT,
                  "../data/fonts/SuperTux-Medium.ttf", 16, Color(1.f, 1.f, 1.f),

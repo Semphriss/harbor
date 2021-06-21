@@ -59,7 +59,7 @@ SDLRenderer::draw_filled_rect(const Rect& rect, const Color& color,
 
 void
 SDLRenderer::draw_texture(const Texture& texture, const Rect& srcrect,
-                          const Rect& dstrect, const Color& color,
+                          const Rect& dstrect, float angle, const Color& color,
                           const Blend& blend)
 {
   if (!is_drawing())
@@ -85,17 +85,22 @@ SDLRenderer::draw_texture(const Texture& texture, const Rect& srcrect,
   SDL_SetTextureAlphaMod(t->get_sdl_texture(),
                          static_cast<Uint8>(color.a * 255.f));
 
-  SDL_Rect src, dst;
+
+
+  SDL_Rect src;
+  SDL_FRect dst;
   src.x = static_cast<int>(srcrect.x1);
   src.y = static_cast<int>(srcrect.y1);
   src.w = static_cast<int>(srcrect.width());
   src.h = static_cast<int>(srcrect.height());
-  dst.x = static_cast<int>(dstrect.x1);
-  dst.y = static_cast<int>(dstrect.y1);
-  dst.w = static_cast<int>(dstrect.width());
-  dst.h = static_cast<int>(dstrect.height());
+  dst.x = dstrect.x1;
+  dst.y = dstrect.y1;
+  dst.w = dstrect.width();
+  dst.h = dstrect.height();
 
-  SDL_RenderCopy(m_sdl_renderer, t->get_sdl_texture(), &src, &dst);
+  // TODO: Add support for center point and flip
+  SDL_RenderCopyExF(m_sdl_renderer, t->get_sdl_texture(), &src, &dst, angle,
+                    NULL, SDL_FLIP_NONE);
 }
 
 void

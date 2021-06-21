@@ -68,8 +68,8 @@ public:
   virtual void draw_filled_rect(const Rect& rect, const Color& color,
                                 const Blend& blend) = 0;
   virtual void draw_texture(const Texture& texture, const Rect& srcrect,
-                            const Rect& dstrect, const Color& color,
-                            const Blend& blend) = 0;
+                            const Rect& dstrect, float angle,
+                            const Color& color, const Blend& blend) = 0;
   virtual void draw_text(const std::string& text, const Vector& pos,
                          TextAlign align, const std::string& fontfile, int size,
                          const Color& color, const Blend& blend) = 0;
