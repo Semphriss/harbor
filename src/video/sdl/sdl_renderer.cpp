@@ -28,6 +28,7 @@
 #include "util/vector.hpp"
 
 SDLRenderer::SDLRenderer(SDLWindow& window) :
+  Renderer(window),
   m_sdl_renderer(SDL_CreateRenderer(window.get_sdl_window(), -1, 0))
 {
 }

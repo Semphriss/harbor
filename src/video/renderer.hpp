@@ -76,12 +76,14 @@ public:
   virtual void start_draw(Texture* texture = nullptr);
   virtual void end_draw();
 
+  Window& get_window() const;
   bool is_drawing() const;
 
 protected:
-  Renderer();
+  Renderer(Window& window);
 
 private:
+  Window& m_window;
   bool m_drawing;
 
 private:

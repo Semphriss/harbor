@@ -104,13 +104,20 @@ Renderer::end_draw()
   m_drawing = false;
 }
 
+Window&
+Renderer::get_window() const
+{
+  return m_window;
+}
+
 bool
 Renderer::is_drawing() const
 {
   return m_drawing;
 }
 
-Renderer::Renderer() :
+Renderer::Renderer(Window& window) :
+  m_window(window),
   m_drawing(false)
 {
 }
