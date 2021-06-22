@@ -22,10 +22,18 @@
 #include "util/vector.hpp"
 
 Rect::Rect() :
-  x1(),
-  y1(),
-  x2(),
-  y2()
+  x1(0.f),
+  y1(0.f),
+  x2(0.f),
+  y2(0.f)
+{
+}
+
+Rect::Rect(const Size& size) :
+  x1(0.f),
+  y1(0.f),
+  x2(size.w),
+  y2(size.h)
 {
 }
 

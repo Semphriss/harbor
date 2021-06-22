@@ -24,6 +24,7 @@ class Rect final
 {
 public:
   Rect();
+  Rect(const Size& size);
   Rect(const Vector& top_left, const Size& size);
   Rect(float _x1, float _y1, float _x2, float _y2);
 
