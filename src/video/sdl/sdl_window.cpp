@@ -58,16 +58,31 @@ SDLWindow::create_texture(const Size& size)
   return std::make_unique<SDLTexture>(*this, size);
 }
 
-void
-SDLWindow::set_title(const std::string& title)
-{
-  SDL_SetWindowTitle(m_sdl_window, title.c_str());
-}
-
 std::string
 SDLWindow::get_title() const
 {
   return std::string(SDL_GetWindowTitle(m_sdl_window));
+}
+
+Size
+SDLWindow::get_size() const
+{
+  int w, h;
+  SDL_GetWindowSize(m_sdl_window, &w, &h);
+  return Size(static_cast<float>(w), static_cast<float>(h));
+}
+
+void
+SDLWindow::set_size(const Size& size)
+{
+  SDL_SetWindowSize(m_sdl_window, static_cast<int>(size.w),
+                    static_cast<int>(size.h));
+}
+
+void
+SDLWindow::set_title(const std::string& title)
+{
+  SDL_SetWindowTitle(m_sdl_window, title.c_str());
 }
 
 Renderer&

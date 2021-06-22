@@ -117,3 +117,9 @@ DrawingContext::clear()
 {
   m_requests.clear();
 }
+
+Renderer&
+DrawingContext::get_renderer() const
+{
+  return m_renderer;
+}

@@ -34,6 +34,8 @@ public:
   virtual std::unique_ptr<Texture> create_texture(const Size& size) override;
   virtual Renderer& get_renderer() override;
   virtual std::string get_title() const override;
+  virtual Size get_size() const override;
+  virtual void set_size(const Size& size) override;
   virtual void set_title(const std::string& title) override;
 
   SDL_Window* get_sdl_window() const;

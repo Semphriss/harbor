@@ -118,6 +118,8 @@ public:
   void render(Texture* texture = nullptr) const;
   void clear();
 
+  Renderer& get_renderer() const;
+
 private:
   Renderer& m_renderer;
   std::map<int, std::vector<std::unique_ptr<DrawRequest>>> m_requests;

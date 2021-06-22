@@ -21,6 +21,7 @@
 #include <string>
 #include <unordered_map>
 
+#include "util/size.hpp"
 #include "video/texture.hpp"
 
 class Renderer;
@@ -42,6 +43,8 @@ public:
   virtual std::unique_ptr<Texture> create_texture(const Size& size) = 0;
   virtual Renderer& get_renderer() = 0;
   virtual std::string get_title() const = 0;
+  virtual Size get_size() const = 0;
+  virtual void set_size(const Size& size) = 0;
   virtual void set_title(const std::string& title) = 0;
 
   void flush_texture_cache();
