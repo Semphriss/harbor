@@ -40,7 +40,7 @@ public:
   virtual ~Window() = default;
 
   virtual Texture& load_texture(const std::string& file) = 0;
-  virtual std::unique_ptr<Texture> create_texture(const Size& size) = 0;
+  virtual std::shared_ptr<Texture> create_texture(const Size& size) = 0;
   virtual Renderer& get_renderer() = 0;
   virtual std::string get_title() const = 0;
   virtual Size get_size() const = 0;

@@ -31,7 +31,7 @@ public:
   virtual ~SDLWindow();
 
   virtual Texture& load_texture(const std::string& file) override;
-  virtual std::unique_ptr<Texture> create_texture(const Size& size) override;
+  virtual std::shared_ptr<Texture> create_texture(const Size& size) override;
   virtual Renderer& get_renderer() override;
   virtual std::string get_title() const override;
   virtual Size get_size() const override;

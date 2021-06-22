@@ -28,7 +28,7 @@ SDLTexture::SDLTexture(SDLWindow& window, const Size& size) :
   Texture(size),
   m_renderer(window.get_sdlrenderer()),
   m_sdl_texture(SDL_CreateTexture(m_renderer.get_sdl_renderer(),
-                                  SDL_PIXELFORMAT_RGB888,
+                                  SDL_PIXELFORMAT_RGBA8888,
                                   SDL_TEXTUREACCESS_TARGET,
                                   static_cast<int>(size.w),
                                   static_cast<int>(size.h)))

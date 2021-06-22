@@ -79,6 +79,23 @@ DrawingContext::draw_texture(const Texture& texture,
 }
 
 void
+DrawingContext::draw_texture(const std::shared_ptr<Texture>& texture,
+                             const Rect& srcrect, const Rect& dstrect,
+                             float angle, const Color& color,
+                             const Renderer::Blend& blend, int layer)
+{
+  auto req = std::make_unique<TextureRequest>(*texture);
+  req->m_color = color;
+  req->m_blend = blend;
+  req->m_srcrect = srcrect;
+  req->m_dstrect = dstrect;
+  req->m_angle = angle;
+  req->m_texture_ptr = texture;
+
+  m_requests[layer].push_back(std::move(req));
+}
+
+void
 DrawingContext::draw_text(const std::string& text, const Vector& pos,
                 Renderer::TextAlign align, const std::string& fontfile,
                 int size, const Color& color, const Renderer::Blend& blend,

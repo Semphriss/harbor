@@ -79,6 +79,7 @@ public:
 
   public:
     const Texture& m_texture;
+    std::shared_ptr<Texture> m_texture_ptr;
     Rect m_srcrect, m_dstrect;
     float m_angle;
   };
@@ -109,6 +110,9 @@ public:
   void draw_filled_rect(const Rect& rect, const Color& color,
                         const Renderer::Blend& blend, int layer);
   void draw_texture(const Texture& texture, const Rect& srcrect,
+                    const Rect& dstrect, float angle, const Color& color,
+                    const Renderer::Blend& blend, int layer);
+  void draw_texture(const std::shared_ptr<Texture>& texture, const Rect& srcrect,
                     const Rect& dstrect, float angle, const Color& color,
                     const Renderer::Blend& blend, int layer);
   void draw_text(const std::string& text, const Vector& pos,

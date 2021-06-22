@@ -52,10 +52,10 @@ SDLWindow::load_texture(const std::string& file)
   return *texture_ptr;
 }
 
-std::unique_ptr<Texture>
+std::shared_ptr<Texture>
 SDLWindow::create_texture(const Size& size)
 {
-  return std::make_unique<SDLTexture>(*this, size);
+  return std::make_shared<SDLTexture>(*this, size);
 }
 
 std::string
