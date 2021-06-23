@@ -29,6 +29,13 @@ class Renderer;
 class Window
 {
 public:
+  enum class Status {
+    NORMAL,
+    MINIMIZED,
+    MAXIMIZED,
+    FULLSCREEN
+  };
+
   enum class VideoSystem {
     SDL
   };
@@ -42,10 +49,26 @@ public:
   virtual Texture& load_texture(const std::string& file) = 0;
   virtual std::shared_ptr<Texture> create_texture(const Size& size) = 0;
   virtual Renderer& get_renderer() = 0;
+
   virtual std::string get_title() const = 0;
   virtual Size get_size() const = 0;
+  virtual bool get_visible() const = 0;
+  virtual Vector get_pos() const = 0;
+  virtual bool get_bordered() const = 0;
+  virtual bool get_resizable() const = 0;
+  virtual Status get_status() const = 0;
+  virtual float get_opacity() const = 0;
+  virtual std::string get_icon() const = 0;
+
   virtual void set_size(const Size& size) = 0;
   virtual void set_title(const std::string& title) = 0;
+  virtual void set_visible(bool visible) = 0;
+  virtual void set_pos(Vector pos) = 0;
+  virtual void set_bordered(bool bordered) = 0;
+  virtual void set_resizable(bool resizable) = 0;
+  virtual void set_status(Status status) = 0;
+  virtual void set_icon(const std::string& file) = 0;
+  virtual void set_opacity(float opacity) = 0;
 
   void flush_texture_cache();
 
