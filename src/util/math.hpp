@@ -1,0 +1,28 @@
+//  SuperTux
+//  Copyright (C) 2021 A. Semphris <semphris@protonmail.com>
+//
+//  This program is free software: you can redistribute it and/or modify
+//  it under the terms of the GNU General Public License as published by
+//  the Free Software Foundation, either version 3 of the License, or
+//  (at your option) any later version.
+//
+//  This program is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+//
+//  You should have received a copy of the GNU General Public License
+//  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+#ifndef _HEADER_HARBOR_UTIL_MATH_HPP
+#define _HEADER_HARBOR_UTIL_MATH_HPP
+
+class Math final
+{
+public:
+  template<class T> static T clamp(const T& min, const T& max, const T& val);
+};
+
+#include "util/math.cpp"
+
+#endif
