@@ -24,6 +24,7 @@
 #include "video/renderer.hpp"
 #include "util/color.hpp"
 #include "util/rect.hpp"
+#include "util/size.hpp"
 #include "util/vector.hpp"
 
 /**
@@ -35,6 +36,16 @@
 class DrawingContext final
 {
 public:
+  class Transform final
+  {
+  public:
+    Transform();
+
+  public:
+    Vector m_offset;
+    Size m_scale;
+  };
+
   /**
    * Holds the data to perform a drawing request on a Renderer.
    */
@@ -121,12 +132,16 @@ public:
                  int layer);
   void render(Texture* texture = nullptr) const;
   void clear();
+  void push_transform();
+  void pop_transform();
 
+  Transform& get_transform();
   Renderer& get_renderer() const;
 
 private:
   Renderer& m_renderer;
   std::map<int, std::vector<std::unique_ptr<DrawRequest>>> m_requests;
+  std::vector<Transform> m_transform_stack;
 
 private:
   DrawingContext(const DrawingContext&) = delete;

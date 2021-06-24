@@ -21,6 +21,12 @@
 #include "video/renderer.hpp"
 #include "video/texture.hpp"
 
+DrawingContext::Transform::Transform() :
+  m_offset(),
+  m_scale(1.f, 1.f)
+{
+}
+
 void
 DrawingContext::FillRectRequest::render(Renderer& renderer) const
 {
@@ -48,6 +54,7 @@ DrawingContext::TextRequest::render(Renderer& renderer) const
 DrawingContext::DrawingContext(Renderer& renderer) :
   m_renderer(renderer)
 {
+  m_transform_stack.push_back(Transform());
 }
 
 void
@@ -57,7 +64,7 @@ DrawingContext::draw_filled_rect(const Rect& rect, const Color& color,
   auto req = std::make_unique<FillRectRequest>();
   req->m_color = color;
   req->m_blend = blend;
-  req->m_rect = rect;
+  req->m_rect = rect.moved(get_transform().m_offset) * get_transform().m_scale;
 
   m_requests[layer].push_back(std::move(req));
 }
@@ -72,7 +79,8 @@ DrawingContext::draw_texture(const Texture& texture,
   req->m_color = color;
   req->m_blend = blend;
   req->m_srcrect = srcrect;
-  req->m_dstrect = dstrect;
+  req->m_dstrect = dstrect.moved(get_transform().m_offset) *
+                   get_transform().m_scale;
   req->m_angle = angle;
 
   m_requests[layer].push_back(std::move(req));
@@ -88,7 +96,8 @@ DrawingContext::draw_texture(const std::shared_ptr<Texture>& texture,
   req->m_color = color;
   req->m_blend = blend;
   req->m_srcrect = srcrect;
-  req->m_dstrect = dstrect;
+  req->m_dstrect = dstrect.moved(get_transform().m_offset) *
+                   get_transform().m_scale;
   req->m_angle = angle;
   req->m_texture_ptr = texture;
 
@@ -106,7 +115,7 @@ DrawingContext::draw_text(const std::string& text, const Vector& pos,
   req->m_blend = blend;
   req->m_align = align;
   req->m_font = fontfile;
-  req->m_pos = pos;
+  req->m_pos = pos + get_transform().m_offset;
   req->m_size = size;
   req->m_text = text;
 
@@ -133,6 +142,24 @@ void
 DrawingContext::clear()
 {
   m_requests.clear();
+}
+
+void
+DrawingContext::push_transform()
+{
+  m_transform_stack.push_back(Transform(m_transform_stack.back()));
+}
+
+void
+DrawingContext::pop_transform()
+{
+  m_transform_stack.pop_back();
+}
+
+DrawingContext::Transform&
+DrawingContext::get_transform()
+{
+  return m_transform_stack.back();
 }
 
 Renderer&

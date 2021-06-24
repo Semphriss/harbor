@@ -32,6 +32,9 @@ public:
   float height() const;
 
   Rect grown(float f) const;
+  Rect moved(const Vector& v) const;
+
+  Rect operator*(const Size& s) const;
 
 public:
   float x1, y1, x2, y2;

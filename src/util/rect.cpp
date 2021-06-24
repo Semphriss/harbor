@@ -70,3 +70,15 @@ Rect::grown(float f) const
 {
   return Rect(x1 - f, y1 - f, x2 + f, y2 + f);
 }
+
+Rect
+Rect::moved(const Vector& v) const
+{
+  return Rect(Vector(x1, y1) - v, Size(width(), height()));
+}
+
+Rect
+Rect::operator*(const Size& s) const
+{
+  return Rect(Vector(x1, y1), Size(width(), height()) * s);
+}
