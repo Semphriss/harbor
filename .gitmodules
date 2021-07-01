@@ -10,3 +10,9 @@
 [submodule "external/SDL2_ttf"]
 	path = external/SDL2_ttf
 	url = https://github.com/libsdl-org/SDL_ttf.git
+[submodule "external/squirrel"]
+	path = external/squirrel
+	url = https://github.com/albertodemichelis/squirrel.git
+[submodule "external/lua"]
+	path = external/lua
+	url = https://github.com/lua/lua.git
