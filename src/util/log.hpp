@@ -29,6 +29,8 @@
 class Log final
 {
 public:
+  static std::ostream* s_log;
+
   static std::ostream& log(const char* level, const char* file, int line);
 };
 

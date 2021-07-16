@@ -33,6 +33,11 @@ SDLRenderer::SDLRenderer(SDLWindow& window) :
 {
 }
 
+SDLRenderer::~SDLRenderer()
+{
+  SDL_DestroyRenderer(m_sdl_renderer);
+}
+
 void
 SDLRenderer::draw_filled_rect(const Rect& rect, const Color& color,
                               const Blend& blend)

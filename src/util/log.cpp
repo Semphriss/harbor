@@ -16,9 +16,11 @@
 
 #include "util/log.hpp"
 
+std::ostream* Log::s_log = &std::cerr;
+
 std::ostream&
 Log::log(const char* level, const char* file, int line)
 {
-  std::cerr << "[" << level << "] " << file << ":" << line << ": ";
-  return std::cerr;
+  *s_log << "[" << level << "] " << file << ":" << line << ": ";
+  return *s_log;
 }

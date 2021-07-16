@@ -27,7 +27,7 @@ class SDLRenderer final :
 public:
   SDLRenderer() = delete;
   SDLRenderer(SDLWindow& window);
-  virtual ~SDLRenderer() override = default;
+  virtual ~SDLRenderer() override;
 
   virtual void draw_filled_rect(const Rect& rect, const Color& color,
                                 const Blend& blend) override;
