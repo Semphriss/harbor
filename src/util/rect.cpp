@@ -53,6 +53,16 @@ Rect::Rect(float _x1, float _y1, float _x2, float _y2) :
 {
 }
 
+Rect&
+Rect::move(const Vector& v)
+{
+  x1 += v.x;
+  x2 += v.x;
+  y1 += v.y;
+  y2 += v.y;
+  return *this;
+}
+
 float
 Rect::width() const
 {
@@ -63,6 +73,36 @@ float
 Rect::height() const
 {
   return y2 - y1;
+}
+
+Vector
+Rect::top_lft() const
+{
+  return Vector(x1, y1);
+}
+
+Vector
+Rect::top_rgt() const
+{
+  return Vector(x2, y1);
+}
+
+Vector
+Rect::bot_lft() const
+{
+  return Vector(x1, y2);
+}
+
+Vector
+Rect::bot_rgt() const
+{
+  return Vector(x2, y2);
+}
+
+Vector
+Rect::mid() const
+{
+  return Vector((x1 + x2) / 2.f, (y1 + y2) / 2.f);
 }
 
 Rect

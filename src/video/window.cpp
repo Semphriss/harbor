@@ -19,6 +19,7 @@
 #include "make_unique.hpp"
 
 #include "video/sdl/sdl_window.hpp"
+#include "video/gl/gl_window.hpp"
 
 std::unique_ptr<Window>
 Window::create_window(VideoSystem vs)
@@ -27,6 +28,9 @@ Window::create_window(VideoSystem vs)
   {
     case VideoSystem::SDL:
       return std::make_unique<SDLWindow>();
+
+    case VideoSystem::GL:
+      return std::make_unique<GLWindow>();
 
     default:
       return nullptr;

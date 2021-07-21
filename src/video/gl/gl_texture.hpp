@@ -14,33 +14,38 @@
 //  You should have received a copy of the GNU Lesser General Public License
 //  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#ifndef _HEADER_HARBOR_UTIL_MATH_HPP
+#ifndef _HEADER_HARBOR_VIDEO_GL_GLTEXTURE_HPP
+#define _HEADER_HARBOR_VIDEO_GL_GLTEXTURE_HPP
 
-#include "util/math.hpp"
+#include "video/texture.hpp"
 
-#include <cmath>
+#include <memory>
 
-Vector
-Math::rotate(const Vector& point, const Vector& around, float angle)
+#include "SDL_opengl.h"
+
+#include "video/gl/gl_renderer.hpp"
+
+/**
+ * Class that represents a readable texture.
+ */
+class GLTexture final :
+  public Texture
 {
-  angle *= M_PI / 180.f;
-  // Source: https://web.archive.org/web/20190822004111/https://stackoverflow.co
-  //         m/questions/22491178/how-to-rotate-a-point-around-another-point
-  double x1 = point.x - around.x;
-  double y1 = point.y - around.y;
+public:
+  GLTexture(GLWindow& window, const Size& size);
+  GLTexture(GLWindow& window, const std::string& file);
+  virtual ~GLTexture() override;
 
-  double x2 = x1 * std::cos(angle) - y1 * std::sin(angle);
-  double y2 = x1 * std::sin(angle) + y1 * std::cos(angle);
+  GLuint get_gl_texture() const;
 
-  return Vector(x2 + around.x, y2 + around.y);
-}
+private:
+  GLRenderer& m_renderer;
+  GLuint m_gl_texture;
+  SDL_Surface* m_sdl_surface;
 
-#else
-
-template<class T> T
-Math::clamp(const T& min, const T& max, const T& val)
-{
-  return (val < min) ? min : ((val > max) ? max : val);
-}
+private:
+  GLTexture(const GLTexture&) = delete;
+  GLTexture& operator=(const GLTexture&) = delete;
+};
 
 #endif

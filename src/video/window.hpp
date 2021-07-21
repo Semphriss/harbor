@@ -37,7 +37,8 @@ public:
   };
 
   enum class VideoSystem {
-    SDL
+    SDL,
+    GL
   };
 
 public:

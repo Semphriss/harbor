@@ -136,3 +136,6 @@ else(SQUIRREL_FOUND)
   target_link_libraries(harbor_lib PUBLIC squirrel)
   add_dependencies(harbor_lib squirrel)
 endif(SQUIRREL_FOUND)
+
+find_package(OpenGL REQUIRED)
+target_link_libraries(harbor_lib PUBLIC ${OPENGL_LIBRARIES})

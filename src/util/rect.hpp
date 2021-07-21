@@ -28,8 +28,15 @@ public:
   Rect(const Vector& top_left, const Size& size);
   Rect(float _x1, float _y1, float _x2, float _y2);
 
+  Rect& move(const Vector& v);
+
   float width() const;
   float height() const;
+  Vector top_lft() const;
+  Vector top_rgt() const;
+  Vector bot_lft() const;
+  Vector bot_rgt() const;
+  Vector mid() const;
 
   Rect grown(float f) const;
   Rect moved(const Vector& v) const;

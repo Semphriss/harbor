@@ -17,10 +17,13 @@
 #ifndef _HEADER_HARBOR_UTIL_MATH_HPP
 #define _HEADER_HARBOR_UTIL_MATH_HPP
 
+#include "util/vector.hpp"
+
 class Math final
 {
 public:
   template<class T> static T clamp(const T& min, const T& max, const T& val);
+  static Vector rotate(const Vector& point, const Vector& around, float angle);
 };
 
 #include "util/math.cpp"

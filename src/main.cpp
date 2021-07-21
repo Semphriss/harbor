@@ -30,7 +30,7 @@ int main()
   IMG_Init(0);
   TTF_Init();
 
-  auto w = Window::create_window(Window::VideoSystem::SDL);
+  auto w = Window::create_window(Window::VideoSystem::GL);
   w->set_title("Hello, world!");
 
   SDL_Event e;
