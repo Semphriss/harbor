@@ -52,6 +52,11 @@ Font::Font(const std::string& text, int size) :
   m_size(size),
   m_font(TTF_OpenFont(text.c_str(), size))
 {
+  if (!m_font)
+  {
+    throw std::runtime_error("Could not open font '" + text + "': " +
+                             std::string(TTF_GetError()));
+  }
 }
 
 Font::~Font()
