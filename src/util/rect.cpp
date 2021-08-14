@@ -105,6 +105,12 @@ Rect::mid() const
   return Vector((x1 + x2) / 2.f, (y1 + y2) / 2.f);
 }
 
+bool
+Rect::contains(const Vector& point) const
+{
+  return point.x >= x1 && point.x <= x2 && point.y >= y1 && point.y <= y2;
+}
+
 Rect
 Rect::grown(float f) const
 {

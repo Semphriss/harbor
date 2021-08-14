@@ -37,6 +37,7 @@ public:
   Vector bot_lft() const;
   Vector bot_rgt() const;
   Vector mid() const;
+  bool contains(const Vector& point) const;
 
   Rect grown(float f) const;
   Rect moved(const Vector& v) const;
