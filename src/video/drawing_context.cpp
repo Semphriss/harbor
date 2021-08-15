@@ -115,7 +115,7 @@ DrawingContext::draw_text(const std::string& text, const Vector& pos,
   req->m_blend = blend;
   req->m_align = align;
   req->m_font = fontfile;
-  req->m_pos = pos + get_transform().m_offset;
+  req->m_pos = pos - get_transform().m_offset;
   req->m_size = size;
   req->m_text = text;
 
