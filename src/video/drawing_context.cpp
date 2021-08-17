@@ -16,15 +16,53 @@
 
 #include "video/drawing_context.hpp"
 
+#include <cmath>
+
 #include "make_unique.hpp"
 
+#include "util/log.hpp"
 #include "video/renderer.hpp"
 #include "video/texture.hpp"
+#include "video/window.hpp"
+
+Rect
+DrawingContext::clip_src_rect(const Rect& src, const Rect& dst,
+                              const Rect& clip)
+{
+  Rect clipped = dst.clipped(clip);
+
+  if (!clipped.is_valid())
+    return Rect();
+
+  return Rect((clipped.x1 - dst.x1) / dst.width() * src.width(),
+              (clipped.y1 - dst.y1) / dst.height() * src.height(),
+              (clipped.x2 - dst.x1) / dst.width() * src.width(),
+              (clipped.y2 - dst.y1) / dst.height() * src.height());
+}
 
 DrawingContext::Transform::Transform() :
   m_offset(),
-  m_scale(1.f, 1.f)
+  m_scale(1.f, 1.f),
+  m_clip(-HUGE_VALF, -HUGE_VALF, HUGE_VALF, HUGE_VALF)
 {
+}
+
+void
+DrawingContext::Transform::move(const Vector& offset)
+{
+  m_offset += offset;
+}
+
+void
+DrawingContext::Transform::scale(const Size& scale)
+{
+  m_scale *= scale;
+}
+
+void
+DrawingContext::Transform::clip(const Rect& rect)
+{
+  m_clip.clip(rect.moved(m_offset) * m_scale);
 }
 
 void
@@ -48,7 +86,8 @@ DrawingContext::TextureRequest::render(Renderer& renderer) const
 void
 DrawingContext::TextRequest::render(Renderer& renderer) const
 {
-  renderer.draw_text(m_text, m_pos, m_align, m_font, m_size, m_color, m_blend);
+  renderer.draw_text(m_text, m_pos, m_clip, m_align, m_font, m_size, m_color,
+                     m_blend);
 }
 
 DrawingContext::DrawingContext(Renderer& renderer) :
@@ -64,7 +103,14 @@ DrawingContext::draw_filled_rect(const Rect& rect, const Color& color,
   auto req = std::make_unique<FillRectRequest>();
   req->m_color = color;
   req->m_blend = blend;
-  req->m_rect = rect.moved(get_transform().m_offset) * get_transform().m_scale;
+  req->m_rect = (rect.moved(get_transform().m_offset) * get_transform().m_scale)
+                 .clipped(get_transform().m_clip);
+
+  if (!req->m_rect.is_valid() || req->m_rect.is_null())
+  {
+    log_info << "Not rendering empty filled rect" << std::endl;
+    return;
+  }
 
   m_requests[layer].push_back(std::move(req));
 }
@@ -75,13 +121,21 @@ DrawingContext::draw_texture(const Texture& texture,
                              float angle, const Color& color,
                              const Renderer::Blend& blend, int layer)
 {
+  Rect dst = (dstrect.moved(get_transform().m_offset) * get_transform().m_scale);
+
   auto req = std::make_unique<TextureRequest>(texture);
   req->m_color = color;
   req->m_blend = blend;
-  req->m_srcrect = srcrect;
-  req->m_dstrect = dstrect.moved(get_transform().m_offset) *
-                   get_transform().m_scale;
+  req->m_srcrect = clip_src_rect(srcrect, dst, get_transform().m_clip);
+  req->m_dstrect = dst.clipped(get_transform().m_clip);
   req->m_angle = angle;
+
+  if (!req->m_srcrect.is_valid() || req->m_srcrect.is_null() ||
+      !req->m_dstrect.is_valid() || req->m_dstrect.is_null())
+  {
+    log_info << "Not rendering empty texture" << std::endl;
+    return;
+  }
 
   m_requests[layer].push_back(std::move(req));
 }
@@ -92,23 +146,32 @@ DrawingContext::draw_texture(const std::shared_ptr<Texture>& texture,
                              float angle, const Color& color,
                              const Renderer::Blend& blend, int layer)
 {
+  Rect dst = (dstrect.moved(get_transform().m_offset) * get_transform().m_scale);
+
   auto req = std::make_unique<TextureRequest>(*texture);
   req->m_color = color;
   req->m_blend = blend;
-  req->m_srcrect = srcrect;
-  req->m_dstrect = dstrect.moved(get_transform().m_offset) *
-                   get_transform().m_scale;
+  req->m_srcrect = clip_src_rect(srcrect, dst, get_transform().m_clip);
+  req->m_dstrect = dst.clipped(get_transform().m_clip);
   req->m_angle = angle;
   req->m_texture_ptr = texture;
+
+  if (!req->m_srcrect.is_valid() || req->m_srcrect.is_null() ||
+      !req->m_dstrect.is_valid() || req->m_dstrect.is_null())
+  {
+    log_info << "Not rendering empty custom texture" << std::endl;
+    return;
+  }
 
   m_requests[layer].push_back(std::move(req));
 }
 
 void
 DrawingContext::draw_text(const std::string& text, const Vector& pos,
-                Renderer::TextAlign align, const std::string& fontfile,
-                int size, const Color& color, const Renderer::Blend& blend,
-                int layer)
+                          Renderer::TextAlign align,
+                          const std::string& fontfile, int size,
+                          const Color& color, const Renderer::Blend& blend,
+                          int layer)
 {
   auto req = std::make_unique<TextRequest>();
   req->m_color = color;
@@ -118,6 +181,7 @@ DrawingContext::draw_text(const std::string& text, const Vector& pos,
   req->m_pos = pos - get_transform().m_offset;
   req->m_size = size;
   req->m_text = text;
+  req->m_clip = get_transform().m_clip;
 
   m_requests[layer].push_back(std::move(req));
 }

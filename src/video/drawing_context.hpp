@@ -36,14 +36,24 @@
 class DrawingContext final
 {
 public:
+  static Rect clip_src_rect(const Rect& src, const Rect& dst, const Rect& clip);
+
+public:
   class Transform final
   {
+    friend class DrawingContext;
+
   public:
     Transform();
 
-  public:
+    void move(const Vector& offset);
+    void scale(const Size& scale);
+    void clip(const Rect& rect);
+
+  private:
     Vector m_offset;
     Size m_scale;
+    Rect m_clip; //< TODO: Implement clipping for hte transform
   };
 
   /**
@@ -112,6 +122,7 @@ public:
     int m_size;
     Vector m_pos;
     Renderer::TextAlign m_align;
+    Rect m_clip;
   };
 
 public:
