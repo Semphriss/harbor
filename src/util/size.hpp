@@ -34,6 +34,7 @@ public:
   Size operator*(float f) const;
   Size operator/(float f) const;
   Size operator/(const Size s) const;
+  Size& operator*=(float f);
   Size& operator*=(const Size& s);
   Size operator+(const Size& s) const;
   bool operator==(const Size& v) const;

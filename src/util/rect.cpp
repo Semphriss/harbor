@@ -63,6 +63,44 @@ Rect::move(const Vector& v)
   return *this;
 }
 
+Rect&
+Rect::clip(const Rect& rect)
+{
+  x1 = std::max(x1, rect.x1);
+  y1 = std::max(y1, rect.y1);
+  x2 = std::min(x2, rect.x2);
+  y2 = std::min(y2, rect.y2);
+  return *this;
+}
+
+Rect&
+Rect::set_x1(float x1)
+{
+  this->x1 = x1;
+  return *this;
+}
+
+Rect&
+Rect::set_x2(float x2)
+{
+  this->x2 = x2;
+  return *this;
+}
+
+Rect&
+Rect::set_y1(float y1)
+{
+  this->y1 = y1;
+  return *this;
+}
+
+Rect&
+Rect::set_y2(float y2)
+{
+  this->y2 = y2;
+  return *this;
+}
+
 float
 Rect::width() const
 {
@@ -105,10 +143,35 @@ Rect::mid() const
   return Vector((x1 + x2) / 2.f, (y1 + y2) / 2.f);
 }
 
+Size
+Rect::size() const
+{
+  return Size(width(), height());
+}
+
 bool
 Rect::contains(const Vector& point) const
 {
   return point.x >= x1 && point.x <= x2 && point.y >= y1 && point.y <= y2;
+}
+
+bool
+Rect::is_null() const
+{
+  return x1 == 0 && y1 == 0 && x2 == 0 && y2 == 0;
+}
+
+bool
+Rect::is_valid() const
+{
+  return x1 < x2 && y1 < y2;
+}
+
+Rect
+Rect::clipped(const Rect& rect) const
+{
+  return Rect(std::max(x1, rect.x1), std::max(y1, rect.y1),
+              std::min(x2, rect.x2), std::min(y2, rect.y2));
 }
 
 Rect
@@ -124,7 +187,38 @@ Rect::moved(const Vector& v) const
 }
 
 Rect
+Rect::with_x1(float x1) const
+{
+  return Rect(*this).set_x1(x1);
+}
+
+Rect
+Rect::with_x2(float x2) const
+{
+  return Rect(*this).set_x2(x2);
+}
+
+Rect
+Rect::with_y1(float y1) const
+{
+  return Rect(*this).set_y1(y1);
+}
+
+Rect
+Rect::with_y2(float y2) const
+{
+  return Rect(*this).set_y2(y2);
+}
+
+
+Rect
 Rect::operator*(const Size& s) const
 {
   return Rect(Vector(x1, y1), Size(width(), height()) * s);
+}
+
+bool
+Rect::operator==(const Rect& rect) const
+{
+  return x1 == rect.x1 && y1 == rect.y1 && x2 == rect.x2 && y2 == rect.y2;
 }

@@ -67,6 +67,14 @@ Size::operator/(const Size s) const
 }
 
 Size&
+Size::operator*=(float f)
+{
+  w *= f;
+  h *= f;
+  return *this;
+}
+
+Size&
 Size::operator*=(const Size& s)
 {
   w *= s.w;
