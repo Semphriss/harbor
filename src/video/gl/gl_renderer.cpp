@@ -217,6 +217,30 @@ GLRenderer::draw_text(const std::string& text, const Vector& pos,
 }
 
 void
+GLRenderer::draw_line(const Vector& p1, const Vector& p2, const Color& color,
+                      const Blend& blend)
+{
+  if (!is_drawing())
+  {
+    throw std::runtime_error("Call to GLRenderer::draw_filled_rect while not "
+                             "drawing");
+  }
+
+  glEnable(GL_BLEND);
+  set_gl_blend(blend);
+
+  glBegin(GL_LINES);
+
+  glColor4f(color.r, color.g, color.b, color.a);
+  glVertex2f(p1.x, p1.y);
+  glVertex2f(p2.x, p2.y);
+
+  glEnd();
+
+  glDisable(GL_BLEND);
+}
+
+void
 GLRenderer::start_draw(Texture* texture)
 {
   Renderer::start_draw();

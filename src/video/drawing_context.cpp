@@ -90,6 +90,12 @@ DrawingContext::TextRequest::render(Renderer& renderer) const
                      m_blend);
 }
 
+void
+DrawingContext::LineRequest::render(Renderer& renderer) const
+{
+  renderer.draw_line(m_p1, m_p2, m_color, m_blend);
+}
+
 DrawingContext::DrawingContext(Renderer& renderer) :
   m_renderer(renderer)
 {
@@ -182,6 +188,20 @@ DrawingContext::draw_text(const std::string& text, const Vector& pos,
   req->m_size = size;
   req->m_text = text;
   req->m_clip = get_transform().m_clip;
+
+  m_requests[layer].push_back(std::move(req));
+}
+
+void
+DrawingContext::draw_line(const Vector& p1, const Vector& p2,
+                          const Color& color, const Renderer::Blend& blend,
+                          int layer)
+{
+  auto req = std::make_unique<LineRequest>();
+  req->m_color = color;
+  req->m_blend = blend;
+  req->m_p1 = p1;
+  req->m_p2 = p2;
 
   m_requests[layer].push_back(std::move(req));
 }

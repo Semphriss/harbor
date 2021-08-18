@@ -122,6 +122,9 @@ SDLRenderer::draw_text(const std::string& text, const Vector& pos,
                              "drawing");
   }
 
+  if (text.empty())
+    return;
+
   auto& font = Font::get_font(fontfile, size);
 
   SDL_Surface* surface = get_font_surface(font, text);
@@ -198,6 +201,26 @@ SDLRenderer::draw_text(const std::string& text, const Vector& pos,
   dst.h = dstrect.height();
 
   SDL_RenderCopy(m_sdl_renderer, texture, &src, &dst);
+}
+
+void
+SDLRenderer::draw_line(const Vector& p1, const Vector& p2, const Color& color,
+                       const Blend& blend)
+{
+  if (!is_drawing())
+  {
+    throw std::runtime_error("Call to SDLRenderer::draw_line while not "
+                             "drawing");
+  }
+
+  SDL_SetRenderDrawColor(m_sdl_renderer,
+                         static_cast<Uint8>(color.r * 255.f),
+                         static_cast<Uint8>(color.g * 255.f),
+                         static_cast<Uint8>(color.b * 255.f),
+                         static_cast<Uint8>(color.a * 255.f));
+  SDL_SetRenderDrawBlendMode(m_sdl_renderer, static_cast<SDL_BlendMode>(blend));
+
+  SDL_RenderDrawLineF(m_sdl_renderer, p1.x, p1.y, p2.x, p2.y);
 }
 
 void

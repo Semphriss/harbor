@@ -125,6 +125,22 @@ public:
     Rect m_clip;
   };
 
+  /**
+   * Holds the data to perform a Line request on a Renderer.
+   */
+  class LineRequest final :
+    public DrawRequest
+  {
+  public:
+    LineRequest() = default;
+
+    virtual void render(Renderer& renderer) const override;
+
+  public:
+    Vector m_p1;
+    Vector m_p2;
+  };
+
 public:
   DrawingContext() = delete;
   DrawingContext(Renderer& renderer);
@@ -141,6 +157,8 @@ public:
                  Renderer::TextAlign align, const std::string& fontfile,
                  int size, const Color& color, const Renderer::Blend& blend,
                  int layer);
+  void draw_line(const Vector& p1, const Vector& p2, const Color& color,
+                 const Renderer::Blend& blend, int layer);
   void render(Texture* texture = nullptr) const;
   void clear();
   void push_transform();
