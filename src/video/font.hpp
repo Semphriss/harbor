@@ -37,9 +37,6 @@ public:
   static Font& get_font(const std::string& file, int size);
 
 private:
-  static std::unique_ptr<Font> make_unique(const std::string& file, int size);
-
-private:
   static std::vector<std::unique_ptr<Font>> s_fonts;
 
 public:
