@@ -71,8 +71,11 @@ public:
                             const Rect& dstrect, float angle,
                             const Color& color, const Blend& blend) = 0;
   virtual void draw_text(const std::string& text, const Vector& pos,
-                         TextAlign align, const std::string& fontfile, int size,
+                         const Rect& clip, TextAlign align,
+                         const std::string& fontfile, int size,
                          const Color& color, const Blend& blend) = 0;
+  virtual void draw_line(const Vector& p1, const Vector& p2, const Color& color,
+                         const Blend& blend) = 0;
   virtual void start_draw(Texture* texture = nullptr);
   virtual void end_draw();
 

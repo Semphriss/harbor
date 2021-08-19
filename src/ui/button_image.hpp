@@ -14,36 +14,37 @@
 //  You should have received a copy of the GNU Lesser General Public License
 //  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#ifndef _HEADER_HARBOR_UTIL_SIZE_HPP
-#define _HEADER_HARBOR_UTIL_SIZE_HPP
+#ifndef _HEADER_HARBOR_UI_BUTTONIMAGE_HPP
+#define _HEADER_HARBOR_UI_BUTTONIMAGE_HPP
 
-#include <ostream>
+#include "ui/button.hpp"
 
-class Vector;
-
-class Size final
+class ButtonImage :
+  public Button
 {
 public:
-  Size();
-  Size(float _w, float _h);
-  Size(const Vector& v);
-
-  Vector vector() const;
-
-  Size operator*(const Size& s) const;
-  Size operator*(float f) const;
-  Size operator/(float f) const;
-  Size operator/(const Size s) const;
-  Size& operator*=(float f);
-  Size& operator*=(const Size& s);
-  Size operator+(const Size& s) const;
-  bool operator==(const Size& v) const;
-  bool operator!=(const Size& v) const;
-
-  friend std::ostream& operator<<(std::ostream& out, const Size& s);
+  enum class Scaling {
+    NONE,
+    STRETCH,
+    CONTAIN,
+    COVER
+  };
 
 public:
-  float w, h;
+  ButtonImage(const std::string image, Scaling scaling,
+              std::function<void(int)> on_click, int btnmask, bool onbtnup,
+              int layer, const Rect& rect, const ThemeSet& theme,
+              Container* parent);
+
+  virtual void draw(DrawingContext& context) const override;
+
+private:
+  std::string m_image;
+  Scaling m_scaling;
+
+private:
+  ButtonImage(const ButtonImage&) = delete;
+  ButtonImage& operator=(const ButtonImage&) = delete;
 };
 
 #endif

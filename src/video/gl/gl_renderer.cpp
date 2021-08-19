@@ -121,7 +121,8 @@ GLRenderer::draw_texture(const Texture& texture, const Rect& srcrect,
 
 void
 GLRenderer::draw_text(const std::string& text, const Vector& pos,
-                       TextAlign align, const std::string& fontfile, int size,
+                       const Rect& clip, TextAlign align,
+                       const std::string& fontfile, int size,
                        const Color& color, const Blend& blend)
 {
   if (!is_drawing())
@@ -213,6 +214,30 @@ GLRenderer::draw_text(const std::string& text, const Vector& pos,
 
   SDL_FreeSurface(surface);
   SDL_FreeSurface(image);
+}
+
+void
+GLRenderer::draw_line(const Vector& p1, const Vector& p2, const Color& color,
+                      const Blend& blend)
+{
+  if (!is_drawing())
+  {
+    throw std::runtime_error("Call to GLRenderer::draw_filled_rect while not "
+                             "drawing");
+  }
+
+  glEnable(GL_BLEND);
+  set_gl_blend(blend);
+
+  glBegin(GL_LINES);
+
+  glColor4f(color.r, color.g, color.b, color.a);
+  glVertex2f(p1.x, p1.y);
+  glVertex2f(p2.x, p2.y);
+
+  glEnd();
+
+  glDisable(GL_BLEND);
 }
 
 void

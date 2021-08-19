@@ -36,14 +36,24 @@
 class DrawingContext final
 {
 public:
+  static Rect clip_src_rect(const Rect& src, const Rect& dst, const Rect& clip);
+
+public:
   class Transform final
   {
+    friend class DrawingContext;
+
   public:
     Transform();
 
-  public:
+    void move(const Vector& offset);
+    void scale(const Size& scale);
+    void clip(const Rect& rect);
+
+  private:
     Vector m_offset;
     Size m_scale;
+    Rect m_clip; //< TODO: Implement clipping for hte transform
   };
 
   /**
@@ -112,6 +122,23 @@ public:
     int m_size;
     Vector m_pos;
     Renderer::TextAlign m_align;
+    Rect m_clip;
+  };
+
+  /**
+   * Holds the data to perform a Line request on a Renderer.
+   */
+  class LineRequest final :
+    public DrawRequest
+  {
+  public:
+    LineRequest() = default;
+
+    virtual void render(Renderer& renderer) const override;
+
+  public:
+    Vector m_p1;
+    Vector m_p2;
   };
 
 public:
@@ -130,6 +157,8 @@ public:
                  Renderer::TextAlign align, const std::string& fontfile,
                  int size, const Color& color, const Renderer::Blend& blend,
                  int layer);
+  void draw_line(const Vector& p1, const Vector& p2, const Color& color,
+                 const Renderer::Blend& blend, int layer);
   void render(Texture* texture = nullptr) const;
   void clear();
   void push_transform();

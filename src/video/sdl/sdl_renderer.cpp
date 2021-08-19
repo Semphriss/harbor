@@ -20,6 +20,7 @@
 
 #include "SDL.h"
 
+#include "video/drawing_context.hpp"
 #include "video/font.hpp"
 #include "video/sdl/sdl_texture.hpp"
 #include "video/sdl/sdl_window.hpp"
@@ -111,7 +112,8 @@ SDLRenderer::draw_texture(const Texture& texture, const Rect& srcrect,
 
 void
 SDLRenderer::draw_text(const std::string& text, const Vector& pos,
-                       TextAlign align, const std::string& fontfile, int size,
+                       const Rect& clip, TextAlign align,
+                       const std::string& fontfile, int size,
                        const Color& color, const Blend& blend)
 {
   if (!is_drawing())
@@ -119,6 +121,9 @@ SDLRenderer::draw_text(const std::string& text, const Vector& pos,
     throw std::runtime_error("Call to SDLRenderer::draw_text while not "
                              "drawing");
   }
+
+  if (text.empty())
+    return;
 
   auto& font = Font::get_font(fontfile, size);
 
@@ -143,7 +148,7 @@ SDLRenderer::draw_text(const std::string& text, const Vector& pos,
       break;
 
     case TextAlign::TOP_MID:
-      dst.x -= surface->w / 2;
+      dst.x -= surface->w / 2.f;
       break;
 
     case TextAlign::TOP_RIGHT:
@@ -151,17 +156,17 @@ SDLRenderer::draw_text(const std::string& text, const Vector& pos,
       break;
 
     case TextAlign::MID_LEFT:
-      dst.y -= surface->h / 2;
+      dst.y -= surface->h / 2.f;
       break;
 
     case TextAlign::CENTER:
-      dst.x -= surface->w / 2;
-      dst.y -= surface->h / 2;
+      dst.x -= surface->w / 2.f;
+      dst.y -= surface->h / 2.f;
       break;
 
     case TextAlign::MID_RIGHT:
       dst.x -= surface->w;
-      dst.y -= surface->h / 2;
+      dst.y -= surface->h / 2.f;
       break;
 
     case TextAlign::BOTTOM_LEFT:
@@ -169,7 +174,7 @@ SDLRenderer::draw_text(const std::string& text, const Vector& pos,
       break;
 
     case TextAlign::BOTTOM_MID:
-      dst.x -= surface->w / 2;
+      dst.x -= surface->w / 2.f;
       dst.y -= surface->h;
       break;
 
@@ -179,7 +184,43 @@ SDLRenderer::draw_text(const std::string& text, const Vector& pos,
       break;
   }
 
-  SDL_RenderCopy(m_sdl_renderer, texture, nullptr, &dst);
+  Rect srcrect(Vector(), Size(surface->w, surface->h));
+  Rect dstrect(Vector(dst.x, dst.y), Size(dst.w, dst.h));
+  srcrect = DrawingContext::clip_src_rect(srcrect, dstrect, clip);
+
+  SDL_Rect src;
+  src.x = static_cast<int>(srcrect.x1);
+  src.y = static_cast<int>(srcrect.y1);
+  src.w = static_cast<int>(srcrect.width());
+  src.h = static_cast<int>(srcrect.height());
+
+  dstrect.clip(clip);
+  dst.x = dstrect.x1;
+  dst.y = dstrect.y1;
+  dst.w = dstrect.width();
+  dst.h = dstrect.height();
+
+  SDL_RenderCopy(m_sdl_renderer, texture, &src, &dst);
+}
+
+void
+SDLRenderer::draw_line(const Vector& p1, const Vector& p2, const Color& color,
+                       const Blend& blend)
+{
+  if (!is_drawing())
+  {
+    throw std::runtime_error("Call to SDLRenderer::draw_line while not "
+                             "drawing");
+  }
+
+  SDL_SetRenderDrawColor(m_sdl_renderer,
+                         static_cast<Uint8>(color.r * 255.f),
+                         static_cast<Uint8>(color.g * 255.f),
+                         static_cast<Uint8>(color.b * 255.f),
+                         static_cast<Uint8>(color.a * 255.f));
+  SDL_SetRenderDrawBlendMode(m_sdl_renderer, static_cast<SDL_BlendMode>(blend));
+
+  SDL_RenderDrawLineF(m_sdl_renderer, p1.x, p1.y, p2.x, p2.y);
 }
 
 void

@@ -81,6 +81,10 @@ float
 Font::get_text_width(const std::string& text) const
 {
   SDL_Surface* s = get_sdl_surface(text);
+
+  if (!s)
+    return 0.f;
+
   return static_cast<float>(s->w);
 }
 
@@ -88,5 +92,9 @@ float
 Font::get_text_height(const std::string& text) const
 {
   SDL_Surface* s = get_sdl_surface(text);
+
+  if (!s)
+    return 0.f;
+
   return static_cast<float>(s->h);
 }

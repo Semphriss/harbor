@@ -14,36 +14,38 @@
 //  You should have received a copy of the GNU Lesser General Public License
 //  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#ifndef _HEADER_HARBOR_UTIL_SIZE_HPP
-#define _HEADER_HARBOR_UTIL_SIZE_HPP
+#ifndef _HEADER_HARBOR_UI_BUTTON_HPP
+#define _HEADER_HARBOR_UI_BUTTON_HPP
 
-#include <ostream>
+#include "ui/control.hpp"
 
-class Vector;
+#include <functional>
 
-class Size final
+class Button :
+  public Control
 {
 public:
-  Size();
-  Size(float _w, float _h);
-  Size(const Vector& v);
+  Button(std::function<void(int)> on_click, int btnmask, bool onbtnup,
+         int layer, const Rect& rect, const ThemeSet& theme, Container* parent);
 
-  Vector vector() const;
+  virtual bool event(const SDL_Event& event) override;
+  virtual void update(float dt_sec) override;
+  virtual void draw(DrawingContext& context) const override;
 
-  Size operator*(const Size& s) const;
-  Size operator*(float f) const;
-  Size operator/(float f) const;
-  Size operator/(const Size s) const;
-  Size& operator*=(float f);
-  Size& operator*=(const Size& s);
-  Size operator+(const Size& s) const;
-  bool operator==(const Size& v) const;
-  bool operator!=(const Size& v) const;
+protected:
+  const Theme& get_current_theme() const;
 
-  friend std::ostream& operator<<(std::ostream& out, const Size& s);
+protected:
+  std::function<void(int)> m_on_click;
+  Vector m_mouse_pos;
+  /** 1 = left; 2 = right; 4 = middle. All OR'd together. */
+  int m_mouse_button_pressed;
+  int m_btnmask;
+  bool m_onbtnup;
 
-public:
-  float w, h;
+private:
+  Button(const Button&) = delete;
+  Button& operator=(const Button&) = delete;
 };
 
 #endif

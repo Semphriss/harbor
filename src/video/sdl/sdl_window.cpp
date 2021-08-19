@@ -218,7 +218,7 @@ SDLWindow::set_status(Status status)
         std::string error(SDL_GetError());
         throw std::runtime_error("Could not restore window: " + error);
       }
-      SDL_MaximizeWindow(m_sdl_window);
+      SDL_MinimizeWindow(m_sdl_window);
       break;
 
     case Status::MAXIMIZED:
@@ -227,7 +227,7 @@ SDLWindow::set_status(Status status)
         std::string error(SDL_GetError());
         throw std::runtime_error("Could not restore window: " + error);
       }
-      SDL_MinimizeWindow(m_sdl_window);
+      SDL_MaximizeWindow(m_sdl_window);
       break;
 
     case Status::FULLSCREEN:

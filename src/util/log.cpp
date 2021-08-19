@@ -17,6 +17,7 @@
 #include "util/log.hpp"
 
 std::ostream* Log::s_log = &std::cerr;
+Log::Level Log::s_level = Log::Level::WARN;
 
 std::ostream&
 Log::log(const char* level, const char* file, int line)

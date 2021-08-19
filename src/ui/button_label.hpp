@@ -14,36 +14,27 @@
 //  You should have received a copy of the GNU Lesser General Public License
 //  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#ifndef _HEADER_HARBOR_UTIL_SIZE_HPP
-#define _HEADER_HARBOR_UTIL_SIZE_HPP
+#ifndef _HEADER_HARBOR_UI_BUTTONLABEL_HPP
+#define _HEADER_HARBOR_UI_BUTTONLABEL_HPP
 
-#include <ostream>
+#include "ui/button.hpp"
 
-class Vector;
-
-class Size final
+class ButtonLabel :
+  public Button
 {
 public:
-  Size();
-  Size(float _w, float _h);
-  Size(const Vector& v);
+  ButtonLabel(const std::string label, std::function<void(int)> on_click,
+              int btnmask, bool onbtnup, int layer, const Rect& rect,
+              const ThemeSet& theme, Container* parent);
 
-  Vector vector() const;
+  virtual void draw(DrawingContext& context) const override;
 
-  Size operator*(const Size& s) const;
-  Size operator*(float f) const;
-  Size operator/(float f) const;
-  Size operator/(const Size s) const;
-  Size& operator*=(float f);
-  Size& operator*=(const Size& s);
-  Size operator+(const Size& s) const;
-  bool operator==(const Size& v) const;
-  bool operator!=(const Size& v) const;
+private:
+  std::string m_label;
 
-  friend std::ostream& operator<<(std::ostream& out, const Size& s);
-
-public:
-  float w, h;
+private:
+  ButtonLabel(const ButtonLabel&) = delete;
+  ButtonLabel& operator=(const ButtonLabel&) = delete;
 };
 
 #endif

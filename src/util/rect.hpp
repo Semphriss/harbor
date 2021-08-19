@@ -29,6 +29,11 @@ public:
   Rect(float _x1, float _y1, float _x2, float _y2);
 
   Rect& move(const Vector& v);
+  Rect& clip(const Rect& rect);
+  Rect& set_x1(float x1);
+  Rect& set_x2(float x2);
+  Rect& set_y1(float y1);
+  Rect& set_y2(float y2);
 
   float width() const;
   float height() const;
@@ -37,12 +42,21 @@ public:
   Vector bot_lft() const;
   Vector bot_rgt() const;
   Vector mid() const;
+  Size size() const;
   bool contains(const Vector& point) const;
+  bool is_null() const;
+  bool is_valid() const;
 
+  Rect clipped(const Rect& rect) const;
   Rect grown(float f) const;
   Rect moved(const Vector& v) const;
+  Rect with_x1(float x1) const;
+  Rect with_x2(float x2) const;
+  Rect with_y1(float y1) const;
+  Rect with_y2(float y2) const;
 
   Rect operator*(const Size& s) const;
+  bool operator==(const Rect& rect) const;
 
 public:
   float x1, y1, x2, y2;

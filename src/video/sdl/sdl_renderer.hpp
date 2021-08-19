@@ -35,8 +35,11 @@ public:
                             const Rect& dstrect, float angle,
                             const Color& color, const Blend& blend) override;
   virtual void draw_text(const std::string& text, const Vector& pos,
-                         TextAlign align, const std::string& fontfile, int size,
+                         const Rect& clip, TextAlign align,
+                         const std::string& fontfile, int size,
                          const Color& color, const Blend& blend) override;
+  virtual void draw_line(const Vector& p1, const Vector& p2, const Color& color,
+                         const Blend& blend) override;
   virtual void start_draw(Texture* texture = nullptr) override;
   virtual void end_draw() override;
 

@@ -14,36 +14,26 @@
 //  You should have received a copy of the GNU Lesser General Public License
 //  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#ifndef _HEADER_HARBOR_UTIL_SIZE_HPP
-#define _HEADER_HARBOR_UTIL_SIZE_HPP
+#include "ui/button_label.hpp"
 
-#include <ostream>
+#include "video/drawing_context.hpp"
 
-class Vector;
-
-class Size final
+ButtonLabel::ButtonLabel(const std::string label,
+                         std::function<void(int)> on_click, int btnmask, 
+                         bool onbtnup, int layer, const Rect& rect,
+                         const ThemeSet& theme, Container* parent) :
+  Button(on_click, btnmask, onbtnup, layer, rect, theme, parent),
+  m_label(label)
 {
-public:
-  Size();
-  Size(float _w, float _h);
-  Size(const Vector& v);
+}
 
-  Vector vector() const;
+void
+ButtonLabel::draw(DrawingContext& context) const
+{
+  Button::draw(context);
 
-  Size operator*(const Size& s) const;
-  Size operator*(float f) const;
-  Size operator/(float f) const;
-  Size operator/(const Size s) const;
-  Size& operator*=(float f);
-  Size& operator*=(const Size& s);
-  Size operator+(const Size& s) const;
-  bool operator==(const Size& v) const;
-  bool operator!=(const Size& v) const;
-
-  friend std::ostream& operator<<(std::ostream& out, const Size& s);
-
-public:
-  float w, h;
-};
-
-#endif
+  const auto& theme = get_current_theme();
+  context.draw_text(m_label, m_rect.mid(), Renderer::TextAlign::CENTER,
+                    theme.font, theme.fontsize, theme.fg_color, theme.fg_blend,
+                    m_layer);
+}
