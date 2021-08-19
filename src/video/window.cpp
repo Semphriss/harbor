@@ -26,11 +26,15 @@ Window::create_window(VideoSystem vs)
 {
   switch(vs)
   {
+#if HARBOR_USE_VIDEO_SDL
     case VideoSystem::SDL:
       return std::make_unique<SDLWindow>();
+#endif
 
+#if HARBOR_USE_VIDEO_OPENGL
     case VideoSystem::GL:
       return std::make_unique<GLWindow>();
+#endif
 
     default:
       return nullptr;

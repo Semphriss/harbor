@@ -37,8 +37,12 @@ public:
   };
 
   enum class VideoSystem {
+#if HARBOR_USE_VIDEO_SDL
     SDL,
-    GL
+#endif
+#if HARBOR_USE_VIDEO_OPENGL
+    GL,
+#endif
   };
 
 public:
