@@ -22,9 +22,6 @@
 #include <memory>
 #include <vector>
 
-class DrawingContext;
-union SDL_Event;
-
 class Container :
   public Control
 {
@@ -32,20 +29,21 @@ public:
   Container(bool bufferize_draw, int layer, const Rect& rect,
             const ThemeSet& theme, Container* parent);
 
-  virtual void event(const SDL_Event& event) override;
+  virtual bool event(const SDL_Event& event) override;
   virtual void update(float dt_sec) override;
   virtual void draw(DrawingContext& context) const override;
-
   virtual void set_focused(bool focused, bool call_parent = true) override;
 
-  Control* get_focused_child() const;
+  /** This function cannot be const unless it returns a const Control */
+  virtual Control* get_focused_child();
+  virtual void set_focus(Control& child, bool focused);
+  virtual void advance_focus(bool forward = true);
+
   void add_child(std::unique_ptr<Control> child);
-  void set_focus(Control& child, bool focused);
-  void advance_focus(bool forward = true);
 
   template<class T, typename... Args> T& add(Args&&... args);
 
-private:
+protected:
   std::vector<std::unique_ptr<Control>> m_children;
   int m_focus_index;
   bool m_bufferize_draw;

@@ -14,38 +14,41 @@
 //  You should have received a copy of the GNU Lesser General Public License
 //  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#ifndef _HEADER_HARBOR_UI_BUTTON_HPP
-#define _HEADER_HARBOR_UI_BUTTON_HPP
+#ifndef _HEADER_HARBOR_UI_CONTAINERSCROLL_HPP
+#define _HEADER_HARBOR_UI_CONTAINERSCROLL_HPP
 
-#include "ui/control.hpp"
+#include "ui/container.hpp"
 
-#include <functional>
+#include "ui/scrollbar.hpp"
+#include "util/size.hpp"
 
-class Button :
-  public Control
+class Size;
+
+class ContainerScroll :
+  public Container
 {
 public:
-  Button(std::function<void(int)> on_click, int btnmask, bool onbtnup,
-         int layer, const Rect& rect, const ThemeSet& theme, Container* parent);
+  ContainerScroll(const Size& contents_size, const ThemeSet& scroll_theme,
+                  bool bufferize_draw, int layer, const Rect& rect,
+                  const ThemeSet& theme, Container* parent);
 
   virtual bool event(const SDL_Event& event) override;
-  virtual void update(float dt_sec) override;
   virtual void draw(DrawingContext& context) const override;
+  virtual void set_focused(bool focused, bool call_parent = true) override;
 
-protected:
-  const Theme& get_current_theme() const;
-
-protected:
-  std::function<void(int)> m_on_click;
-  Vector m_mouse_pos;
-  /** 1 = left; 2 = right; 4 = middle. All OR'd together. */
-  int m_mouse_button_pressed;
-  int m_btnmask;
-  bool m_onbtnup;
+  virtual Control* get_focused_child() override;
+  virtual void set_focus(Control& child, bool focused) override;
+  virtual void advance_focus(bool forward = true) override;
 
 private:
-  Button(const Button&) = delete;
-  Button& operator=(const Button&) = delete;
+  Size m_contents_size;
+  Scrollbar m_scroll_v;
+  Scrollbar m_scroll_h;
+  int m_selected_scrollbar;
+
+private:
+  ContainerScroll(const ContainerScroll&) = delete;
+  ContainerScroll& operator=(const ContainerScroll&) = delete;
 };
 
 #endif

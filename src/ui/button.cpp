@@ -33,7 +33,7 @@ Button::Button(std::function<void(int)> on_click, int btnmask, bool onbtnup,
 {
 }
 
-void
+bool
 Button::event(const SDL_Event& event)
 {
   switch (event.type)
@@ -66,7 +66,8 @@ Button::event(const SDL_Event& event)
 
       m_mouse_button_pressed &= ~mask;
 
-      if (m_rect.contains(Vector(event.button.x, event.button.y)))
+      bool on_this = m_rect.contains(Vector(event.button.x, event.button.y));
+      if (on_this)
       {
         set_focused(true, true);
         if (m_onbtnup && (m_btnmask & mask))
@@ -75,7 +76,7 @@ Button::event(const SDL_Event& event)
         }
       }
 
-      break;
+      return on_this;
     }
 
     case SDL_MOUSEBUTTONDOWN:
@@ -106,7 +107,8 @@ Button::event(const SDL_Event& event)
 
       m_mouse_button_pressed |= mask;
 
-      if (m_rect.contains(Vector(event.button.x, event.button.y)))
+      bool on_this = m_rect.contains(Vector(event.button.x, event.button.y));
+      if (on_this)
       {
         set_focused(true, true);
         if (!m_onbtnup && (m_btnmask & mask))
@@ -115,30 +117,52 @@ Button::event(const SDL_Event& event)
         }
       }
 
-      break;
+      return on_this;
     }
 
     case SDL_KEYDOWN:
-      if (is_focused() && event.key.keysym.sym == SDLK_SPACE && !m_onbtnup)
+      if (is_focused() && !m_onbtnup)
       {
-        m_on_click(0);
+        switch (event.key.keysym.sym)
+        {
+          case SDLK_SPACE:
+          case SDLK_RETURN:
+          case SDLK_RETURN2:
+            m_on_click(0);
+            break;
+          
+          default:
+            break;
+        }
       }
-      break;
+      return is_focused();
 
     case SDL_KEYUP:
-      if (is_focused() && event.key.keysym.sym == SDLK_SPACE && m_onbtnup)
+      if (is_focused() && m_onbtnup)
       {
-        m_on_click(0);
+        switch (event.key.keysym.sym)
+        {
+          case SDLK_SPACE:
+          case SDLK_RETURN:
+          case SDLK_RETURN2:
+            m_on_click(0);
+            break;
+          
+          default:
+            break;
+        }
       }
-      break;
+      return is_focused();
 
     case SDL_MOUSEMOTION:
       m_mouse_pos = Vector(event.motion.x, event.motion.y);
-      break;
+      return false;
 
     default:
       break;
   }
+
+  return false;
 }
 
 void
@@ -150,11 +174,11 @@ void
 Button::draw(DrawingContext& context) const
 {
   const auto& theme = get_current_theme();
-  context.draw_filled_rect(m_rect, theme.bg_color, Renderer::Blend::BLEND, 0);
-  context.draw_filled_rect(m_rect.grown(1).moved({0,0}), Color(0,0,0,0.1), Renderer::Blend::BLEND, -1);
-  context.draw_filled_rect(m_rect.grown(1).moved({0,-1}), Color(0,0,0,0.1), Renderer::Blend::BLEND, -1);
-  context.draw_filled_rect(m_rect.grown(1).moved({0,-2}), Color(0,0,0,0.1), Renderer::Blend::BLEND, -1);
-  context.draw_filled_rect(m_rect.grown(1).moved({0,-3}), Color(0,0,0,0.1), Renderer::Blend::BLEND, -1);
+  context.draw_filled_rect(m_rect.grown(1).moved({0,0}), Color(0,0,0,0.1*theme.bg_color.a), Renderer::Blend::BLEND, m_layer);
+  context.draw_filled_rect(m_rect.grown(1).moved({0,-1}), Color(0,0,0,0.1*theme.bg_color.a), Renderer::Blend::BLEND, m_layer);
+  context.draw_filled_rect(m_rect.grown(1).moved({0,-2}), Color(0,0,0,0.1*theme.bg_color.a), Renderer::Blend::BLEND, m_layer);
+  context.draw_filled_rect(m_rect.grown(1).moved({0,-3}), Color(0,0,0,0.1*theme.bg_color.a), Renderer::Blend::BLEND, m_layer);
+  context.draw_filled_rect(m_rect, theme.bg_color, Renderer::Blend::BLEND, m_layer);
 }
 
 const Control::Theme&
@@ -165,7 +189,7 @@ Button::get_current_theme() const
 
   if (m_rect.contains(m_mouse_pos))
   {
-    if (m_mouse_button_pressed)
+    if (m_mouse_button_pressed & m_btnmask)
     {
       return m_theme.active;
     }

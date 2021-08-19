@@ -31,6 +31,10 @@ Control::Control(int layer, const Rect& rect, const ThemeSet& theme,
 {
 }
 
+Control::~Control()
+{
+}
+
 Control::ThemeSet&
 Control::get_theme()
 {

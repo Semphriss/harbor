@@ -67,8 +67,9 @@ public:
 
 public:
   Control(int layer, const Rect& rect, const ThemeSet& theme, Container* parent);
+  virtual ~Control();
 
-  virtual void event(const SDL_Event& event) = 0;
+  virtual bool event(const SDL_Event& event) = 0;
   virtual void update(float dt_sec) = 0;
   virtual void draw(DrawingContext& context) const = 0;
 

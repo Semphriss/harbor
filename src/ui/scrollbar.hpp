@@ -14,38 +14,53 @@
 //  You should have received a copy of the GNU Lesser General Public License
 //  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#ifndef _HEADER_HARBOR_UI_BUTTON_HPP
-#define _HEADER_HARBOR_UI_BUTTON_HPP
+#ifndef _HEADER_HARBOR_UI_SCROLLBAR_HPP
+#define _HEADER_HARBOR_UI_SCROLLBAR_HPP
 
 #include "ui/control.hpp"
 
 #include <functional>
 
-class Button :
+class Scrollbar :
   public Control
 {
 public:
-  Button(std::function<void(int)> on_click, int btnmask, bool onbtnup,
-         int layer, const Rect& rect, const ThemeSet& theme, Container* parent);
+  Scrollbar(std::function<void(float)> on_scroll, float cover, float total,
+            bool horizontal, int btnmask, int layer, const Rect& rect,
+            const ThemeSet& theme, Container* parent);
 
   virtual bool event(const SDL_Event& event) override;
   virtual void update(float dt_sec) override;
   virtual void draw(DrawingContext& context) const override;
 
-protected:
-  const Theme& get_current_theme() const;
+  void set_progress(float progress);
+  void set_cover(float cover);
+  void set_total(float total);
 
-protected:
-  std::function<void(int)> m_on_click;
+  float get_progress() const;
+  float get_cover() const;
+  float get_total() const;
+  bool is_valid() const;
+
+private:
+  const Theme& get_current_theme() const;
+  void adjust_bar();
+
+private:
+  std::function<void(float)> m_on_scroll;
   Vector m_mouse_pos;
   /** 1 = left; 2 = right; 4 = middle. All OR'd together. */
   int m_mouse_button_pressed;
   int m_btnmask;
-  bool m_onbtnup;
+  float m_progress;
+  float m_cover;
+  float m_total;
+  bool m_horizontal;
+  bool m_dragging;
 
 private:
-  Button(const Button&) = delete;
-  Button& operator=(const Button&) = delete;
+  Scrollbar(const Scrollbar&) = delete;
+  Scrollbar& operator=(const Scrollbar&) = delete;
 };
 
 #endif

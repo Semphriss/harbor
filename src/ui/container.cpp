@@ -30,7 +30,7 @@ Container::Container(bool bufferize_draw, int layer, const Rect& rect,
 {
 }
 
-void
+bool
 Container::event(const SDL_Event& event)
 {
   if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_TAB)
@@ -41,8 +41,7 @@ Container::event(const SDL_Event& event)
       Container* container = dynamic_cast<Container*>(ctrl);
       if (container)
       {
-        container->event(event);
-        return;
+        return container->event(event);
       }
     }
 
@@ -57,19 +56,23 @@ Container::event(const SDL_Event& event)
       {
         // Make sure it starts at the beginning/end according to the direction
         container->m_focus_index = -1;
-        container->event(event);
-        return;
+        return container->event(event);
       }
     }
 
-    return;
+    return true;
   }
 
+  bool executed_event = false;
   for (const auto& child : m_children)
   {
     assert_throw(child != nullptr, "Null control in container");
-    child->event(event);
+    executed_event = child->event(event);
+    if (executed_event)
+      break;
   }
+
+  return executed_event;
 }
 
 void
@@ -95,8 +98,6 @@ Container::draw(DrawingContext& context) const
 void
 Container::set_focused(bool focused, bool call_parent)
 {
-  Control::set_focused(focused, call_parent);
-
   if (!focused)
   {
     for (const auto& child : m_children)
@@ -120,10 +121,12 @@ Container::set_focused(bool focused, bool call_parent)
                                       std::to_string(m_children.size()) + ")");
     }
   }
+
+  Control::set_focused(focused, call_parent);
 }
 
 Control*
-Container::get_focused_child() const
+Container::get_focused_child()
 {
   if (m_focus_index >= 0 && m_focus_index < m_children.size())
   {
@@ -139,16 +142,15 @@ Container::get_focused_child() const
 }
 
 void
-Container::add_child(std::unique_ptr<Control> child)
-{
-  m_children.push_back(std::move(child));
-}
-
-void
 Container::set_focus(Control& child, bool focused)
 {
   if (child.is_focused() != focused)
+  {
     child.set_focused(focused, false);
+    log_info << "Called Container::set_focus for a child directly, and the "
+                "child did not already have that state; if possible, prefer "
+                "calling set_focused() on the child." << std::endl;
+  }
 
   if (focused)
   {
@@ -223,6 +225,12 @@ Container::advance_focus(bool forward)
   {
     m_children[m_focus_index]->set_focused(true, true);
   }
+}
+
+void
+Container::add_child(std::unique_ptr<Control> child)
+{
+  m_children.push_back(std::move(child));
 }
 
 #else

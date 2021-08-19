@@ -14,38 +14,37 @@
 //  You should have received a copy of the GNU Lesser General Public License
 //  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#ifndef _HEADER_HARBOR_UI_BUTTON_HPP
-#define _HEADER_HARBOR_UI_BUTTON_HPP
+#ifndef _HEADER_HARBOR_UI_BUTTONIMAGE_HPP
+#define _HEADER_HARBOR_UI_BUTTONIMAGE_HPP
 
-#include "ui/control.hpp"
+#include "ui/button.hpp"
 
-#include <functional>
-
-class Button :
-  public Control
+class ButtonImage :
+  public Button
 {
 public:
-  Button(std::function<void(int)> on_click, int btnmask, bool onbtnup,
-         int layer, const Rect& rect, const ThemeSet& theme, Container* parent);
+  enum class Scaling {
+    NONE,
+    STRETCH,
+    CONTAIN,
+    COVER
+  };
 
-  virtual bool event(const SDL_Event& event) override;
-  virtual void update(float dt_sec) override;
+public:
+  ButtonImage(const std::string image, Scaling scaling,
+              std::function<void(int)> on_click, int btnmask, bool onbtnup,
+              int layer, const Rect& rect, const ThemeSet& theme,
+              Container* parent);
+
   virtual void draw(DrawingContext& context) const override;
 
-protected:
-  const Theme& get_current_theme() const;
-
-protected:
-  std::function<void(int)> m_on_click;
-  Vector m_mouse_pos;
-  /** 1 = left; 2 = right; 4 = middle. All OR'd together. */
-  int m_mouse_button_pressed;
-  int m_btnmask;
-  bool m_onbtnup;
+private:
+  std::string m_image;
+  Scaling m_scaling;
 
 private:
-  Button(const Button&) = delete;
-  Button& operator=(const Button&) = delete;
+  ButtonImage(const ButtonImage&) = delete;
+  ButtonImage& operator=(const ButtonImage&) = delete;
 };
 
 #endif

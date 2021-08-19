@@ -19,12 +19,6 @@
 
 #include "ui/button.hpp"
 
-#include <functional>
-
-class Container;
-class DrawingContext;
-union SDL_Event;
-
 class ButtonLabel :
   public Button
 {
