@@ -30,9 +30,15 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/mk/cmake/")
 
+# ============================================================================
+#    General options
+# ----------------------------------------------------------------------------
+
+# Executable options
 option(HARBOR_BUILD_EXEC "Build an executable directly" ON)
 option(HARBOR_BUILD_TEST "Build a test suite" ON)
 
+# Dependency options
 option(HARBOR_USE_SCRIPTING "Compile the scripting engines" ON)
 option(HARBOR_USE_SCRIPTING_SQUIRREL "Compile Squirrel with Harbor" ON)
 option(HARBOR_USE_SCRIPTING_LUA "Compile Lua with Harbor" ON)
@@ -40,6 +46,7 @@ option(HARBOR_USE_VIDEO "Compile the video engines" ON)
 option(HARBOR_USE_VIDEO_SDL "Compile the SDL renderer with Harbor" ON)
 option(HARBOR_USE_VIDEO_OPENGL "Compile the OpenGL renderer with Harbor" ON)
 
+# Dependency options overrides
 if (NOT ${HARBOR_USE_SCRIPTING})
   set(HARBOR_USE_SCRIPTING_SQUIRREL OFF CACHE BOOL "Disabled because HARBOR_USE_SCRIPTING is off" FORCE)
   set(HARBOR_USE_SCRIPTING_LUA OFF CACHE BOOL "Disabled because HARBOR_USE_SCRIPTING is off" FORCE)
@@ -49,6 +56,11 @@ if (NOT ${HARBOR_USE_VIDEO})
   set(HARBOR_USE_VIDEO_OPENGL OFF CACHE BOOL "Disabled because HARBOR_USE_VIDEO is off" FORCE)
 endif()
 
+# ============================================================================
+#    Library and executable generation
+# ----------------------------------------------------------------------------
+
+# Main library
 file(GLOB_RECURSE HARBOR_LIB_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/*/*.cpp)
 list(SORT HARBOR_LIB_FILES)
 
@@ -82,6 +94,7 @@ target_compile_definitions(harbor_lib PUBLIC HARBOR_USE_SCRIPTING=$<BOOL:${HARBO
                                              HARBOR_USE_VIDEO_SDL=$<BOOL:${HARBOR_USE_VIDEO_SDL}>
                                              HARBOR_USE_VIDEO_OPENGL=$<BOOL:${HARBOR_USE_VIDEO_OPENGL}>)
 
+# Main executable
 if(HARBOR_BUILD_EXEC)
   add_executable(harbor ${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp)
   target_include_directories(harbor PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src/)
@@ -94,6 +107,7 @@ if(HARBOR_BUILD_EXEC)
                                            HARBOR_USE_VIDEO_OPENGL=$<BOOL:${HARBOR_USE_VIDEO_OPENGL}>)
 endif(HARBOR_BUILD_EXEC)
 
+# Test executable
 if(HARBOR_BUILD_TEST)
   file(GLOB_RECURSE HARBOR_TEST_FILES ${CMAKE_CURRENT_SOURCE_DIR}/tests/*/*.cpp)
   list(SORT HARBOR_TEST_FILES)
@@ -111,6 +125,10 @@ if(HARBOR_BUILD_TEST)
   endif()
 endif(HARBOR_BUILD_TEST)
 
+# ============================================================================
+#    Dependencies
+# ----------------------------------------------------------------------------
+
 if(HARBOR_BUILD_TEST)
   find_package(GTest)
   if(GTEST_FOUND)
@@ -125,7 +143,7 @@ if(HARBOR_BUILD_TEST)
   endif(GTEST_FOUND)
 endif(HARBOR_BUILD_TEST)
 
-if (${HARBOR_USE_SCRIPTING_LUA})
+if (HARBOR_USE_SCRIPTING_LUA)
   find_package(Lua)
   if(LUA_FOUND)
     message(STATUS "Using system libraries for LUA: ${LUA_LIBRARIES}")
@@ -184,7 +202,7 @@ else(SDL2_TTF_FOUND)
   add_dependencies(harbor_lib SDL2_ttf)
 endif(SDL2_TTF_FOUND)
 
-if (${HARBOR_USE_SCRIPTING_SQUIRREL})
+if (HARBOR_USE_SCRIPTING_SQUIRREL)
   # TODO
   #find_package(Squirrel)
   if(SQUIRREL_FOUND)
@@ -199,7 +217,7 @@ if (${HARBOR_USE_SCRIPTING_SQUIRREL})
   endif(SQUIRREL_FOUND)
 endif()
 
-if (${HARBOR_USE_VIDEO_OPENGL})
+if (HARBOR_USE_VIDEO_OPENGL)
   find_package(OpenGL REQUIRED)
   target_link_libraries(harbor_lib PUBLIC ${OPENGL_LIBRARIES})
 endif()
