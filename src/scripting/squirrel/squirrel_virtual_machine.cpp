@@ -22,23 +22,6 @@
 #include "scripting/scriptable.hpp"
 #include "util/log.hpp"
 
-/*
-SQInteger print_args(HSQUIRRELVM v)
-{
-  SQInteger nargs = sq_gettop(v); //number of arguments
-  sq_pushinteger(v,nargs); //push the number of arguments as return value
-  return 1; //1 because 1 value is returned
-}
-
-void expose_function_template(HSQUIRRELVM m_vm)
-{
-  sq_pushroottable(m_vm);
-  sq_pushstring(m_vm, "call_me", -1);
-  sq_newclosure(m_vm, print_args, 0); //create a new function
-  sq_newslot(m_vm, -3, SQFalse);
-  sq_pop(m_vm, 1); //pops the root table
-}*/
-
 SquirrelVirtualMachine* 
 SquirrelVirtualMachine::get_vm(const HSQUIRRELVM vm)
 {
@@ -104,6 +87,22 @@ SquirrelVirtualMachine::squirrel_call(HSQUIRRELVM vm)
     int argn = i - nargs;
     switch(t)
     {
+      case Types::BOOLEAN:
+      {
+        SQBool bool_sq;
+        if (SQ_FAILED(sq_getbool(vm, argn, &bool_sq)))
+        {
+          // FIXME: Print the actual type names
+          throw std::runtime_error("Call to '" + std::string(func_name)
+                                  + "' couldn't parse boolean at position "
+                                  + std::to_string(i + 1) + " (Squirrel "
+                                  + "reports: " + std::to_string(
+                                    sq_gettype(vm, argn)) + ")");
+        }
+        args.push_back(std::make_unique<VirtualMachine::Boolean>(static_cast<bool>(bool_sq)));
+        break;
+      }
+
       case Types::INTEGER:
       {
         SQInteger int_sq;
@@ -174,7 +173,12 @@ SquirrelVirtualMachine::squirrel_call(HSQUIRRELVM vm)
   auto ret = func->m_function(args);
 
   // Parse return value
-  if (auto i = dynamic_cast<VirtualMachine::Integer*>(ret.get()))
+  if (auto b = dynamic_cast<VirtualMachine::Boolean*>(ret.get()))
+  {
+    sq_pushbool(vm, b->m_value);
+    return 1;
+  }
+  else if (auto i = dynamic_cast<VirtualMachine::Integer*>(ret.get()))
   {
     sq_pushinteger(vm, i->m_value);
     return 1;
@@ -201,10 +205,8 @@ SquirrelVirtualMachine::squirrel_call(HSQUIRRELVM vm)
 std::vector<SquirrelVirtualMachine*> SquirrelVirtualMachine::s_vms;
 
 void
-SquirrelVirtualMachine::print(HSQUIRRELVM /* vm */, const SQChar* str, ...)
+SquirrelVirtualMachine::print(HSQUIRRELVM vm, const SQChar* str, ...)
 {
-  // TODO: Transfer the call to the VM using the foreign ptr
-
   char c[2048];
 
   va_list vl;
@@ -212,8 +214,18 @@ SquirrelVirtualMachine::print(HSQUIRRELVM /* vm */, const SQChar* str, ...)
   vsnprintf(c, 2048, str, vl);
   va_end(vl);
 
-  // TODO: Make a bindable callback for printing
-  std::cout << std::string(c) << std::endl;
+  auto svm = get_vm(vm);
+
+  std::ostream* out = nullptr;
+  if (svm && svm->m_print_stream)
+  {
+    out = svm->m_print_stream;
+  }
+
+  if (!out)
+    return;
+
+  *out << std::string(c) << std::endl;
 }
 
 void
@@ -232,7 +244,10 @@ SquirrelVirtualMachine::on_compile_error(HSQUIRRELVM /*vm*/, const SQChar* desc,
 SquirrelVirtualMachine::SquirrelVirtualMachine() :
   m_vm(sq_open(1024)),
   m_current_top(0),
-  m_dead(false)
+  m_dead(false),
+  m_functions(),
+  m_objects(),
+  m_print_stream(nullptr)
 {
   s_vms.push_back(this);
 
@@ -347,7 +362,7 @@ SquirrelVirtualMachine::expose_instance(std::string classname, std::string name,
 
   sq_pushstring(m_vm, varname.c_str(), -1);
 
-  if (SQ_FAILED(sq_createinstance(m_vm, -2)))
+  if (SQ_FAILED(sq_createinstance(m_vm, -3)))
   {
     sq_pop(m_vm, sq_gettop(m_vm) - top);
     throw std::runtime_error("Could not create instance of '" + classname
@@ -365,7 +380,7 @@ SquirrelVirtualMachine::expose_instance(std::string classname, std::string name,
   sq_resetobject(&obj);
   sq_getstackobj(m_vm, -1, &obj);
 
-  if (SQ_FAILED(sq_newslot(m_vm, -4, SQFalse)))
+  if (SQ_FAILED(sq_newslot(m_vm, -3, SQFalse)))
   {
     sq_pop(m_vm, sq_gettop(m_vm) - top);
     throw std::runtime_error("Could not bind instance of '" + classname
@@ -435,6 +450,21 @@ SquirrelVirtualMachine::expose_function(ExposableFunction func)
 }
 
 void
+SquirrelVirtualMachine::expose_bool(std::string name, bool val)
+{
+  sq_pushroottable(m_vm);
+  std::string varname = resolve_name(name, false);
+  sq_pushstring(m_vm, varname.c_str(), -1);
+  sq_pushbool(m_vm, static_cast<SQBool>(val));
+  if (SQ_FAILED(sq_newslot(m_vm, -3, SQFalse)))
+  {
+    sq_pop(m_vm, 3);
+    throw std::runtime_error("Couldn't bind boolean to object: " + get_error());
+  }
+  sq_pop(m_vm, 1);
+}
+
+void
 SquirrelVirtualMachine::expose_int(std::string name, int val)
 {
   sq_pushroottable(m_vm);
@@ -479,15 +509,36 @@ SquirrelVirtualMachine::expose_string(std::string name, std::string val)
   sq_pop(m_vm, 1);
 }
 
-std::unique_ptr<VirtualMachine::Type>
+/**
+ * Calls a function in the squirrel environment
+ * 
+ * @param func_name     Path to the function, starting from root if @p obj is
+ *                      null of @p func_relative is false, starting from the
+ *                      object otherwise.
+ * @param args          A list of arguments to pass to the function.
+ * @param obj           The object that will correcpond in-code to `this` or
+ *                      equivalent, if the language supports it. May be null, in
+ *                      which case `this` will be either the root table if
+ *                      @p func_relative is `true` or the object that contains
+ *                      the function if @p func_relative is `false`.
+ * @param func_relative If `true` and @p obj is non-null, the path given in
+ *                      @p func_name is relative to @p obj. If `false` and
+ *                      @p obj is non-null, the path given in @p func_name is
+ *                      relative to the root table. If `true` and @p obj is
+ *                      null, @p obj will forcibly be set to the root table. If
+ *                      `false` and @p obj is null, @p obj will forcibly be set
+ *                      to the object containing the function.
+ * @author Semphris <semphris@protonmail.com>
+ */
+std::vector<std::unique_ptr<VirtualMachine::Type>>
 SquirrelVirtualMachine::call_function(std::string func_name,
                                       std::vector<std::unique_ptr<Type>> args,
-                                      Scriptable* obj)
+                                      Scriptable* obj, bool func_relative)
 {
   // The lazy way to protect the stack
   auto top = sq_gettop(m_vm);
 
-  if (obj)
+  if (obj && func_relative)
   {
     const auto& it = m_objects.find(obj);
 
@@ -505,7 +556,8 @@ SquirrelVirtualMachine::call_function(std::string func_name,
 
   resolve_name(func_name, true);
 
-  if (sq_gettype(m_vm, -1) != SQObjectType::OT_CLOSURE && sq_gettype(m_vm, -1) != SQObjectType::OT_NATIVECLOSURE)
+  if (sq_gettype(m_vm, -1) != SQObjectType::OT_CLOSURE &&
+      sq_gettype(m_vm, -1) != SQObjectType::OT_NATIVECLOSURE)
   {
     sq_pop(m_vm, sq_gettop(m_vm) - top);
     throw std::runtime_error("'" + func_name + "' isn't a function in "
@@ -522,14 +574,20 @@ SquirrelVirtualMachine::call_function(std::string func_name,
   else
   {
     sq_pushroottable(m_vm);
+    if (!func_relative)
+    {
+      resolve_name(func_name, false);
+    }
   }
-
-  resolve_name(func_name, false);
 
   // Push args
   for (const auto& arg : args)
   {
-    if (auto i = dynamic_cast<const Integer*>(arg.get()))
+    if (auto b = dynamic_cast<const Boolean*>(arg.get()))
+    {
+      sq_pushbool(m_vm, b->m_value);
+    }
+    else if (auto i = dynamic_cast<const Integer*>(arg.get()))
     {
       sq_pushinteger(m_vm, i->m_value);
     }
@@ -539,7 +597,15 @@ SquirrelVirtualMachine::call_function(std::string func_name,
     }
     else if (auto o = dynamic_cast<const Object*>(arg.get()))
     {
-      push_instance(o->m_value->get_classname(), o->m_value);
+      try
+      {
+        push_instance(o->m_value->get_classname(), o->m_value);
+      }
+      catch(std::runtime_error& e)
+      {
+        sq_pop(m_vm, sq_gettop(m_vm) - top);
+        throw e;
+      }
     }
     else if (auto s = dynamic_cast<const String*>(arg.get()))
     {
@@ -559,46 +625,55 @@ SquirrelVirtualMachine::call_function(std::string func_name,
     throw std::runtime_error("Could not call function: " + get_error());
   }
 
-  std::unique_ptr<VirtualMachine::Type> ret;
+  std::vector<std::unique_ptr<VirtualMachine::Type>> ret;
 
   // Parse return value
   switch (sq_gettype(m_vm, -1))
   {
+    case SQObjectType::OT_BOOL:
+    {
+      SQBool sqb;
+      // FIXME: Uninitialized variable if call failed
+      sq_getbool(m_vm, -1, &sqb);
+      ret.push_back(std::make_unique<Boolean>(static_cast<bool>(sqb)));
+      break;
+    }
+
     case SQObjectType::OT_FLOAT:
     {
       SQFloat sqf;
       // FIXME: Uninitialized variable if call failed
       sq_getfloat(m_vm, -1, &sqf);
-      ret = std::make_unique<Float>(static_cast<float>(sqf));
-    }
+      ret.push_back(std::make_unique<Float>(static_cast<float>(sqf)));
       break;
+    }
 
     case SQObjectType::OT_INTEGER:
     {
       SQInteger sqi;
       // FIXME: Uninitialized variable if call failed
       sq_getinteger(m_vm, -1, &sqi);
-      ret = std::make_unique<Integer>(static_cast<int>(sqi));
-    }
+      ret.push_back(std::make_unique<Integer>(static_cast<int>(sqi)));
       break;
+    }
 
     case SQObjectType::OT_STRING:
     {
       const SQChar* sqs;
       // FIXME: Uninitialized variable if call failed
       sq_getstring(m_vm, -1, &sqs);
-      ret = std::make_unique<String>(std::string(sqs));
-    }
+      ret.push_back(std::make_unique<String>(std::string(sqs)));
       break;
+    }
 
     case SQObjectType::OT_INSTANCE:
     {
       SQUserPointer sqp;
       // FIXME: Uninitialized variable if call failed
       sq_getinstanceup(m_vm, -1, &sqp, nullptr);
-      ret = std::make_unique<Object>(static_cast<Scriptable*>(sqp));
-    }
+      ret.push_back(std::make_unique<Object>(static_cast<Scriptable*>(sqp)));
       break;
+    }
     
     default:
       break;
@@ -635,6 +710,12 @@ SquirrelVirtualMachine::get_function_by_name(const std::string& name) const
   }
 
   return nullptr;
+}
+
+void
+SquirrelVirtualMachine::set_print(std::ostream* out)
+{
+  m_print_stream = out;
 }
 
 std::string
@@ -708,7 +789,7 @@ SquirrelVirtualMachine::push_instance(std::string classname, Scriptable* owner)
     sq_getstackobj(m_vm, -1, &obj);
     m_objects[owner] = obj;
 
-    while (top - sq_gettop(m_vm) > 1)
+    while (sq_gettop(m_vm) - top > 1)
       sq_remove(m_vm, -2);
   }
 }
@@ -739,7 +820,7 @@ SquirrelVirtualMachine::resolve_name(std::string name, bool resolve_last)
 
     if (SQ_FAILED(sq_get(m_vm, -2)))
     {
-      sq_pop(m_vm, 2);
+      sq_pop(m_vm, 1);
       throw std::runtime_error("Couldn't get '" + varname + "' in '" + name + "'");
     }
 

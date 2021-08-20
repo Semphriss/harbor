@@ -52,15 +52,18 @@ public:
   virtual void expose_object(std::string name,
                              std::vector<ExposableFunction> obj) override;
   virtual void expose_function(ExposableFunction func) override;
+  virtual void expose_bool(std::string name, bool val) override;
   virtual void expose_int(std::string name, int val) override;
   virtual void expose_float(std::string name, float val) override;
   virtual void expose_string(std::string name, std::string val) override;
-  virtual std::unique_ptr<Type> call_function(std::string func_name,
+  virtual std::vector<std::unique_ptr<Type>> call_function(std::string name,
                                         std::vector<std::unique_ptr<Type>> args,
-                                        Scriptable* obj = nullptr) override;
+                                        Scriptable* obj = nullptr,
+                                        bool func_relative = false) override;
   virtual void remove_entry(std::string name) override;
 
   const ExposableFunction* get_function_by_name(const std::string& name) const;
+  void set_print(std::ostream* out);
 
 private:
   std::string get_error();
@@ -84,6 +87,7 @@ private:
   bool m_dead;
   std::vector<ExposableFunction> m_functions;
   std::unordered_map<Scriptable*, HSQOBJECT> m_objects;
+  std::ostream* m_print_stream;
 
 private:
   SquirrelVirtualMachine(const SquirrelVirtualMachine&) = delete;

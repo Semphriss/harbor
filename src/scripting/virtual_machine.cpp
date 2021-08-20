@@ -33,6 +33,20 @@ VirtualMachine::ExposableFunction::ExposableFunction(const std::string& name,
 
 template<size_t Pos, typename... Args>
 void
+VirtualMachine::SingleArg<bool, Pos, Args...>::parse(std::tuple<Args...>& tuple, VirtualMachine::Type* arg)
+{
+  const auto i = dynamic_cast<const VirtualMachine::Boolean*>(arg);
+
+  if (!i)
+  {
+    throw std::runtime_error("Argument " + std::to_string(Pos + 1) + " must be a boolean");
+  }
+
+  std::get<Pos>(tuple) = i->m_value;
+}
+
+template<size_t Pos, typename... Args>
+void
 VirtualMachine::SingleArg<float, Pos, Args...>::parse(std::tuple<Args...>& tuple, VirtualMachine::Type* arg)
 {
   const auto i = dynamic_cast<const VirtualMachine::Float*>(arg);
@@ -97,6 +111,15 @@ VirtualMachine::ReturnVal<void, A...>::exec(std::function<void(A...)> func, cons
 
 template<typename... A>
 std::unique_ptr<VirtualMachine::Type>
+VirtualMachine::ReturnVal<bool, A...>::exec(std::function<bool(A...)> func, const std::tuple<A...>& args)
+{
+  auto ret = std::make_unique<VirtualMachine::Boolean>();
+  ret->m_value = call(func, args);
+  return std::move(ret);
+}
+
+template<typename... A>
+std::unique_ptr<VirtualMachine::Type>
 VirtualMachine::ReturnVal<float, A...>::exec(std::function<float(A...)> func, const std::tuple<A...>& args)
 {
   auto ret = std::make_unique<VirtualMachine::Float>();
@@ -143,7 +166,11 @@ template<std::size_t Current, std::size_t End, typename... Args>
 void
 VirtualMachine::ListArg<Current, End, Args...>::list(std::vector<VirtualMachine::Types>& list)
 {
-  if (std::is_same<typename std::tuple_element<Current, std::tuple<Args...>>::type, int>::value)
+  if (std::is_same<typename std::tuple_element<Current, std::tuple<Args...>>::type, bool>::value)
+  {
+    list.push_back(VirtualMachine::Types::BOOLEAN);
+  }
+  else if (std::is_same<typename std::tuple_element<Current, std::tuple<Args...>>::type, int>::value)
   {
     list.push_back(VirtualMachine::Types::INTEGER);
   }

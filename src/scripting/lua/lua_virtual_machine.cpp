@@ -52,6 +52,20 @@ LuaVirtualMachine::call_lua(lua_State* vm)
     int argn = i - nargs;
     switch(t)
     {
+      case Types::BOOLEAN:
+      {
+        if (lua_type(vm, argn) != LUA_TBOOLEAN)
+        {
+          // FIXME: Print the actual type names
+          throw std::runtime_error("Call to '" + func_name + "' couldn't parse"
+                                  + " boolean at position " + std::to_string(i
+                                  + 1) + " (Lua reports: " + std::to_string(
+                                    lua_type(vm, argn)) + ")");
+        }
+        args.push_back(std::make_unique<VirtualMachine::Boolean>(static_cast<bool>(lua_tonumber(vm, argn))));
+        break;
+      }
+
       case Types::INTEGER:
       {
         if (lua_type(vm, argn) != LUA_TNUMBER)
@@ -107,7 +121,12 @@ LuaVirtualMachine::call_lua(lua_State* vm)
   auto ret = func->m_function(args);
 
   // Parse return value
-  if (auto i = dynamic_cast<VirtualMachine::Integer*>(ret.get()))
+  if (auto b = dynamic_cast<VirtualMachine::Boolean*>(ret.get()))
+  {
+    lua_pushboolean(vm, static_cast<int>(b->m_value));
+    return 1;
+  }
+  else if (auto i = dynamic_cast<VirtualMachine::Integer*>(ret.get()))
   {
     lua_pushinteger(vm, static_cast<lua_Integer>(i->m_value));
     return 1;
@@ -300,6 +319,30 @@ LuaVirtualMachine::expose_function(ExposableFunction func)
 }
 
 void
+LuaVirtualMachine::expose_bool(std::string name, bool val)
+{
+#if LUA_VERSION_NUM > 501
+  lua_pushglobaltable(m_vm);
+#endif
+  std::string varname = resolve_name(name, false);
+  lua_pushboolean(m_vm, static_cast<int>(val));
+#if LUA_VERSION_NUM > 501
+  lua_setfield(m_vm, -2, varname.c_str());
+  lua_pop(m_vm, 1);
+#else
+  if (varname == name)
+  {
+    lua_setglobal(m_vm, varname.c_str());
+  }
+  else
+  {
+    lua_setfield(m_vm, -2, varname.c_str());
+    lua_pop(m_vm, 1);
+  }
+#endif
+}
+
+void
 LuaVirtualMachine::expose_int(std::string name, int val)
 {
 #if LUA_VERSION_NUM > 501
@@ -311,7 +354,7 @@ LuaVirtualMachine::expose_int(std::string name, int val)
   lua_setfield(m_vm, -2, varname.c_str());
   lua_pop(m_vm, 1);
 #else
-  if (lua_type(m_vm, -2) == LUA_TNONE)
+  if (varname == name)
   {
     lua_setglobal(m_vm, varname.c_str());
   }
@@ -335,7 +378,7 @@ LuaVirtualMachine::expose_float(std::string name, float val)
   lua_setfield(m_vm, -2, varname.c_str());
   lua_pop(m_vm, 1);
 #else
-  if (lua_type(m_vm, -2) == LUA_TNONE)
+  if (varname == name)
   {
     lua_setglobal(m_vm, varname.c_str());
   }
@@ -359,7 +402,7 @@ LuaVirtualMachine::expose_string(std::string name, std::string val)
   lua_setfield(m_vm, -2, varname.c_str());
   lua_pop(m_vm, 1);
 #else
-  if (lua_type(m_vm, -2) == LUA_TNONE)
+  if (varname == name)
   {
     lua_setglobal(m_vm, varname.c_str());
   }
@@ -371,11 +414,13 @@ LuaVirtualMachine::expose_string(std::string name, std::string val)
 #endif
 }
 
-std::unique_ptr<VirtualMachine::Type>
+std::vector<std::unique_ptr<VirtualMachine::Type>>
 LuaVirtualMachine::call_function(std::string func_name,
-                                        std::vector<std::unique_ptr<Type>> args,
-                                        Scriptable* obj)
+                                 std::vector<std::unique_ptr<Type>> args,
+                                 Scriptable* obj, bool func_relative)
 {
+  int top = lua_gettop(m_vm);
+
   resolve_name(func_name, true);
 
   if (lua_type(m_vm, -1) != LUA_TFUNCTION)
@@ -383,12 +428,113 @@ LuaVirtualMachine::call_function(std::string func_name,
     throw std::runtime_error("Lua: " + func_name + " is not a function");
   }
 
+  for (const auto& arg : args)
+  {
+    if (auto arg_bool = dynamic_cast<const Boolean*>(arg.get()))
+    {
+      lua_pushboolean(m_vm, static_cast<int>(arg_bool->m_value));
+    }
+    else if (auto arg_int = dynamic_cast<const Integer*>(arg.get()))
+    {
+      lua_pushinteger(m_vm, static_cast<lua_Integer>(arg_int->m_value));
+    }
+    else if (auto arg_float = dynamic_cast<const Float*>(arg.get()))
+    {
+      lua_pushnumber(m_vm, static_cast<lua_Number>(arg_float->m_value));
+    }
+    else if (auto arg_string = dynamic_cast<const String*>(arg.get()))
+    {
+      lua_pushstring(m_vm, arg_string->m_value.c_str());
+    }
+    else if (auto arg_object = dynamic_cast<const Object*>(arg.get()))
+    {
+      lua_settop(m_vm, top);
+      throw std::runtime_error("Can't handle objects when calling Lua function "
+                               "from native");
+    }
+    else
+    {
+      lua_settop(m_vm, top);
+      throw std::runtime_error("Unknown argument type when calling Lua function"
+                               " from native");
+    }
+  }
 
+  if (lua_pcall(m_vm, args.size(), LUA_MULTRET, 0))
+  {
+    std::string error_message(lua_tostring(m_vm, -1));
+    lua_settop(m_vm, top);
+    throw std::runtime_error("Could not run Lua function '" + func_name + "': "
+                              + error_message);
+  }
+
+  int nret = lua_gettop(m_vm) - top;
+
+  std::vector<std::unique_ptr<Type>> ret;
+
+  for (int i = top + 1; i <= top + nret; i++)
+  {
+    std::cout << i << " of " << (top + nret) << ": " << nret << std::endl;
+    switch(lua_type(m_vm, i))
+    {
+      case LUA_TBOOLEAN:
+      {
+        bool b = static_cast<bool>(lua_toboolean(m_vm, i));
+        ret.push_back(std::make_unique<Boolean>(b));
+        break;
+      }
+
+      case LUA_TNUMBER:
+      {
+        float f = static_cast<float>(lua_tonumber(m_vm, i));
+        ret.push_back(std::make_unique<Float>(f));
+        break;
+      }
+
+      case LUA_TSTRING:
+      {
+        std::string s(lua_tostring(m_vm, i));
+        ret.push_back(std::make_unique<String>(s));
+        break;
+      }
+
+      default:
+      {
+        std::string msg("Unknown return type " +
+                        std::to_string(lua_type(m_vm, i)) + " when calling Lua "
+                        "function from native: " + std::to_string(i - top));
+        lua_settop(m_vm, top);
+        throw std::runtime_error(msg);
+      }
+    }
+  }
+
+  lua_settop(m_vm, top);
+
+  return ret;
 }
 
 void
 LuaVirtualMachine::remove_entry(std::string name)
 {
+#if LUA_VERSION_NUM > 501
+  lua_pushglobaltable(m_vm);
+#endif
+  std::string varname = resolve_name(name, false);
+  lua_pushnil(m_vm);
+#if LUA_VERSION_NUM > 501
+  lua_setfield(m_vm, -2, varname.c_str());
+#else
+  if (varname == name)
+  {
+    lua_setglobal(m_vm, varname.c_str());
+  }
+  else
+  {
+    lua_setfield(m_vm, -2, varname.c_str());
+    lua_pop(m_vm, 1);
+  }
+#endif
 }
 
 const VirtualMachine::ExposableFunction*

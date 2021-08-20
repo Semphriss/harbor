@@ -43,6 +43,13 @@ private:
   class SingleArg;
 
   template<size_t Pos, typename... Args>
+  class SingleArg<bool, Pos, Args...>
+  {
+  public:
+    static void parse(std::tuple<Args...>& tuple, Type* arg);
+  };
+
+  template<size_t Pos, typename... Args>
   class SingleArg<float, Pos, Args...>
   {
   public:
@@ -81,6 +88,13 @@ private:
   {
   public:
     static std::unique_ptr<Type> exec(std::function<void(A...)> func, const std::tuple<A...>& args);
+  };
+
+  template<typename... A>
+  class ReturnVal<bool, A...>
+  {
+  public:
+    static std::unique_ptr<Type> exec(std::function<bool(A...)> func, const std::tuple<A...>& args);
   };
 
   template<typename... A>
@@ -154,6 +168,7 @@ private:
 public:
   enum class Types
   {
+    BOOLEAN,
     INTEGER,
     FLOAT,
     OBJECT,
@@ -165,6 +180,16 @@ public:
     // This is just to make this class look polymorphic to the compiler
   public:
     virtual ~Type() = default;
+  };
+
+  class Boolean final :
+    public Type
+  {
+  public:
+    Boolean() = default;
+    Boolean(bool v) : m_value(v) {}
+  public:
+    bool m_value;
   };
 
   class Integer final :
@@ -240,12 +265,14 @@ public:
   virtual void expose_object(std::string name,
                              std::vector<ExposableFunction> obj) = 0;
   virtual void expose_function(ExposableFunction func) = 0;
+  virtual void expose_bool(std::string name, bool val) = 0;
   virtual void expose_int(std::string name, int val) = 0;
   virtual void expose_float(std::string name, float val) = 0;
   virtual void expose_string(std::string name, std::string val) = 0;
-  virtual std::unique_ptr<Type> call_function(std::string func_name,
+  virtual std::vector<std::unique_ptr<Type>> call_function(std::string name,
                                         std::vector<std::unique_ptr<Type>> args,
-                                        Scriptable* obj = nullptr) = 0;
+                                        Scriptable* obj = nullptr,
+                                        bool func_relative = false) = 0;
   virtual void remove_entry(std::string name) = 0;
 
 private:
