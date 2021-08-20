@@ -116,7 +116,7 @@ if(HARBOR_BUILD_TEST)
     list(FILTER HARBOR_TEST_FILES EXCLUDE REGEX ${CMAKE_CURRENT_SOURCE_DIR}/tests/video/sdl/*)
   endif()
 
-  if (${HARBOR_TEST_FILES})
+  if (HARBOR_TEST_FILES)
     add_executable(run_tests ${HARBOR_TEST_FILES})
     target_include_directories(run_tests PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src/)
     target_link_libraries(run_tests PUBLIC harbor_lib)
