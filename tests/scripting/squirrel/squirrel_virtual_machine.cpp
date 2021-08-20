@@ -74,9 +74,9 @@ TEST(Scripting_Squirrel_SquirrelVirtualMachine, on_compile_error)
   ASSERT_THROW(vm.run_code("local a <- \"Hello!\";\na |;", "<test>"),
                std::runtime_error);
 
-  // If the line number goes below 100 or above 999, change the 114 accordingly
-  ASSERT_EQ(ss.str().substr(114),
-            "[SQUIRREL] <test>:1:10: end of statement expected (; or lf)\n");
+  std::string output = ss.str();
+  ASSERT_TRUE(output.length() >= 49 && 0 == output.compare(output.length() - 49,
+              49, "<test>:1:10: end of statement expected (; or lf)\n"));
 
   Log::s_log = old_log;
 }
