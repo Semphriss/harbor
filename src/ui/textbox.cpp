@@ -70,7 +70,7 @@ Textbox::event(const SDL_Event& event)
             break;
 
           case SDLK_RIGHT:
-            if (m_caret < m_contents.size() - 1)
+            if (m_caret < static_cast<int>(m_contents.size()) - 1)
               m_caret++;
 
             if (!(event.key.keysym.mod & KMOD_SHIFT))
@@ -101,7 +101,7 @@ Textbox::event(const SDL_Event& event)
 }
 
 void
-Textbox::update(float dt_sec)
+Textbox::update(float /* dt_sec */)
 {
 }
 

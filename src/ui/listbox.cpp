@@ -53,27 +53,27 @@ Listbox<T>::event(const SDL_Event& event)
   {
     case SDL_MOUSEBUTTONUP:
     {
-      int mask;
+      int mask = 0;
       switch (event.button.button)
       {
         case SDL_BUTTON_LEFT:
-          mask = 0b00001;
+          mask = 0x01;
           break;
 
         case SDL_BUTTON_RIGHT:
-          mask = 0b00010;
+          mask = 0x02;
           break;
 
         case SDL_BUTTON_MIDDLE:
-          mask = 0b00100;
+          mask = 0x04;
           break;
 
         case SDL_BUTTON_X1:
-          mask = 0b01000;
+          mask = 0x08;
           break;
 
         case SDL_BUTTON_X2:
-          mask = 0b10000;
+          mask = 0x10;
           break;
       }
 
@@ -87,27 +87,27 @@ Listbox<T>::event(const SDL_Event& event)
 
     case SDL_MOUSEBUTTONDOWN:
     {
-      int mask;
+      int mask = 0;
       switch (event.button.button)
       {
         case SDL_BUTTON_LEFT:
-          mask = 0b00001;
+          mask = 0x01;
           break;
 
         case SDL_BUTTON_RIGHT:
-          mask = 0b00010;
+          mask = 0x02;
           break;
 
         case SDL_BUTTON_MIDDLE:
-          mask = 0b00100;
+          mask = 0x04;
           break;
 
         case SDL_BUTTON_X1:
-          mask = 0b01000;
+          mask = 0x08;
           break;
 
         case SDL_BUTTON_X2:
-          mask = 0b10000;
+          mask = 0x10;
           break;
       }
 

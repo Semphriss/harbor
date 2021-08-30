@@ -14,7 +14,6 @@
 //  You should have received a copy of the GNU Lesser General Public License
 //  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-
 #include "gtest/gtest.h"
 
 #include "scripting/scriptable.hpp"
@@ -34,6 +33,8 @@ class ScriptTest :
   public Scriptable
 {
 public:
+  ScriptTest() = default;
+
   virtual std::string get_classname() const override
   {
     return "ScriptTest";

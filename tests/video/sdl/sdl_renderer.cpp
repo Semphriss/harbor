@@ -14,13 +14,21 @@
 //  You should have received a copy of the GNU Lesser General Public License
 //  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#include "video/sdl/sdl_renderer.hpp"
-
 #include "gtest/gtest.h"
 
 #include "util/color.hpp"
 #include "util/rect.hpp"
 #include "video/sdl/sdl_window.hpp"
+
+#define private public
+#define protected public
+#define final
+
+#include "video/sdl/sdl_renderer.hpp"
+
+#undef private
+#undef protected
+#undef final
 
 TEST(Video_SDL_SDLRenderer, is_drawing)
 {

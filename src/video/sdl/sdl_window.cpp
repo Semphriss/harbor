@@ -16,6 +16,8 @@
 
 #include "video/sdl/sdl_window.hpp"
 
+#include <stdexcept>
+
 #include "make_unique.hpp"
 
 #include "SDL_image.h"
@@ -34,6 +36,12 @@ SDLWindow::SDLWindow(const Size& size, bool visible) :
   m_renderer(*this),
   m_icon_path()
 {
+  if (!m_sdl_window)
+  {
+    std::string error(SDL_GetError());
+    throw std::runtime_error("Could not create SDL Window: " + error);
+  }
+
   // If `SDL_WINDOW_SHOWN` is used in SDL_CreateWindow, the window flickers a
   // bit upon creation. Calling SDL_ShowWindow fixes the problem.
   if (visible)

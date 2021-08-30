@@ -14,13 +14,22 @@
 //  You should have received a copy of the GNU Lesser General Public License
 //  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#include "video/sdl/sdl_texture.hpp"
-
 #include "gtest/gtest.h"
+
 #include "SDL.h"
 
 #include "util/size.hpp"
 #include "video/sdl/sdl_window.hpp"
+
+#define private public
+#define protected public
+#define final
+
+#include "video/sdl/sdl_texture.hpp"
+
+#undef private
+#undef protected
+#undef final
 
 TEST(Video_SDL_SDLTexture, from_file)
 {

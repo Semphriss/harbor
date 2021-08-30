@@ -72,7 +72,9 @@ Font::get_sdl_surface(const std::string& text) const
   white.r = 255;
   white.g = 255;
   white.b = 255;
+#ifndef EMSCRIPTEN
   white.a = 255;
+#endif
 
   return TTF_RenderText_Blended(m_font, text.c_str(), white);
 }

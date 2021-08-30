@@ -115,7 +115,7 @@ VirtualMachine::ReturnVal<bool, A...>::exec(std::function<bool(A...)> func, cons
 {
   auto ret = std::make_unique<VirtualMachine::Boolean>();
   ret->m_value = call(func, args);
-  return std::move(ret);
+  return ret;
 }
 
 template<typename... A>
@@ -124,7 +124,7 @@ VirtualMachine::ReturnVal<float, A...>::exec(std::function<float(A...)> func, co
 {
   auto ret = std::make_unique<VirtualMachine::Float>();
   ret->m_value = call(func, args);
-  return std::move(ret);
+  return ret;
 }
 
 template<typename... A>
@@ -133,7 +133,7 @@ VirtualMachine::ReturnVal<int, A...>::exec(std::function<int(A...)> func, const 
 {
   auto ret = std::make_unique<VirtualMachine::Integer>();
   ret->m_value = call(func, args);
-  return std::move(ret);
+  return ret;
 }
 
 template<typename... A>
@@ -142,7 +142,7 @@ VirtualMachine::ReturnVal<Scriptable*, A...>::exec(std::function<Scriptable*(A..
 {
   auto ret = std::make_unique<VirtualMachine::Object>();
   ret->m_value = call(func, args);
-  return std::move(ret);
+  return ret;
 }
 
 template<typename... A>
@@ -151,7 +151,7 @@ VirtualMachine::ReturnVal<std::string, A...>::exec(std::function<std::string(A..
 {
   auto ret = std::make_unique<VirtualMachine::String>();
   ret->m_value = call(func, args);
-  return std::move(ret);
+  return ret;
 }
 
 template<std::size_t Current, std::size_t End, typename... Args>

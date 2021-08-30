@@ -417,7 +417,8 @@ LuaVirtualMachine::expose_string(std::string name, std::string val)
 std::vector<std::unique_ptr<VirtualMachine::Type>>
 LuaVirtualMachine::call_function(std::string func_name,
                                  std::vector<std::unique_ptr<Type>> args,
-                                 Scriptable* obj, bool func_relative)
+                                 Scriptable* /* obj */,
+                                 bool /* func_relative */)
 {
   int top = lua_gettop(m_vm);
 
@@ -446,7 +447,7 @@ LuaVirtualMachine::call_function(std::string func_name,
     {
       lua_pushstring(m_vm, arg_string->m_value.c_str());
     }
-    else if (auto arg_object = dynamic_cast<const Object*>(arg.get()))
+    else if (/* auto arg_object = */ dynamic_cast<const Object*>(arg.get()))
     {
       lua_settop(m_vm, top);
       throw std::runtime_error("Can't handle objects when calling Lua function "

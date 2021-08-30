@@ -14,9 +14,17 @@
 //  You should have received a copy of the GNU Lesser General Public License
 //  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+#include "gtest/gtest.h"
+
+#define private public
+#define protected public
+#define final
+
 #include "video/sdl/sdl_window.hpp"
 
-#include "gtest/gtest.h"
+#undef private
+#undef protected
+#undef final
 
 TEST(Video_SDL_SDLWindow, set_title)
 {

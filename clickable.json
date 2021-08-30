@@ -1,0 +1,9 @@
+{
+  "builder": "cmake",
+  "build_dir": "build.clickable",
+  "build_args": [
+    "-DUBUNTU_TOUCH=ON",
+    "-DHARBOR_BUILD_TEST=OFF",
+    "-DBUILD_SHARED_LIBS=OFF"
+  ]
+}

@@ -1,0 +1,15 @@
+{
+    "name": "harbor",
+    "description": "A flexible game engine inspired by SuperTux",
+    "architecture": "@CLICK_ARCH@",
+    "title": "Harbor",
+    "hooks": {
+        "harbor": {
+            "apparmor": "harbor.apparmor",
+            "desktop":  "harbor.desktop"
+        }
+    },
+    "version": "0.0.1",
+    "maintainer": "Semphris <semphris@protonmail.com>",
+    "framework" : "@CLICK_FRAMEWORK@"
+}

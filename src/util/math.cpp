@@ -20,6 +20,10 @@
 
 #include <cmath>
 
+#ifndef M_PI
+#define M_PI 3.1415926535898
+#endif
+
 Vector
 Math::rotate(const Vector& point, const Vector& around, float angle)
 {
