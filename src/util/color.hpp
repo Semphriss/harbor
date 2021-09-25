@@ -17,6 +17,8 @@
 #ifndef _HEADER_HARBOR_UTIL_COLOR_HPP
 #define _HEADER_HARBOR_UTIL_COLOR_HPP
 
+#include <ostream>
+
 class Color final
 {
 public:
@@ -28,5 +30,7 @@ public:
 public:
   float r, g, b, a;
 };
+
+std::ostream& operator<<(std::ostream& stream, const Color& color);
 
 #endif

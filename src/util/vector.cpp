@@ -16,6 +16,8 @@
 
 #include "util/vector.hpp"
 
+#include <cmath>
+
 #include "util/size.hpp"
 
 Vector::Vector() :
@@ -42,6 +44,12 @@ Vector::size() const
   return Size(*this);
 }
 
+float
+Vector::length() const
+{
+  return sqrtf(x * x + y * y);
+}
+
 Vector
 Vector::operator*(const Vector& v) const
 {
@@ -52,6 +60,12 @@ Vector
 Vector::operator*(float f) const
 {
   return Vector(x * f, y * f);
+}
+
+Vector
+Vector::operator/(const Vector& v) const
+{
+  return Vector(x / v.x, y / v.y);
 }
 
 Vector

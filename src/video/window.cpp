@@ -18,8 +18,12 @@
 
 #include "make_unique.hpp"
 
+#if HARBOR_USE_VIDEO_SDL
 #include "video/sdl/sdl_window.hpp"
+#endif
+#if HARBOR_USE_VIDEO_OPENGL
 #include "video/gl/gl_window.hpp"
+#endif
 
 std::unique_ptr<Window>
 Window::create_window(VideoSystem vs)
