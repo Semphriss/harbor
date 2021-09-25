@@ -59,6 +59,18 @@ Control::get_rect() const
   return m_rect;
 }
 
+bool
+Control::is_disabled() const
+{
+  return m_disabled;
+}
+
+void
+Control::set_disabled(bool disabled)
+{
+  m_disabled = disabled;
+}
+
 Container*
 Control::get_parent() const
 {

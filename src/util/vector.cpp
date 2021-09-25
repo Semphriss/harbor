@@ -47,7 +47,13 @@ Vector::size() const
 float
 Vector::length() const
 {
-  return sqrtf(x * x + y * y);
+  return std::sqrt(x * x + y * y);
+}
+
+Vector
+Vector::floor() const
+{
+  return Vector(std::floor(x), std::floor(y));
 }
 
 Vector
@@ -114,6 +120,12 @@ Vector
 Vector::operator-() const
 {
   return Vector(-x, -y);
+}
+
+Vector
+Vector::operator%(float f) const
+{
+  return Vector(std::fmod(x, f), std::fmod(y, f));
 }
 
 bool
