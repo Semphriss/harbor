@@ -32,7 +32,6 @@ public:
   Size size() const;
   float length() const;
 
-  float length() const;
   Vector floor() const;
 
   Vector operator*(const Vector& v) const;
