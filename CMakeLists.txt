@@ -64,6 +64,7 @@ endif()
 # Code quality options
 option(WARNINGS "Enable compilation warnings" OFF)
 option(WERROR "Treat all warnings as errors" OFF)
+option(HARBOR_COVERAGE "Prepare coverage (Debug builds with GCC only)" ON)
 
 # ============================================================================
 #    Library and executable generation
@@ -133,7 +134,7 @@ if(HARBOR_BUILD_TEST)
     target_link_libraries(run_tests PUBLIC harbor_lib)
 
     # Coverage
-    if(CMAKE_COMPILER_IS_GNUCXX)
+    if(CMAKE_COMPILER_IS_GNUCXX AND HARBOR_COVERAGE)
       target_compile_options(harbor_lib PUBLIC -fprofile-arcs -ftest-coverage)
       target_link_options(harbor_lib PUBLIC -lgcov --coverage)
     endif()
@@ -348,6 +349,10 @@ else(EMSCRIPTEN)
     target_link_libraries(harbor_lib PUBLIC ${OPENGL_LIBRARIES})
   endif()
 endif(EMSCRIPTEN)
+
+find_package(SDL2_mixer REQUIRED)
+target_link_libraries(harbor_lib PUBLIC ${SDL2_MIXER_LIBRARY})
+target_include_directories(harbor_lib PUBLIC ${SDL2_MIXER_INCLUDE_DIR})
 
 # ============================================================================
 #    Installing

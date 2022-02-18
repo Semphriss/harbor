@@ -34,10 +34,10 @@ DrawingContext::clip_src_rect(const Rect& src, const Rect& dst,
   if (!clipped.is_valid())
     return Rect();
 
-  return Rect((clipped.x1 - dst.x1) / dst.width() * src.width(),
-              (clipped.y1 - dst.y1) / dst.height() * src.height(),
-              (clipped.x2 - dst.x1) / dst.width() * src.width(),
-              (clipped.y2 - dst.y1) / dst.height() * src.height());
+  return Rect((clipped.x1 - dst.x1) / dst.width() * src.width() + src.x1,
+              (clipped.y1 - dst.y1) / dst.height() * src.height() + src.y1,
+              (clipped.x2 - dst.x1) / dst.width() * src.width() + src.x1,
+              (clipped.y2 - dst.y1) / dst.height() * src.height() + src.y1);
 }
 
 DrawingContext::Transform::Transform() :
@@ -50,7 +50,7 @@ DrawingContext::Transform::Transform() :
 void
 DrawingContext::Transform::move(const Vector& offset)
 {
-  m_offset += offset;
+  m_offset -= offset * m_scale;
 }
 
 void
@@ -62,7 +62,7 @@ DrawingContext::Transform::scale(const Size& scale)
 void
 DrawingContext::Transform::clip(const Rect& rect)
 {
-  m_clip.clip(rect.moved(m_offset) * m_scale);
+  m_clip.clip(Rect(rect.top_lft() * m_scale - m_offset, rect.size() * m_scale));
 }
 
 void
@@ -200,8 +200,12 @@ DrawingContext::draw_line(const Vector& p1, const Vector& p2,
   auto req = std::make_unique<LineRequest>();
   req->m_color = color;
   req->m_blend = blend;
-  req->m_p1 = p1;
-  req->m_p2 = p2;
+  auto pts = get_transform().m_clip.clip_line(p1 * get_transform().m_scale -
+                                                      get_transform().m_offset,
+                                              p2 * get_transform().m_scale -
+                                                      get_transform().m_offset);
+  req->m_p1 = pts.first;
+  req->m_p2 = pts.second;
 
   m_requests[layer].push_back(std::move(req));
 }

@@ -29,9 +29,11 @@ public:
   Vector(const Size& s);
 
   Size size() const;
+  float length() const;
 
   Vector operator*(const Vector& v) const;
   Vector operator*(float f) const;
+  Vector operator/(const Vector& v) const;
   Vector operator/(float f) const;
   Vector& operator*=(const Vector& v);
   Vector operator+(const Vector& v) const;

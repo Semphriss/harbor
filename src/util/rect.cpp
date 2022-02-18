@@ -18,6 +18,7 @@
 
 #include <algorithm>
 
+#include "util/math.hpp"
 #include "util/size.hpp"
 #include "util/vector.hpp"
 
@@ -70,6 +71,22 @@ Rect::clip(const Rect& rect)
   y1 = std::max(y1, rect.y1);
   x2 = std::min(x2, rect.x2);
   y2 = std::min(y2, rect.y2);
+  return *this;
+}
+
+Rect&
+Rect::fix()
+{
+  if (x1 > x2)
+  {
+    std::swap(x1, x2);
+  }
+
+  if (y1 > y2)
+  {
+    std::swap(y1, y2);
+  }
+
   return *this;
 }
 
@@ -187,6 +204,13 @@ Rect::moved(const Vector& v) const
 }
 
 Rect
+Rect::fixed() const
+{
+  Rect r = *this;
+  return r.fix();
+}
+
+Rect
 Rect::with_x1(float x1) const
 {
   return Rect(*this).set_x1(x1);
@@ -210,15 +234,98 @@ Rect::with_y2(float y2) const
   return Rect(*this).set_y2(y2);
 }
 
+std::pair<Vector, Vector>
+Rect::clip_line(const Vector& p1, const Vector& p2) const
+{
+  if (contains(p1) && contains(p2))
+    return { p1, p2 };
+
+  if (p1.x == p2.x)
+  {
+    if (p1.x < x1 || p1.x > x2)
+      return { Vector(), Vector() };
+
+    return {
+      Vector(p1.x, Math::clamp(y1, y2, p1.y)),
+      Vector(p2.x, Math::clamp(y1, y2, p2.y))
+    };
+  }
+  else if (p1.y == p2.y)
+  {
+    if (p1.y < y1 || p1.y > y2)
+      return { Vector(), Vector() };
+
+    return {
+      Vector(Math::clamp(x1, x2, p1.x), p1.y),
+      Vector(Math::clamp(x1, x2, p2.x), p2.y)
+    };
+  }
+  else
+  {
+    float a = (p2.y - p1.y) / (p2.x - p1.x);
+    float b = p1.y - a * p1.x;
+
+    Vector r1 = p1, r2 = p2;
+    if (a * x1 + b >= y1 && a * x1 + b <= y2)
+    {
+      if (p1.x < x1 && p2.x > x1)
+        r1 = Vector(x1, a * x1 + b);
+      if (p2.x < x1 && p1.x > x1)
+        r2 = Vector(x1, a * x1 + b);
+    }
+
+    if (a * x2 + b >= y1 && a * x2 + b <= y2)
+    {
+      if (p1.x < x2 && p2.x > x2)
+        r2 = Vector(x2, a * x2 + b);
+      if (p2.x < x2 && p1.x > x2)
+        r1 = Vector(x2, a * x2 + b);
+    }
+
+    if ((y1 - b) / a >= x1 && (y1 - b) / a <= x2)
+    {
+      if (p1.y < y1 && p2.y > y1)
+        r1 = Vector((y1 - b) / a, y1);
+      if (p2.y < y1 && p1.y > y1)
+        r2 = Vector((y1 - b) / a, y1);
+    }
+
+    if ((y2 - b) / a >= x1 && (y2 - b) / a <= x2)
+    {
+      if (p1.y < y2 && p2.y > y2)
+        r2 = Vector((y2 - b) / a, y2);
+      if (p2.y < y2 && p1.y > y2)
+        r1 = Vector((y2 - b) / a, y2);
+    }
+
+    if (r1 == p1 && r2 == p2)
+      return { Vector(), Vector() };
+
+    return { r1, r2 };
+  }
+}
+
+Rect&
+Rect::operator*=(const Size& s)
+{
+  x2 = (x2 - x1) * s.w + x1;
+  y2 = (y2 - y1) * s.h + y1;
+  return *this;
+}
 
 Rect
 Rect::operator*(const Size& s) const
 {
-  return Rect(Vector(x1, y1), Size(width(), height()) * s);
+  return Rect(Vector(x1, y1), size() * s);
 }
 
 bool
 Rect::operator==(const Rect& rect) const
 {
   return x1 == rect.x1 && y1 == rect.y1 && x2 == rect.x2 && y2 == rect.y2;
+}
+
+std::ostream& operator<<(std::ostream& stream, const Rect& rect)
+{
+  return stream << "Rect(" << rect.x1 << ", " << rect.y1 << ", " << rect.x2 << ", " << rect.y2 << ")";
 }

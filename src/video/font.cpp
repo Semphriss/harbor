@@ -82,21 +82,25 @@ Font::get_sdl_surface(const std::string& text) const
 float
 Font::get_text_width(const std::string& text) const
 {
-  SDL_Surface* s = get_sdl_surface(text);
-
-  if (!s)
-    return 0.f;
-
-  return static_cast<float>(s->w);
+  return get_text_size(text).w;
 }
 
 float
 Font::get_text_height(const std::string& text) const
 {
-  SDL_Surface* s = get_sdl_surface(text);
+  return get_text_size(text).h;
+}
 
-  if (!s)
-    return 0.f;
+Size
+Font::get_text_size(const std::string& text) const
+{
+  int w, h;
 
-  return static_cast<float>(s->h);
+  if (TTF_SizeText(m_font, text.c_str(), &w, &h))
+  {
+    throw std::runtime_error("Could not get text dimensions: "
+                             + std::string(TTF_GetError()));
+  }
+
+  return Size(static_cast<float>(w), static_cast<float>(h));
 }

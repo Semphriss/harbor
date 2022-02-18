@@ -58,7 +58,7 @@
  *          recoverable. (For example, calling `set_mystate()` with 6 for a
  *          state that can hold values in an int from 0 to 3 and -1 for "none";
  *          since 6 is out of the -1 to 3 range, set m_mystate to -1 and do a
- *          `log_warn << "Inavlid state: " << state << std:;endl`).
+ *          `log_warn << "Inavlid state: " << state << std::endl`).
  */
 #define log_warn  log_(WARN)
 
@@ -66,7 +66,7 @@
  * A log is ERROR importance if some part of the program will not work as
  * expected, but that does not require the program to crash. This is the lowest
  * level where the end user is guaranteed notice that something has gone wrong
- * in a way that is directly related to the log.
+ * in a way that is directly related to the logged event.
  *
  * Example: Use this when you can't load a texture that is meant to be drawn,
  *          but an alternative "error"-like texture can be used instead. The
@@ -93,8 +93,8 @@
  *          correctly performs checks, but the program won't be able to perform
  *          its task and will have to quit, as it has nothing else to do for its
  *          execution. If you choose that in such circumstances, the image
- *          editor should stay open and offer to open a different file, do not
- *          print any logs and only use graphical interfaces to alert the user.
+ *          editor should stay open and offer to open a different file, use
+ *          log_error and graphical interfaces to alert the user.
  */
 #define log_fatal log_(FATAL)
 

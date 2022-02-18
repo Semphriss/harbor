@@ -21,8 +21,10 @@
 
 #include "SDL.h"
 #include "SDL_image.h"
+#include "SDL_mixer.h"
 #include "SDL_ttf.h"
 
+#include "ui/textbox.hpp"
 #include "util/color.hpp"
 #include "util/log.hpp"
 #include "util/rect.hpp"
@@ -35,6 +37,7 @@
 #endif
 
 static std::unique_ptr<Window> w = nullptr;
+static Textbox g_textbox{100, Rect(10, 200, 310, 230), {}, nullptr};
 
 extern "C"
 #ifdef EMSCRIPTEN
@@ -58,6 +61,7 @@ loop()
           break;
 
         default:
+          g_textbox.event(e);
           break;
       }
     }
@@ -84,6 +88,7 @@ loop()
                  DATA_ROOT "/fonts/SuperTux-Medium.ttf", 16, Color(1.f, 1.f, 1.f),
                  Renderer::Blend::BLEND, 11);
 
+    g_textbox.draw(dc);
     dc.render();
     dc.clear();
   }
@@ -117,21 +122,63 @@ int main(int /* argc */, char** /* argv */)
   Log::s_level = Log::Level::ALL;
   log_info << "Data root: " << DATA_ROOT << std::endl;
 
+  int audio_rate = 44100;
+  Uint16 audio_format = AUDIO_S16SYS;
+  int audio_channels = 2;
+  int audio_buffers = 4096;
+
+  if(Mix_OpenAudio(audio_rate, audio_format, audio_channels, audio_buffers))
+  {
+    log_fatal << "Unable to initialize audio: " << Mix_GetError() << std::endl;
+    return 1;
+  }
+
+  Mix_Chunk *sound = Mix_LoadWAV(DATA_ROOT "/music/chipdisko.wav");
+  if(!sound)
+  {
+    log_fatal << "Unable to load WAV file: " << Mix_GetError() << std::endl;
+    return 1;
+  }
+/*
+  int channel = Mix_PlayChannel(-1, sound, 0);
+  if (channel == -1)
+  {
+    log_error << "Unable to play WAV file: " << Mix_GetError() << std::endl;
+  }
+*/
   try
   {
     SDL_Init(SDL_INIT_VIDEO);
+    SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "1");
     IMG_Init(IMG_INIT_PNG);
     TTF_Init();
 
     w = Window::create_window(Window::VideoSystem::SDL);
     w->set_title("Hello, world!");
 
+    g_textbox.get_theme().active.font = DATA_ROOT "/fonts/SuperTux-Medium.ttf";
+    g_textbox.get_theme().active.bg_color = Color(.8f, .8f, .8f);
+    g_textbox.get_theme().active.fontsize = 16;
+    g_textbox.get_theme().active.fg_blend = Renderer::Blend::BLEND;
+    g_textbox.get_theme().active.top.padding = 2.f;
+    g_textbox.get_theme().active.left.padding = 2.f;
+    g_textbox.get_theme().active.right.padding = 2.f;
+    g_textbox.get_theme().active.bottom.padding = 2.f;
+    g_textbox.get_theme().disabled = g_textbox.get_theme().active;
+    g_textbox.get_theme().focus = g_textbox.get_theme().active;
+    g_textbox.get_theme().hover = g_textbox.get_theme().active;
+    g_textbox.get_theme().normal = g_textbox.get_theme().active;
+
 #ifdef EMSCRIPTEN
     emscripten_set_main_loop(loop, -1, false);
 #else
     while(loop())
-      SDL_Delay(1);
+      SDL_Delay(10);
 #endif
+
+    Mix_PlayChannel(-1, nullptr, 0);
+    Mix_FreeChunk(sound);
+    Mix_CloseAudio();
   }
   catch(std::exception& e)
   {
