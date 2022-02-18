@@ -18,7 +18,11 @@
 
 #include <stdexcept>
 
+#ifdef EMSCRIPTEN
+#include "SDL2/SDL.h"
+#else
 #include "SDL.h"
+#endif
 
 #include "video/drawing_context.hpp"
 #include "video/font.hpp"
@@ -27,6 +31,13 @@
 #include "util/color.hpp"
 #include "util/rect.hpp"
 #include "util/vector.hpp"
+
+#if !SDL_VERSION_ATLEAST(2, 0, 10)
+#define SDL_RenderFillRectF SDL_RenderFillRect
+#define SDL_RenderCopyExF SDL_RenderCopyEx
+#define SDL_RenderDrawLineF SDL_RenderDrawLine
+#define SDL_FRect SDL_Rect
+#endif
 
 SDLRenderer::SDLRenderer(SDLWindow& window) :
   Renderer(window),
@@ -80,21 +91,21 @@ SDLRenderer::draw_texture(const Texture& texture, const Rect& srcrect,
                              "drawing");
   }
 
-  const SDLTexture* t = dynamic_cast<const SDLTexture*>(&texture);
-
-  if (!t)
+  if (&texture.get_window() != &get_window())
   {
     throw std::runtime_error("Attempt to use SDLRenderer::draw_texture() "
-                             "with a non-SDL texture");
+                             "with a texture not targeting the current window");
   }
 
-  SDL_SetTextureColorMod(t->get_sdl_texture(),
+  const SDLTexture& t = static_cast<const SDLTexture&>(texture);
+
+  SDL_SetTextureColorMod(t.get_sdl_texture(),
                          static_cast<Uint8>(color.r * 255.f),
                          static_cast<Uint8>(color.g * 255.f),
                          static_cast<Uint8>(color.b * 255.f));
-  SDL_SetTextureBlendMode(t->get_sdl_texture(),
+  SDL_SetTextureBlendMode(t.get_sdl_texture(),
                           static_cast<SDL_BlendMode>(blend));
-  SDL_SetTextureAlphaMod(t->get_sdl_texture(),
+  SDL_SetTextureAlphaMod(t.get_sdl_texture(),
                          static_cast<Uint8>(color.a * 255.f));
 
 
@@ -111,7 +122,7 @@ SDLRenderer::draw_texture(const Texture& texture, const Rect& srcrect,
   dst.h = dstrect.height();
 
   // TODO: Add support for center point and flip
-  SDL_RenderCopyExF(m_sdl_renderer, t->get_sdl_texture(), &src, &dst, angle,
+  SDL_RenderCopyExF(m_sdl_renderer, t.get_sdl_texture(), &src, &dst, angle,
                     NULL, SDL_FLIP_NONE);
 }
 
@@ -233,17 +244,21 @@ SDLRenderer::start_draw(Texture* texture)
 {
   Renderer::start_draw();
 
-  auto* sdl_texture = dynamic_cast<SDLTexture*>(texture);
-
-  if (texture && !sdl_texture)
+  if (texture)
   {
-    throw std::runtime_error("Attempt to call SDLRenderer::start_draw() with "
-                             "non-null but non-SDL texture");
-  }
+    if (&texture->get_window() != &get_window())
+    {
+      throw std::runtime_error("Attempt to call SDLRenderer::start_draw() with "
+                               "texture unrelated to current window");
+    }
 
-  SDL_SetRenderTarget(m_sdl_renderer, texture
-                                      ? sdl_texture->get_sdl_texture()
-                                      : nullptr);
+    const SDLTexture* sdl_texture = static_cast<SDLTexture*>(texture);
+    SDL_SetRenderTarget(m_sdl_renderer, sdl_texture->get_sdl_texture());
+  }
+  else
+  {
+    SDL_SetRenderTarget(m_sdl_renderer, nullptr);
+  }
 }
 
 void

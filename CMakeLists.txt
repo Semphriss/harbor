@@ -43,6 +43,12 @@ cmake_policy(SET CMP0004 OLD)
 option(HARBOR_BUILD_EXEC "Build an executable directly" ON)
 option(HARBOR_BUILD_TEST "Build a test suite" ON)
 
+# Subproject options
+set(HARBOR_USER_TEST_FILES "" CACHE STRING "User C++ files for the test suite")
+set(HARBOR_USER_TEST_INCLUDES "" CACHE STRING "User headers for the test suite")
+set(HARBOR_USER_TEST_LINKS "" CACHE STRING "User libraries for the test suite")
+option(HARBOR_USER_TEST_SKIP_HARBOR "Remove Harbor tests from the suite" OFF)
+
 # Dependency options
 option(HARBOR_USE_SCRIPTING "Compile the scripting engines" ON)
 option(HARBOR_USE_SCRIPTING_SQUIRREL "Compile Squirrel with Harbor" ON)
@@ -52,14 +58,16 @@ option(HARBOR_USE_VIDEO_SDL "Compile the SDL renderer with Harbor" ON)
 option(HARBOR_USE_VIDEO_OPENGL "Compile the OpenGL renderer with Harbor" ON)
 
 # Dependency options overrides
-if(NOT HARBOR_USE_SCRIPTING)
-  set(HARBOR_USE_SCRIPTING_SQUIRREL OFF CACHE BOOL "Disabled because HARBOR_USE_SCRIPTING is off" FORCE)
-  set(HARBOR_USE_SCRIPTING_LUA OFF CACHE BOOL "Disabled because HARBOR_USE_SCRIPTING is off" FORCE)
-endif()
-if(NOT HARBOR_USE_VIDEO)
-  set(HARBOR_USE_VIDEO_SDL OFF CACHE BOOL "Disabled because HARBOR_USE_VIDEO is off" FORCE)
-  set(HARBOR_USE_VIDEO_OPENGL OFF CACHE BOOL "Disabled because HARBOR_USE_VIDEO is off" FORCE)
-endif()
+macro(depends parent dependency)
+  if(NOT ${parent})
+    set(${dependency} OFF CACHE BOOL "Disabled because ${parent} is off" FORCE)
+  endif()
+endmacro()
+
+depends(HARBOR_USE_SCRIPTING HARBOR_USE_SCRIPTING_SQUIRREL)
+depends(HARBOR_USE_SCRIPTING HARBOR_USE_SCRIPTING_LUA)
+depends(HARBOR_USE_VIDEO HARBOR_USE_VIDEO_SDL)
+depends(HARBOR_USE_VIDEO HARBOR_USE_VIDEO_OPENGL)
 
 # Code quality options
 option(WARNINGS "Enable compilation warnings" OFF)
@@ -76,7 +84,7 @@ list(SORT HARBOR_LIB_FILES)
 
 macro(clear_by_option list_name option_name file_regex)
   if(NOT ${option_name})
-    #list(FILTER...) requires CMake >3.6, polyfill allows keping version small
+    #list(FILTER...) requires CMake >3.6, polyfill allows keeping version small
     #list(FILTER ${list_name} EXCLUDE REGEX ${file_regex})
     file(GLOB_RECURSE DELETE_ENTRIES ${file_regex})
     if(NOT "${DELETE_ENTRIES}" STREQUAL "")
@@ -118,20 +126,24 @@ endif(HARBOR_BUILD_EXEC)
 
 # Test executable
 if(HARBOR_BUILD_TEST)
-  file(GLOB_RECURSE HARBOR_TEST_FILES ${CMAKE_CURRENT_SOURCE_DIR}/tests/*/*.cpp)
-  list(SORT HARBOR_TEST_FILES)
+  if(NOT HARBOR_USER_TEST_SKIP_HARBOR)
+    file(GLOB_RECURSE HARBOR_TEST_FILES ${CMAKE_CURRENT_SOURCE_DIR}/tests/*/*.cpp)
+    list(SORT HARBOR_TEST_FILES)
 
-  clear_by_option(HARBOR_TEST_FILES HARBOR_USE_SCRIPTING ${CMAKE_CURRENT_SOURCE_DIR}/tests/scripting/*)
-  clear_by_option(HARBOR_TEST_FILES HARBOR_USE_SCRIPTING_SQUIRREL ${CMAKE_CURRENT_SOURCE_DIR}/tests/scripting/squirrel/*)
-  clear_by_option(HARBOR_TEST_FILES HARBOR_USE_SCRIPTING_LUA ${CMAKE_CURRENT_SOURCE_DIR}/tests/scripting/lua/*)
-  clear_by_option(HARBOR_TEST_FILES HARBOR_USE_VIDEO ${CMAKE_CURRENT_SOURCE_DIR}/tests/video/*)
-  clear_by_option(HARBOR_TEST_FILES HARBOR_USE_VIDEO_SDL ${CMAKE_CURRENT_SOURCE_DIR}/tests/video/sdl/*)
-  clear_by_option(HARBOR_TEST_FILES HARBOR_USE_VIDEO_OPENGL ${CMAKE_CURRENT_SOURCE_DIR}/tests/video/gl/*)
+    clear_by_option(HARBOR_TEST_FILES HARBOR_USE_SCRIPTING ${CMAKE_CURRENT_SOURCE_DIR}/tests/scripting/*)
+    clear_by_option(HARBOR_TEST_FILES HARBOR_USE_SCRIPTING_SQUIRREL ${CMAKE_CURRENT_SOURCE_DIR}/tests/scripting/squirrel/*)
+    clear_by_option(HARBOR_TEST_FILES HARBOR_USE_SCRIPTING_LUA ${CMAKE_CURRENT_SOURCE_DIR}/tests/scripting/lua/*)
+    clear_by_option(HARBOR_TEST_FILES HARBOR_USE_VIDEO ${CMAKE_CURRENT_SOURCE_DIR}/tests/video/*)
+    clear_by_option(HARBOR_TEST_FILES HARBOR_USE_VIDEO_SDL ${CMAKE_CURRENT_SOURCE_DIR}/tests/video/sdl/*)
+    clear_by_option(HARBOR_TEST_FILES HARBOR_USE_VIDEO_OPENGL ${CMAKE_CURRENT_SOURCE_DIR}/tests/video/gl/*)
+  else(NOT HARBOR_USER_TEST_SKIP_HARBOR)
+    set(HARBOR_TEST_FILES "")
+  endif(NOT HARBOR_USER_TEST_SKIP_HARBOR)
 
-  if(HARBOR_TEST_FILES)
-    add_executable(run_tests ${HARBOR_TEST_FILES})
-    target_include_directories(run_tests PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src/)
-    target_link_libraries(run_tests PUBLIC harbor_lib)
+  if(HARBOR_TEST_FILES OR HARBOR_USER_TEST_SKIP_HARBOR)
+    add_executable(run_tests ${HARBOR_TEST_FILES} ${HARBOR_USER_TEST_FILES})
+    target_include_directories(run_tests PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src/ ${HARBOR_USER_TEST_INCLUDES})
+    target_link_libraries(run_tests PUBLIC harbor_lib ${HARBOR_USER_TEST_LINKS})
 
     # Coverage
     if(CMAKE_COMPILER_IS_GNUCXX AND HARBOR_COVERAGE)
@@ -150,17 +162,28 @@ endif(HARBOR_BUILD_TEST)
 if(EMSCRIPTEN)
   set(CMAKE_EXECUTABLE_SUFFIX .html)
   if(CMAKE_BUILD_TYPE MATCHES "Debug" OR CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo" OR CMAKE_BUILD_TYPE STREQUAL "")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address")# -gsource-map")
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -fsanitize=address")# -gsource-map --source-map-base /")
     target_link_options(harbor_lib PUBLIC -sNO_DISABLE_EXCEPTION_CATCHING
                                           -sLLD_REPORT_UNDEFINED
-                                          -sERROR_ON_UNDEFINED_SYMBOLS=0)
+                                          -sERROR_ON_UNDEFINED_SYMBOLS=0
+                                          -sDEMANGLE_SUPPORT=1
+                                          -sASSERTIONS=2
+                                          #-sSAFE_HEAP=1 # Does not work with -fsanitize=address
+                                          -sSTACK_OVERFLOW_CHECK=2
+                                          -sALLOW_MEMORY_GROWTH=1
+                                          -fsanitize=address)
   endif()
-  target_link_options(harbor_lib PUBLIC --preload-file ${CMAKE_CURRENT_SOURCE_DIR}/data
-                                        -sALLOW_MEMORY_GROWTH=1)
-  target_compile_definitions(harbor_lib PUBLIC DATA_ROOT="${CMAKE_CURRENT_SOURCE_DIR}/data")
   if(HARBOR_BUILD_EXEC)
+    target_link_options(harbor PUBLIC --preload-file ${CMAKE_CURRENT_SOURCE_DIR}/data/@/
+                                          -sALLOW_MEMORY_GROWTH=1 --use-preload-plugins
+                                          -fsanitize=address)
     target_compile_definitions(harbor PUBLIC DATA_ROOT="${CMAKE_CURRENT_SOURCE_DIR}/data")
   endif(HARBOR_BUILD_EXEC)
   if(HARBOR_BUILD_TEST)
+    target_link_options(run_tests PUBLIC --preload-file ${CMAKE_CURRENT_SOURCE_DIR}/data/@/
+                                          -sALLOW_MEMORY_GROWTH=1 --use-preload-plugins
+                                          -fsanitize=address)
     target_compile_definitions(run_tests PUBLIC DATA_ROOT="${CMAKE_CURRENT_SOURCE_DIR}/data")
   endif(HARBOR_BUILD_TEST)
 endif(EMSCRIPTEN)
@@ -229,8 +252,8 @@ if(HARBOR_USE_SCRIPTING_LUA)
 endif()
 
 if(EMSCRIPTEN)
-  target_compile_options(harbor_lib PUBLIC -sUSE_SDL=2)
-  target_link_options(harbor_lib PUBLIC -sUSE_SDL=2)
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -sUSE_SDL=2")
+  set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -sUSE_SDL=2")
 else(EMSCRIPTEN)
   find_package(SDL2)
   if(SDL2_FOUND)
@@ -241,9 +264,9 @@ else(EMSCRIPTEN)
       else(BUILD_SHARED_LIBS)
         target_link_libraries(harbor_lib PUBLIC SDL2::SDL2-static)
       endif(BUILD_SHARED_LIBS)
-      if(WIN32)
+      if(WIN32 AND HARBOR_BUILD_EXEC)
         target_link_libraries(harbor PUBLIC -lmingw32 SDL2::SDL2main)
-      endif(WIN32)
+      endif(WIN32 AND HARBOR_BUILD_EXEC)
     else(VCPKG_TARGET_TRIPLET)
       target_link_libraries(harbor_lib PUBLIC ${SDL2_LIBRARIES})
       target_include_directories(harbor_lib PUBLIC ${SDL2_INCLUDE_DIRS})
@@ -270,8 +293,8 @@ endif(EMSCRIPTEN)
 
 if(HARBOR_USE_VIDEO)
   if(EMSCRIPTEN)
-    target_compile_options(harbor_lib PUBLIC -sUSE_SDL_IMAGE=2 -sSDL2_IMAGE_FORMATS='["png"]' -sUSE_SDL_TTF=2)
-    target_link_options(harbor_lib PUBLIC -sUSE_SDL_IMAGE=2 -sSDL2_IMAGE_FORMATS='["png"]' -sUSE_SDL_TTF=2)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -sUSE_SDL_IMAGE=2 -sSDL2_IMAGE_FORMATS='[\"png\",\"jpg\",\"tiff\"]' -sUSE_SDL_TTF=2")
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -sUSE_SDL_IMAGE=2 -sSDL2_IMAGE_FORMATS='[\"png\",\"jpg\",\"tiff\"]' -sUSE_SDL_TTF=2 --use-preload-plugins")
   else(EMSCRIPTEN)
     find_package(SDL2_image)
     if(SDL2_IMAGE_FOUND)
@@ -334,10 +357,22 @@ if(HARBOR_USE_SCRIPTING_SQUIRREL)
     target_include_directories(harbor_lib PUBLIC ${SQUIRREL_INCLUDE_DIRS})
   else(SQUIRREL_FOUND)
     message(STATUS "Compiling Squirrel from source")
-    #set(SQ_DISABLE_INSTALLER ON CACHE BOOL "" FORCE)    # <- Buggy
+
+    #set(SQ_DISABLE_INSTALLER ON CACHE BOOL "" FORCE)    # <- Buggy (FIXME)
+
+    if(NOT BUILD_SHARED_LIBS)
+      set(DISABLE_DYNAMIC ON)
+    endif(NOT BUILD_SHARED_LIBS)
+
     add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/external/squirrel)
-    target_link_libraries(harbor_lib PUBLIC squirrel)
-    add_dependencies(harbor_lib squirrel)
+
+    if(BUILD_SHARED_LIBS)
+      target_link_libraries(harbor_lib PUBLIC squirrel)
+      add_dependencies(harbor_lib squirrel)
+    else(BUILD_SHARED_LIBS)
+      target_link_libraries(harbor_lib PUBLIC squirrel_static)
+      add_dependencies(harbor_lib squirrel_static)
+    endif(BUILD_SHARED_LIBS)
   endif(SQUIRREL_FOUND)
 endif(HARBOR_USE_SCRIPTING_SQUIRREL)
 
@@ -350,9 +385,9 @@ else(EMSCRIPTEN)
   endif()
 endif(EMSCRIPTEN)
 
-find_package(SDL2_mixer REQUIRED)
-target_link_libraries(harbor_lib PUBLIC ${SDL2_MIXER_LIBRARY})
-target_include_directories(harbor_lib PUBLIC ${SDL2_MIXER_INCLUDE_DIR})
+#find_package(SDL2_mixer REQUIRED)
+#target_link_libraries(harbor_lib PUBLIC ${SDL2_MIXER_LIBRARY})
+#target_include_directories(harbor_lib PUBLIC ${SDL2_MIXER_INCLUDE_DIR})
 
 # ============================================================================
 #    Installing
@@ -383,13 +418,12 @@ else(WIN32 OR UBUNTU_TOUCH)
   endif(HARBOR_BUILD_TEST)
 endif(WIN32 OR UBUNTU_TOUCH)
 
-if(UBUNTU_TOUCH)
+if(UBUNTU_TOUCH AND HARBOR_MAKE_EXEC)
   configure_file(${CMAKE_CURRENT_SOURCE_DIR}/mk/clickable/manifest.json.in ${CMAKE_CURRENT_BINARY_DIR}/install/manifest.json)
   configure_file(${CMAKE_CURRENT_SOURCE_DIR}/mk/clickable/harbor.desktop.in "install/harbor.desktop")
   install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/mk/clickable/harbor.apparmor DESTINATION ".")
-  target_compile_definitions(harbor_lib PUBLIC DATA_ROOT="./data")
   target_compile_definitions(harbor PUBLIC DATA_ROOT="./data")
-endif(UBUNTU_TOUCH)
+endif(UBUNTU_TOUCH AND HARBOR_MAKE_EXEC)
 
 # ============================================================================
 #    Packaging

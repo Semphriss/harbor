@@ -16,7 +16,11 @@
 
 #include "ui/control.hpp"
 
+#ifdef EMSCRIPTEN
+#include "SDL2/SDL.h"
+#else
 #include "SDL.h"
+#endif
 
 #include "ui/container.hpp"
 
@@ -57,6 +61,18 @@ const Rect&
 Control::get_rect() const
 {
   return m_rect;
+}
+
+bool
+Control::is_disabled() const
+{
+  return m_disabled;
+}
+
+void
+Control::set_disabled(bool disabled)
+{
+  m_disabled = disabled;
 }
 
 Container*

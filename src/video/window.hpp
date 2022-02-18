@@ -51,6 +51,8 @@ public:
 public:
   virtual ~Window() = default;
 
+  virtual VideoSystem get_type() const = 0;
+
   virtual Texture& load_texture(const std::string& file) = 0;
   virtual std::shared_ptr<Texture> create_texture(const Size& size) = 0;
   virtual Renderer& get_renderer() = 0;

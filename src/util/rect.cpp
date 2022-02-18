@@ -38,19 +38,27 @@ Rect::Rect(const Size& size) :
 {
 }
 
-Rect::Rect(const Vector& top_left, const Size& size) :
-  x1(top_left.x),
-  y1(top_left.y),
-  x2(top_left.x + size.w),
-  y2(top_left.y + size.h)
-{
-}
-
 Rect::Rect(float _x1, float _y1, float _x2, float _y2) :
   x1(_x1),
   y1(_y1),
   x2(_x2),
   y2(_y2)
+{
+}
+
+Rect::Rect(const Vector& top_lft, const Size& size) :
+  x1(top_lft.x),
+  y1(top_lft.y),
+  x2(top_lft.x + size.w),
+  y2(top_lft.y + size.h)
+{
+}
+
+Rect::Rect(const Vector& p1, const Vector& p2) :
+  x1(std::min(p1.x, p2.x)),
+  y1(std::min(p1.y, p2.y)),
+  x2(std::max(p1.x, p2.x)),
+  y2(std::max(p1.y, p2.y))
 {
 }
 

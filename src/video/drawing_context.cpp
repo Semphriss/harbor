@@ -43,7 +43,8 @@ DrawingContext::clip_src_rect(const Rect& src, const Rect& dst,
 DrawingContext::Transform::Transform() :
   m_offset(),
   m_scale(1.f, 1.f),
-  m_clip(-HUGE_VALF, -HUGE_VALF, HUGE_VALF, HUGE_VALF)
+  m_clip(-HUGE_VALF, -HUGE_VALF, HUGE_VALF, HUGE_VALF),
+  m_color(1.f, 1.f, 1.f, 1.f)
 {
 }
 
@@ -63,6 +64,12 @@ void
 DrawingContext::Transform::clip(const Rect& rect)
 {
   m_clip.clip(Rect(rect.top_lft() * m_scale - m_offset, rect.size() * m_scale));
+}
+
+void
+DrawingContext::Transform::color(const Color& color)
+{
+  m_color *= color;
 }
 
 void
@@ -107,7 +114,7 @@ DrawingContext::draw_filled_rect(const Rect& rect, const Color& color,
                                  const Renderer::Blend& blend, int layer)
 {
   auto req = std::make_unique<FillRectRequest>();
-  req->m_color = color;
+  req->m_color = color * get_transform().m_color;
   req->m_blend = blend;
   req->m_rect = (rect.moved(get_transform().m_offset) * get_transform().m_scale)
                  .clipped(get_transform().m_clip);
@@ -130,7 +137,7 @@ DrawingContext::draw_texture(const Texture& texture,
   Rect dst = (dstrect.moved(get_transform().m_offset) * get_transform().m_scale);
 
   auto req = std::make_unique<TextureRequest>(texture);
-  req->m_color = color;
+  req->m_color = color * get_transform().m_color;
   req->m_blend = blend;
   req->m_srcrect = clip_src_rect(srcrect, dst, get_transform().m_clip);
   req->m_dstrect = dst.clipped(get_transform().m_clip);
@@ -155,7 +162,7 @@ DrawingContext::draw_texture(const std::shared_ptr<Texture>& texture,
   Rect dst = (dstrect.moved(get_transform().m_offset) * get_transform().m_scale);
 
   auto req = std::make_unique<TextureRequest>(*texture);
-  req->m_color = color;
+  req->m_color = color * get_transform().m_color;
   req->m_blend = blend;
   req->m_srcrect = clip_src_rect(srcrect, dst, get_transform().m_clip);
   req->m_dstrect = dst.clipped(get_transform().m_clip);
@@ -180,7 +187,7 @@ DrawingContext::draw_text(const std::string& text, const Vector& pos,
                           int layer)
 {
   auto req = std::make_unique<TextRequest>();
-  req->m_color = color;
+  req->m_color = color * get_transform().m_color;
   req->m_blend = blend;
   req->m_align = align;
   req->m_font = fontfile;
@@ -198,7 +205,7 @@ DrawingContext::draw_line(const Vector& p1, const Vector& p2,
                           int layer)
 {
   auto req = std::make_unique<LineRequest>();
-  req->m_color = color;
+  req->m_color = color * get_transform().m_color;
   req->m_blend = blend;
   auto pts = get_transform().m_clip.clip_line(p1 * get_transform().m_scale -
                                                       get_transform().m_offset,
