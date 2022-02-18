@@ -23,7 +23,11 @@
 
 #include "make_unique.hpp"
 
+#ifdef EMSCRIPTEN
+#include "SDL2/SDL_ttf.h"
+#else
 #include "SDL_ttf.h"
+#endif
 
 #include "util/size.hpp"
 

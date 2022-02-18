@@ -28,8 +28,9 @@ class Rect final
 public:
   Rect();
   Rect(const Size& size);
-  Rect(const Vector& top_left, const Size& size);
   Rect(float _x1, float _y1, float _x2, float _y2);
+  explicit Rect(const Vector& top_lft, const Size& size);
+  explicit Rect(const Vector& p1, const Vector& p2);
 
   Rect& move(const Vector& v);
   Rect& clip(const Rect& rect);

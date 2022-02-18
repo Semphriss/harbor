@@ -27,6 +27,9 @@ public:
   Color(float _r, float _g, float _b, float _a = 1.f);
   Color(const Color& c, float _a);
 
+  Color operator*(const Color& color) const;
+  Color& operator*=(const Color& color);
+
 public:
   float r, g, b, a;
 };

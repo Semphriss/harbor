@@ -20,8 +20,13 @@
 
 #include "make_unique.hpp"
 
+#ifdef EMSCRIPTEN
+#include "SDL2/SDL_image.h"
+#else
 #include "SDL_image.h"
+#endif
 
+#include "util/log.hpp"
 #include "util/vector.hpp"
 #include "video/sdl/sdl_texture.hpp"
 
@@ -53,6 +58,12 @@ SDLWindow::SDLWindow(const Size& size, bool visible) :
 SDLWindow::~SDLWindow()
 {
   SDL_DestroyWindow(m_sdl_window);
+}
+
+Window::VideoSystem
+SDLWindow::get_type() const
+{
+  return VideoSystem::SDL;
 }
 
 Texture&
@@ -203,7 +214,13 @@ SDLWindow::set_bordered(bool bordered)
 void
 SDLWindow::set_resizable(bool resizable)
 {
+#if SDL_VERSION_ATLEAST(2, 0, 5)
   SDL_SetWindowResizable(m_sdl_window, resizable ? SDL_TRUE : SDL_FALSE);
+#else
+  log_info << "Cannot set SDLWindow resizable because it requires SDL >= 2.0.5"
+           << " and the compiled version is " << SDL_MAJOR_VERSION << "."
+           << SDL_MINOR_VERSION << "." << SDL_PATCHLEVEL << std::endl;
+#endif
 }
 
 void

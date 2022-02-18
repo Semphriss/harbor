@@ -76,26 +76,26 @@ GLRenderer::draw_texture(const Texture& texture, const Rect& srcrect,
                              "drawing");
   }
 
-  const GLTexture* t = dynamic_cast<const GLTexture*>(&texture);
-
-  if (!t)
+  if (&texture.get_window() != &get_window())
   {
     throw std::runtime_error("Attempt to use GLRenderer::draw_texture() "
-                             "with a non-GL texture");
+                             "with a texture not targeting the current window");
   }
+
+  const GLTexture& t = static_cast<const GLTexture&>(texture);
 
   glEnable(GL_TEXTURE_2D);
   glEnable(GL_BLEND);
   set_gl_blend(blend);
 
   // TODO: Support blend mode
-  glBindTexture(GL_TEXTURE_2D, t->get_gl_texture());
+  glBindTexture(GL_TEXTURE_2D, t.get_gl_texture());
   glColor4f(color.r, color.g, color.b, color.a);
 
   glBegin(GL_QUADS);
 
-  float w = srcrect.width() / t->get_size().w;
-  float h = srcrect.height() / t->get_size().h;
+  float w = srcrect.width() / t.get_size().w;
+  float h = srcrect.height() / t.get_size().h;
 
   glTexCoord2f(0.f, 0.f);
   Vector tl = Math::rotate(dstrect.top_lft(), dstrect.mid(), angle);
@@ -245,13 +245,13 @@ GLRenderer::start_draw(Texture* texture)
 {
   Renderer::start_draw();
 
-  auto* gl_texture = dynamic_cast<GLTexture*>(texture);
-
-  if (texture && !gl_texture)
+  if (texture && &texture->get_window() != &get_window())
   {
     throw std::runtime_error("Attempt to call GLRenderer::start_draw() with "
-                             "non-null but non-GL texture");
+                             "texture unrelated to current window");
   }
+
+  const GLTexture* gl_texture = static_cast<GLTexture*>(texture);
 
   SDL_GL_MakeCurrent(m_glwindow.get_sdl_window(), m_gl_renderer);
 

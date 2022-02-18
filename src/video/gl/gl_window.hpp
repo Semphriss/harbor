@@ -19,7 +19,11 @@
 
 #include "video/window.hpp"
 
+#ifdef EMSCRIPTEN
+#include "SDL2/SDL.h"
+#else
 #include "SDL.h"
+#endif
 
 #include "video/gl/gl_renderer.hpp"
 
@@ -33,6 +37,8 @@ public:
   virtual Texture& load_texture(const std::string& file) override;
   virtual std::shared_ptr<Texture> create_texture(const Size& size) override;
   virtual Renderer& get_renderer() override;
+
+  virtual VideoSystem get_type() const override;
 
   virtual std::string get_title() const override;
   virtual Size get_size() const override;

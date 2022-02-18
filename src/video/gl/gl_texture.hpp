@@ -21,7 +21,11 @@
 
 #include <memory>
 
+#ifdef EMSCRIPTEN
+#include "SDL2/SDL_opengl.h"
+#else
 #include "SDL_opengl.h"
+#endif
 
 #include "video/gl/gl_renderer.hpp"
 

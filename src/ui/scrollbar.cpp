@@ -16,8 +16,6 @@
 
 #include "ui/scrollbar.hpp"
 
-#include "SDL_events.h"
-
 #include "ui/container.hpp"
 #include "util/math.hpp"
 #include "video/drawing_context.hpp"

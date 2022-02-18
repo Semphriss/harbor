@@ -20,6 +20,7 @@
 #include "util/size.hpp"
 
 class Renderer;
+class Window;
 
 /**
  * Class that represents a readable texture.
@@ -30,12 +31,14 @@ public:
   virtual ~Texture() = default;
 
 protected:
-  Texture(const Size& size);
+  Texture(const Window& window, const Size& size);
 
 public:
+  const Window& get_window() const;
   Size get_size() const;
 
 protected:
+  const Window& m_window;
   Size m_size;
 
 private:

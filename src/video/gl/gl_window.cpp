@@ -18,8 +18,13 @@
 
 #include "make_unique.hpp"
 
+#ifdef EMSCRIPTEN
+#include "SDL2/SDL_image.h"
+#else
 #include "SDL_image.h"
+#endif
 
+#include "util/log.hpp"
 #include "util/vector.hpp"
 #include "video/gl/gl_texture.hpp"
 
@@ -45,6 +50,12 @@ GLWindow::GLWindow(const Size& size, bool visible) :
 GLWindow::~GLWindow()
 {
   SDL_DestroyWindow(m_sdl_window);
+}
+
+Window::VideoSystem
+GLWindow::get_type() const
+{
+  return VideoSystem::GL;
 }
 
 Texture&
@@ -195,7 +206,13 @@ GLWindow::set_bordered(bool bordered)
 void
 GLWindow::set_resizable(bool resizable)
 {
+#if SDL_VERSION_ATLEAST(2, 0, 5)
   SDL_SetWindowResizable(m_sdl_window, resizable ? SDL_TRUE : SDL_FALSE);
+#else
+  log_info << "Cannot set GLWindow resizable because it requires SDL >= 2.0.5"
+           << " and the compiled version is " << SDL_MAJOR_VERSION << "."
+           << SDL_MINOR_VERSION << "." << SDL_PATCHLEVEL << std::endl;
+#endif
 }
 
 void

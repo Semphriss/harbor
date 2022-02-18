@@ -19,10 +19,17 @@
 #endif
 #include <fstream>
 
+#ifdef EMSCRIPTEN
+#include "SDL2/SDL.h"
+#include "SDL2/SDL_image.h"
+//#include "SDL2/SDL_mixer.h"
+#include "SDL2/SDL_ttf.h"
+#else
 #include "SDL.h"
 #include "SDL_image.h"
-#include "SDL_mixer.h"
+//#include "SDL_mixer.h"
 #include "SDL_ttf.h"
+#endif
 
 #include "ui/textbox.hpp"
 #include "util/color.hpp"
@@ -121,7 +128,7 @@ int main(int /* argc */, char** /* argv */)
 
   Log::s_level = Log::Level::ALL;
   log_info << "Data root: " << DATA_ROOT << std::endl;
-
+/*
   int audio_rate = 44100;
   Uint16 audio_format = AUDIO_S16SYS;
   int audio_channels = 2;
@@ -139,6 +146,7 @@ int main(int /* argc */, char** /* argv */)
     log_fatal << "Unable to load WAV file: " << Mix_GetError() << std::endl;
     return 1;
   }
+*/
 /*
   int channel = Mix_PlayChannel(-1, sound, 0);
   if (channel == -1)
@@ -175,10 +183,11 @@ int main(int /* argc */, char** /* argv */)
     while(loop())
       SDL_Delay(10);
 #endif
-
+/*
     Mix_PlayChannel(-1, nullptr, 0);
     Mix_FreeChunk(sound);
     Mix_CloseAudio();
+*/
   }
   catch(std::exception& e)
   {

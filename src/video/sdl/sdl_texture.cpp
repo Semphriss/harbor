@@ -21,11 +21,16 @@
 #include <stdexcept>
 #include <string>
 
+#ifdef EMSCRIPTEN
+#include "SDL2/SDL.h"
+#include "SDL2/SDL_image.h"
+#else
 #include "SDL.h"
 #include "SDL_image.h"
+#endif
 
 SDLTexture::SDLTexture(SDLWindow& window, const Size& size) :
-  Texture(size),
+  Texture(window, size),
   m_renderer(window.get_sdlrenderer()),
   m_sdl_texture(SDL_CreateTexture(m_renderer.get_sdl_renderer(),
                                   SDL_PIXELFORMAT_RGBA8888,
@@ -41,13 +46,24 @@ SDLTexture::SDLTexture(SDLWindow& window, const Size& size) :
 }
 
 SDLTexture::SDLTexture(SDLWindow& window, const std::string& file) :
-  Texture(Size()),
+  Texture(window, Size()),
   m_renderer(window.get_sdlrenderer()),
-  m_sdl_texture(IMG_LoadTexture(m_renderer.get_sdl_renderer(), file.c_str()))
+  m_sdl_texture(nullptr)
 {
+  SDL_Surface* img = IMG_Load(file.c_str());
+
+  if (!img)
+  {
+    throw std::runtime_error("Could not load SDL surface: " +
+                              std::string(SDL_GetError()));
+  }
+
+  m_sdl_texture = SDL_CreateTextureFromSurface(m_renderer.get_sdl_renderer(), img);
+  SDL_FreeSurface(img);
+
   if (!m_sdl_texture)
   {
-    throw std::runtime_error("Could not load SDL Texture: " +
+    throw std::runtime_error("Could not convert SDL surface to texture: " +
                               std::string(SDL_GetError()));
   }
 

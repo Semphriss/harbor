@@ -16,9 +16,16 @@
 
 #include "video/texture.hpp"
 
-Texture::Texture(const Size& size) :
+Texture::Texture(const Window& window, const Size& size) :
+  m_window(window),
   m_size(size)
 {
+}
+
+const Window&
+Texture::get_window() const
+{
+  return m_window;
 }
 
 Size

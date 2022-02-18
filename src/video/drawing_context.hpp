@@ -49,11 +49,13 @@ public:
     void move(const Vector& offset);
     void scale(const Size& scale);
     void clip(const Rect& rect);
+    void color(const Color& color);
 
   public:
     Vector m_offset;
     Size m_scale;
     Rect m_clip;
+    Color m_color;
   };
 
   /**

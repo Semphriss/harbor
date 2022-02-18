@@ -40,6 +40,22 @@ Color::Color(const Color& c, float _a) :
 {
 }
 
+Color
+Color::operator*(const Color& color) const
+{
+  return Color(r * color.r, g * color.g, b * color.b, a * color.a);
+}
+
+Color&
+Color::operator*=(const Color& color)
+{
+  this->r *= color.r;
+  this->g *= color.g;
+  this->b *= color.b;
+  this->a *= color.a;
+  return *this;
+}
+
 std::ostream& operator<<(std::ostream& stream, const Color& color)
 {
   return stream << "Color(" << color.r << ", " << color.g << ", " << color.b

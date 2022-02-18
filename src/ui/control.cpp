@@ -16,7 +16,11 @@
 
 #include "ui/control.hpp"
 
+#ifdef EMSCRIPTEN
+#include "SDL2/SDL.h"
+#else
 #include "SDL.h"
+#endif
 
 #include "ui/container.hpp"
 

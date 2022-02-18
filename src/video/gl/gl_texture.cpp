@@ -19,12 +19,16 @@
 #include <stdexcept>
 #include <string>
 
+#ifdef EMSCRIPTEN
+#include "SDL2/SDL_image.h"
+#else
 #include "SDL_image.h"
+#endif
 
 #include "video/gl/gl_window.hpp"
 
 GLTexture::GLTexture(GLWindow& window, const Size& size) :
-  Texture(size),
+  Texture(window, size),
   m_renderer(window.get_glrenderer()),
   m_gl_texture(),
   m_sdl_surface(nullptr)
@@ -40,7 +44,7 @@ GLTexture::GLTexture(GLWindow& window, const Size& size) :
 }
 
 GLTexture::GLTexture(GLWindow& window, const std::string& file) :
-  Texture(Size()),
+  Texture(window, Size()),
   m_renderer(window.get_glrenderer()),
   m_gl_texture(),
   m_sdl_surface(nullptr)
