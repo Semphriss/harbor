@@ -18,7 +18,7 @@
 #define _POLYFILL_MAKE_UNIQUE
 
 #include <memory>
-#if __cplusplus <= 201103L
+#if __cplusplus <= 201103L && !defined(_MSC_VER)
 
 namespace std {
 

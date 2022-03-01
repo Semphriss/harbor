@@ -19,6 +19,11 @@
 
 #include <iostream>
 
+// MSVC defines an "ERROR" macro, which conflicts with the enum below.
+#ifdef ERROR
+#undef ERROR
+#endif
+
 #define log_(LEVEL) if (Log::s_level >= Log::Level::LEVEL)                     \
                     Log::log(#LEVEL, __FILE__, __LINE__)
 
