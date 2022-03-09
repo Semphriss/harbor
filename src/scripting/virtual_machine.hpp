@@ -37,25 +37,24 @@ public:
   VirtualMachine() = default;
   virtual ~VirtualMachine() = default;
 
-  virtual void run_code(std::string script, std::string source) = 0;
+  virtual void run_code(const std::string& script, const std::string& source) = 0;
 
   // TODO: Support inheritance
-  virtual void expose_class(std::string name,
-                            std::vector<Function> methods) = 0;
-  virtual void expose_instance(std::string classname, std::string name,
-                               Scriptable* owner) = 0;
-  virtual void expose_object(std::string name,
-                             std::vector<Function> obj) = 0;
-  virtual void expose_function(Function func) = 0;
-  virtual void expose_bool(std::string name, bool val) = 0;
-  virtual void expose_int(std::string name, int val) = 0;
-  virtual void expose_float(std::string name, float val) = 0;
-  virtual void expose_string(std::string name, std::string val) = 0;
-  virtual std::vector<std::unique_ptr<Type>> call_function(std::string name,
-                                        std::vector<std::unique_ptr<Type>> args,
-                                        Scriptable* obj = nullptr,
-                                        bool func_relative = false) = 0;
-  virtual void remove_entry(std::string name) = 0;
+  virtual void expose_class(const std::string& name,
+                            const std::vector<Function>& methods) = 0;
+  virtual void expose_instance(const std::string& classname,
+                               const std::string& name, Scriptable* owner) = 0;
+  virtual void expose_object(const std::string& name,
+                             const std::vector<Function>& obj) = 0;
+  virtual void expose_function(const Function& func) = 0;
+  virtual void expose_bool(const std::string& name, bool val) = 0;
+  virtual void expose_int(const std::string& name, int val) = 0;
+  virtual void expose_float(const std::string& name, float val) = 0;
+  virtual void expose_string(const std::string& name, const std::string& val) = 0;
+  virtual FnReturn call_function(const std::string& name, const FnArgs& args,
+                                 Scriptable* obj = nullptr,
+                                 bool func_relative = false) = 0;
+  virtual void remove_entry(const std::string& name) = 0;
 
 private:
   VirtualMachine(const VirtualMachine&) = delete;

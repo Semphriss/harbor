@@ -71,7 +71,7 @@ SquirrelVirtualMachine::squirrel_call(HSQUIRRELVM vm)
     return 0;
 
   // Parse arguments
-  std::vector<std::unique_ptr<Type>> args;
+  FnArgs args;
 
   int nargs = static_cast<int>(func->m_arg_types.size());
 
@@ -269,7 +269,7 @@ SquirrelVirtualMachine::~SquirrelVirtualMachine()
 }
 
 void
-SquirrelVirtualMachine::run_code(std::string code, std::string source)
+SquirrelVirtualMachine::run_code(const std::string& code, const std::string& source)
 {
   std::istringstream s(code);
 
@@ -298,8 +298,8 @@ SquirrelVirtualMachine::run_code(std::string code, std::string source)
 }
 
 void
-SquirrelVirtualMachine::expose_class(std::string name,
-                                std::vector<Function> methods)
+SquirrelVirtualMachine::expose_class(const std::string& name,
+                                const std::vector<Function>& methods)
 {
   sq_pushroottable(m_vm);
   std::string varname = resolve_name(name, false);
@@ -322,7 +322,9 @@ SquirrelVirtualMachine::expose_class(std::string name,
 }
 
 void
-SquirrelVirtualMachine::expose_instance(std::string classname, std::string name, Scriptable* owner)
+SquirrelVirtualMachine::expose_instance(const std::string& classname,
+                                        const std::string& name,
+                                        Scriptable* owner)
 {
   // The lazy way to protect the stack
   auto top = sq_gettop(m_vm);
@@ -394,8 +396,8 @@ SquirrelVirtualMachine::expose_instance(std::string classname, std::string name,
 }
 
 void
-SquirrelVirtualMachine::expose_object(std::string name,
-                                      std::vector<Function> obj)
+SquirrelVirtualMachine::expose_object(const std::string& name,
+                                      const std::vector<Function>& obj)
 {
   // The lazy way to protect the stack
   auto top = sq_gettop(m_vm);
@@ -428,7 +430,7 @@ SquirrelVirtualMachine::expose_object(std::string name,
 }
 
 void
-SquirrelVirtualMachine::expose_function(Function func)
+SquirrelVirtualMachine::expose_function(const Function& func)
 {
   m_functions.push_back(func);
 
@@ -450,7 +452,7 @@ SquirrelVirtualMachine::expose_function(Function func)
 }
 
 void
-SquirrelVirtualMachine::expose_bool(std::string name, bool val)
+SquirrelVirtualMachine::expose_bool(const std::string& name, bool val)
 {
   sq_pushroottable(m_vm);
   std::string varname = resolve_name(name, false);
@@ -465,7 +467,7 @@ SquirrelVirtualMachine::expose_bool(std::string name, bool val)
 }
 
 void
-SquirrelVirtualMachine::expose_int(std::string name, int val)
+SquirrelVirtualMachine::expose_int(const std::string& name, int val)
 {
   sq_pushroottable(m_vm);
   std::string varname = resolve_name(name, false);
@@ -480,7 +482,7 @@ SquirrelVirtualMachine::expose_int(std::string name, int val)
 }
 
 void
-SquirrelVirtualMachine::expose_float(std::string name, float val)
+SquirrelVirtualMachine::expose_float(const std::string& name, float val)
 {
   sq_pushroottable(m_vm);
   std::string varname = resolve_name(name, false);
@@ -495,7 +497,7 @@ SquirrelVirtualMachine::expose_float(std::string name, float val)
 }
 
 void
-SquirrelVirtualMachine::expose_string(std::string name, std::string val)
+SquirrelVirtualMachine::expose_string(const std::string& name, const std::string& val)
 {
   sq_pushroottable(m_vm);
   std::string varname = resolve_name(name, false);
@@ -530,10 +532,10 @@ SquirrelVirtualMachine::expose_string(std::string name, std::string val)
  *                      to the object containing the function.
  * @author Semphris <semphris@protonmail.com>
  */
-std::vector<std::unique_ptr<VirtualMachine::Type>>
-SquirrelVirtualMachine::call_function(std::string func_name,
-                                      std::vector<std::unique_ptr<Type>> args,
-                                      Scriptable* obj, bool func_relative)
+VirtualMachine::FnReturn
+SquirrelVirtualMachine::call_function(const std::string& name,
+                                      const FnArgs& args, Scriptable* obj,
+                                      bool func_relative)
 {
   // The lazy way to protect the stack
   auto top = sq_gettop(m_vm);
@@ -554,13 +556,13 @@ SquirrelVirtualMachine::call_function(std::string func_name,
     sq_pushroottable(m_vm);
   }
 
-  resolve_name(func_name, true);
+  resolve_name(name, true);
 
   if (sq_gettype(m_vm, -1) != SQObjectType::OT_CLOSURE &&
       sq_gettype(m_vm, -1) != SQObjectType::OT_NATIVECLOSURE)
   {
     sq_pop(m_vm, sq_gettop(m_vm) - top);
-    throw std::runtime_error("'" + func_name + "' isn't a function in "
+    throw std::runtime_error("'" + name + "' isn't a function in "
                               + (obj ? "object" : "VM"));
   }
 
@@ -576,7 +578,7 @@ SquirrelVirtualMachine::call_function(std::string func_name,
     sq_pushroottable(m_vm);
     if (!func_relative)
     {
-      resolve_name(func_name, false);
+      resolve_name(name, false);
     }
   }
 
@@ -625,7 +627,7 @@ SquirrelVirtualMachine::call_function(std::string func_name,
     throw std::runtime_error("Could not call function: " + get_error());
   }
 
-  std::vector<std::unique_ptr<VirtualMachine::Type>> ret;
+  FnReturn ret;
 
   // Parse return value
   switch (sq_gettype(m_vm, -1))
@@ -685,7 +687,7 @@ SquirrelVirtualMachine::call_function(std::string func_name,
 }
 
 void
-SquirrelVirtualMachine::remove_entry(std::string name)
+SquirrelVirtualMachine::remove_entry(const std::string& name)
 {
   sq_pushroottable(m_vm);
   std::string varname = resolve_name(name, false);
@@ -743,7 +745,8 @@ SquirrelVirtualMachine::get_error()
 }
 
 void
-SquirrelVirtualMachine::push_instance(std::string classname, Scriptable* owner)
+SquirrelVirtualMachine::push_instance(const std::string& classname,
+                                      Scriptable* owner)
 {
   auto it = m_objects.find(owner);
 
@@ -795,7 +798,7 @@ SquirrelVirtualMachine::push_instance(std::string classname, Scriptable* owner)
 }
 
 std::string
-SquirrelVirtualMachine::resolve_name(std::string name, bool resolve_last)
+SquirrelVirtualMachine::resolve_name(const std::string& name, bool resolve_last)
 {
   std::string path = name;
   if (!resolve_last)

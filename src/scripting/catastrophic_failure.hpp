@@ -42,6 +42,8 @@ public:
   // Forward declarations, because they will be public
   class Type;
   enum class Types;
+  typedef std::vector<std::unique_ptr<Type>> FnReturn;
+  typedef std::vector<std::unique_ptr<Type>> FnArgs;
 
 private:
   // ========================================================================

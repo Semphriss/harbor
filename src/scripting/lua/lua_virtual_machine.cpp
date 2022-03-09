@@ -37,7 +37,7 @@ LuaVirtualMachine::call_lua(lua_State* vm)
     return 0;
 
   // Parse arguments
-  std::vector<std::unique_ptr<Type>> args;
+  FnArgs args;
 
   int nargs = static_cast<int>(func->m_arg_types.size());
 
@@ -240,7 +240,7 @@ LuaVirtualMachine::~LuaVirtualMachine()
 }
 
 void
-LuaVirtualMachine::run_code(std::string code, std::string source)
+LuaVirtualMachine::run_code(const std::string& code, const std::string& source)
 {
   if (luaL_loadbuffer(m_vm, code.c_str(), code.size(), source.c_str()))
   {
@@ -260,8 +260,8 @@ LuaVirtualMachine::run_code(std::string code, std::string source)
 }
 
 void
-LuaVirtualMachine::expose_class(std::string name,
-                                std::vector<Function> methods)
+LuaVirtualMachine::expose_class(const std::string& name,
+                                const std::vector<Function>& methods)
 {
 #if LUA_VERSION_NUM > 501
   lua_pushglobaltable(m_vm);
@@ -288,20 +288,20 @@ LuaVirtualMachine::expose_class(std::string name,
 }
 
 void
-LuaVirtualMachine::expose_instance(std::string /* classname */,
-                                   std::string /* name */,
+LuaVirtualMachine::expose_instance(const std::string& /* classname */,
+                                   const std::string& /* name */,
                                    Scriptable* /* owner */)
 {
 }
 
 void
-LuaVirtualMachine::expose_object(std::string /* name */,
-                                 std::vector<Function> /* obj */)
+LuaVirtualMachine::expose_object(const std::string& /* name */,
+                                 const std::vector<Function>& /* obj */)
 {
 }
 
 void
-LuaVirtualMachine::expose_function(Function func)
+LuaVirtualMachine::expose_function(const Function& func)
 {
   m_functions.push_back(func);
 
@@ -319,7 +319,7 @@ LuaVirtualMachine::expose_function(Function func)
 }
 
 void
-LuaVirtualMachine::expose_bool(std::string name, bool val)
+LuaVirtualMachine::expose_bool(const std::string& name, bool val)
 {
 #if LUA_VERSION_NUM > 501
   lua_pushglobaltable(m_vm);
@@ -343,7 +343,7 @@ LuaVirtualMachine::expose_bool(std::string name, bool val)
 }
 
 void
-LuaVirtualMachine::expose_int(std::string name, int val)
+LuaVirtualMachine::expose_int(const std::string& name, int val)
 {
 #if LUA_VERSION_NUM > 501
   lua_pushglobaltable(m_vm);
@@ -367,7 +367,7 @@ LuaVirtualMachine::expose_int(std::string name, int val)
 }
 
 void
-LuaVirtualMachine::expose_float(std::string name, float val)
+LuaVirtualMachine::expose_float(const std::string& name, float val)
 {
 #if LUA_VERSION_NUM > 501
   lua_pushglobaltable(m_vm);
@@ -391,7 +391,8 @@ LuaVirtualMachine::expose_float(std::string name, float val)
 }
 
 void
-LuaVirtualMachine::expose_string(std::string name, std::string val)
+LuaVirtualMachine::expose_string(const std::string& name,
+                                 const std::string& val)
 {
 #if LUA_VERSION_NUM > 501
   lua_pushglobaltable(m_vm);
@@ -414,19 +415,17 @@ LuaVirtualMachine::expose_string(std::string name, std::string val)
 #endif
 }
 
-std::vector<std::unique_ptr<VirtualMachine::Type>>
-LuaVirtualMachine::call_function(std::string func_name,
-                                 std::vector<std::unique_ptr<Type>> args,
-                                 Scriptable* /* obj */,
-                                 bool /* func_relative */)
+VirtualMachine::FnReturn
+LuaVirtualMachine::call_function(const std::string& name, const FnArgs& args,
+                                 Scriptable* /* obj */, bool /* func_relative */)
 {
   int top = lua_gettop(m_vm);
 
-  resolve_name(func_name, true);
+  resolve_name(name, true);
 
   if (lua_type(m_vm, -1) != LUA_TFUNCTION)
   {
-    throw std::runtime_error("Lua: " + func_name + " is not a function");
+    throw std::runtime_error("Lua: " + name + " is not a function");
   }
 
   for (const auto& arg : args)
@@ -465,13 +464,13 @@ LuaVirtualMachine::call_function(std::string func_name,
   {
     std::string error_message(lua_tostring(m_vm, -1));
     lua_settop(m_vm, top);
-    throw std::runtime_error("Could not run Lua function '" + func_name + "': "
+    throw std::runtime_error("Could not run Lua function '" + name + "': "
                               + error_message);
   }
 
   int nret = lua_gettop(m_vm) - top;
 
-  std::vector<std::unique_ptr<Type>> ret;
+  FnReturn ret;
 
   for (int i = top + 1; i <= top + nret; i++)
   {
@@ -516,7 +515,7 @@ LuaVirtualMachine::call_function(std::string func_name,
 }
 
 void
-LuaVirtualMachine::remove_entry(std::string name)
+LuaVirtualMachine::remove_entry(const std::string& name)
 {
 #if LUA_VERSION_NUM > 501
   lua_pushglobaltable(m_vm);
@@ -553,7 +552,7 @@ LuaVirtualMachine::get_function_by_name(const std::string& name) const
 }
 
 std::string
-LuaVirtualMachine::resolve_name(std::string name, bool resolve_last)
+LuaVirtualMachine::resolve_name(const std::string& name, bool resolve_last)
 {
   std::string path = name;
   if (!resolve_last)

@@ -47,23 +47,22 @@ public:
   LuaVirtualMachine();
   virtual ~LuaVirtualMachine() override;
 
-  virtual void run_code(std::string script, std::string source) override;
-  virtual void expose_class(std::string name,
-                            std::vector<Function> methods) override;
-  virtual void expose_instance(std::string classname, std::string name,
+  virtual void run_code(const std::string& script, const std::string& source) override;
+  virtual void expose_class(const std::string& name,
+                            const std::vector<Function>& methods) override;
+  virtual void expose_instance(const std::string& classname, const std::string& name,
                                Scriptable* owner) override;
-  virtual void expose_object(std::string name,
-                             std::vector<Function> obj) override;
-  virtual void expose_function(Function func) override;
-  virtual void expose_bool(std::string name, bool val) override;
-  virtual void expose_int(std::string name, int val) override;
-  virtual void expose_float(std::string name, float val) override;
-  virtual void expose_string(std::string name, std::string val) override;
-  virtual std::vector<std::unique_ptr<Type>> call_function(std::string name,
-                                        std::vector<std::unique_ptr<Type>> args,
-                                        Scriptable* obj = nullptr,
-                                        bool func_relative = false) override;
-  virtual void remove_entry(std::string name) override;
+  virtual void expose_object(const std::string& name,
+                             const std::vector<Function>& obj) override;
+  virtual void expose_function(const Function& func) override;
+  virtual void expose_bool(const std::string& name, bool val) override;
+  virtual void expose_int(const std::string& name, int val) override;
+  virtual void expose_float(const std::string& name, float val) override;
+  virtual void expose_string(const std::string& name, const std::string& val) override;
+  virtual FnReturn call_function(const std::string& name, const FnArgs& args,
+                                 Scriptable* obj = nullptr,
+                                 bool func_relative = false) override;
+  virtual void remove_entry(const std::string& name) override;
 
   const Function* get_function_by_name(const std::string& name) const;
 
@@ -78,7 +77,7 @@ private:
    * @returns the name of the last object as a string, for example `"var2"`.
    * @throws if the path is incorrectly formatted or the object doesn't exist.
    */
-  std::string resolve_name(std::string name, bool resolve_last = true);
+  std::string resolve_name(const std::string& name, bool resolve_last = true);
 
 private:
   lua_State* m_vm;
