@@ -261,7 +261,7 @@ LuaVirtualMachine::run_code(std::string code, std::string source)
 
 void
 LuaVirtualMachine::expose_class(std::string name,
-                                std::vector<ExposableFunction> methods)
+                                std::vector<Function> methods)
 {
 #if LUA_VERSION_NUM > 501
   lua_pushglobaltable(m_vm);
@@ -296,12 +296,12 @@ LuaVirtualMachine::expose_instance(std::string /* classname */,
 
 void
 LuaVirtualMachine::expose_object(std::string /* name */,
-                                 std::vector<ExposableFunction> /* obj */)
+                                 std::vector<Function> /* obj */)
 {
 }
 
 void
-LuaVirtualMachine::expose_function(ExposableFunction func)
+LuaVirtualMachine::expose_function(Function func)
 {
   m_functions.push_back(func);
 
@@ -538,7 +538,7 @@ LuaVirtualMachine::remove_entry(std::string name)
 #endif
 }
 
-const VirtualMachine::ExposableFunction*
+const VirtualMachine::Function*
 LuaVirtualMachine::get_function_by_name(const std::string& name) const
 {
   for (const auto& f : m_functions)

@@ -23,234 +23,16 @@
 #include <unordered_map>
 #include <vector>
 
+#include "scripting/catastrophic_failure.hpp"
+
 class Scriptable;
 
 /**
  * Class that represents a virtual machine for scripting.
  */
-class VirtualMachine
+class VirtualMachine :
+  protected CatastrophicFailure
 {
-public:
-  // Forward declarations, because they will be public
-  class Type;
-  enum class Types;
-
-private:
-  // ========================================================================
-  // SINGLE_ARG
-
-  template<typename T, size_t pos, typename... Args>
-  class SingleArg;
-
-  template<size_t Pos, typename... Args>
-  class SingleArg<bool, Pos, Args...>
-  {
-  public:
-    static void parse(std::tuple<Args...>& tuple, Type* arg);
-  };
-
-  template<size_t Pos, typename... Args>
-  class SingleArg<float, Pos, Args...>
-  {
-  public:
-    static void parse(std::tuple<Args...>& tuple, Type* arg);
-  };
-
-  template<size_t Pos, typename... Args>
-  class SingleArg<int, Pos, Args...>
-  {
-  public:
-    static void parse(std::tuple<Args...>& tuple, Type* arg);
-  };
-
-  template<size_t Pos, typename... Args>
-  class SingleArg<Scriptable*, Pos, Args...>
-  {
-  public:
-    static void parse(std::tuple<Args...>& tuple, Type* arg);
-  };
-
-  template<size_t Pos, typename... Args>
-  class SingleArg<std::string, Pos, Args...>
-  {
-  public:
-    static void parse(std::tuple<Args...>& tuple, Type* arg);
-  };
-
-  // ========================================================================
-  // RETURN_VAL
-
-  template<typename T, typename... A>
-  class ReturnVal;
-
-  template<typename... A>
-  class ReturnVal<void, A...>
-  {
-  public:
-    static std::unique_ptr<Type> exec(std::function<void(A...)> func, const std::tuple<A...>& args);
-  };
-
-  template<typename... A>
-  class ReturnVal<bool, A...>
-  {
-  public:
-    static std::unique_ptr<Type> exec(std::function<bool(A...)> func, const std::tuple<A...>& args);
-  };
-
-  template<typename... A>
-  class ReturnVal<float, A...>
-  {
-  public:
-    static std::unique_ptr<Type> exec(std::function<float(A...)> func, const std::tuple<A...>& args);
-  };
-
-  template<typename... A>
-  class ReturnVal<int, A...>
-  {
-  public:
-    static std::unique_ptr<Type> exec(std::function<int(A...)> func, const std::tuple<A...>& args);
-  };
-
-  template<typename... A>
-  class ReturnVal<Scriptable*, A...>
-  {
-  public:
-    static std::unique_ptr<Type> exec(std::function<Scriptable*(A...)> func, const std::tuple<A...>& args);
-  };
-
-  template<typename... A>
-  class ReturnVal<std::string, A...>
-  {
-  public:
-    static std::unique_ptr<Type> exec(std::function<std::string(A...)> func, const std::tuple<A...>& args);
-  };
-
-  // ========================================================================
-  // FETCH_ARG
-
-  template<std::size_t Current, std::size_t End, typename... Args>
-  class FetchArg;
-
-  template<std::size_t End, typename... Args>
-  class FetchArg<End, End, Args...>
-  {
-  public:
-    FetchArg(std::tuple<Args...>& /* tuple */, const std::vector<std::unique_ptr<Type>>& /* args */) {}
-  };
-
-  template<std::size_t Current, std::size_t End, typename... Args>
-  class FetchArg
-  {
-  public:
-    FetchArg(std::tuple<Args...>& tuple, const std::vector<std::unique_ptr<Type>>& args);
-  };
-
-  // ========================================================================
-  // LIST_ARG
-
-  template<std::size_t Current, std::size_t End, typename... Args>
-  class ListArg;
-
-  template<std::size_t End, typename... Args>
-  class ListArg<End, End, Args...>
-  {
-  public:
-    static void list(std::vector<Types>& /* list */) {}
-  };
-
-  template<std::size_t Current, std::size_t End, typename... Args>
-  class ListArg
-  {
-  public:
-    static void list(std::vector<Types>& list);
-  };
-
-public:
-  enum class Types
-  {
-    BOOLEAN,
-    INTEGER,
-    FLOAT,
-    OBJECT,
-    STRING
-  };
-
-  class Type
-  {
-    // This is just to make this class look polymorphic to the compiler
-  public:
-    virtual ~Type() = default;
-  };
-
-  class Boolean final :
-    public Type
-  {
-  public:
-    Boolean() = default;
-    Boolean(bool v) : m_value(v) {}
-  public:
-    bool m_value;
-  };
-
-  class Integer final :
-    public Type
-  {
-  public:
-    Integer() = default;
-    Integer(int v) : m_value(v) {}
-  public:
-    int m_value;
-  };
-
-  class Float final :
-    public Type
-  {
-  public:
-    Float() = default;
-    Float(float v) : m_value(v) {}
-  public:
-    float m_value;
-  };
-
-  class Object final :
-    public Type
-  {
-  public:
-    Object() = default;
-    Object(Scriptable* v) : m_value(v) {}
-  public:
-    Scriptable* m_value;
-  };
-
-  class String final :
-    public Type
-  {
-  public:
-    String() = default;
-    String(std::string v) : m_value(v) {}
-  public:
-    std::string m_value;
-  };
-
-  typedef std::function<std::unique_ptr<Type>(const std::vector<std::unique_ptr<Type>>&)> ScriptFunction;
-
-  class ExposableFunction final
-  {
-  public:
-    ExposableFunction() = default;
-    ExposableFunction(const std::string& name, const std::pair<ScriptFunction,
-                                                std::vector<Types>>& function);
-
-  public:
-    std::string m_name;
-    ScriptFunction m_function;
-    std::vector<Types> m_arg_types;
-  };
-
-public:
-  template<typename R, typename... A, size_t NArgs = std::tuple_size<std::tuple<A...>>::value>
-  static std::pair<ScriptFunction, std::vector<Types>> bind(std::function<R(A...)> func);
-
 public:
   VirtualMachine() = default;
   virtual ~VirtualMachine() = default;
@@ -259,12 +41,12 @@ public:
 
   // TODO: Support inheritance
   virtual void expose_class(std::string name,
-                            std::vector<ExposableFunction> methods) = 0;
+                            std::vector<Function> methods) = 0;
   virtual void expose_instance(std::string classname, std::string name,
                                Scriptable* owner) = 0;
   virtual void expose_object(std::string name,
-                             std::vector<ExposableFunction> obj) = 0;
-  virtual void expose_function(ExposableFunction func) = 0;
+                             std::vector<Function> obj) = 0;
+  virtual void expose_function(Function func) = 0;
   virtual void expose_bool(std::string name, bool val) = 0;
   virtual void expose_int(std::string name, int val) = 0;
   virtual void expose_float(std::string name, float val) = 0;
@@ -279,7 +61,5 @@ private:
   VirtualMachine(const VirtualMachine&) = delete;
   VirtualMachine& operator=(const VirtualMachine&) = delete;
 };
-
-#include "scripting/virtual_machine.cpp"
 
 #endif

@@ -30,10 +30,6 @@ public:
   Scriptable() = default;
   virtual ~Scriptable() = default;
 
-/*
-  virtual void expose_class(VirtualMachine& vm) const = 0;
-  virtual void expose_object(VirtualMachine& vm, Scriptable& object) const = 0;
-*/
   virtual std::string get_classname() const = 0;
 
 protected:

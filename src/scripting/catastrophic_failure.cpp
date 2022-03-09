@@ -14,17 +14,13 @@
 //  You should have received a copy of the GNU Lesser General Public License
 //  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#ifndef _HEADER_HARBOR_SCRIPTING_VIRTUALMACHINE_HPP
+// CATASTROPHIC FAILURE
+// In C++, there will always be a way to do anything.
+// However, it's not guaranteed that that way was actually intended.
 
-#include "scripting/virtual_machine.hpp"
+#ifndef _HEADER_HARBOR_SCRIPTING_CATASTROPHICFAILURE_HPP
 
-VirtualMachine::ExposableFunction::ExposableFunction(const std::string& name,
-                const std::pair<ScriptFunction, std::vector<Types>>& function) :
-  m_name(name),
-  m_function(function.first),
-  m_arg_types(function.second)
-{
-}
+#include "scripting/catastrophic_failure.hpp"
 
 #else
 
@@ -33,9 +29,9 @@ VirtualMachine::ExposableFunction::ExposableFunction(const std::string& name,
 
 template<size_t Pos, typename... Args>
 void
-VirtualMachine::SingleArg<bool, Pos, Args...>::parse(std::tuple<Args...>& tuple, VirtualMachine::Type* arg)
+CatastrophicFailure::SingleArg<bool, Pos, Args...>::parse(std::tuple<Args...>& tuple, CatastrophicFailure::Type* arg)
 {
-  const auto i = dynamic_cast<const VirtualMachine::Boolean*>(arg);
+  const auto i = dynamic_cast<const CatastrophicFailure::Boolean*>(arg);
 
   if (!i)
   {
@@ -47,9 +43,9 @@ VirtualMachine::SingleArg<bool, Pos, Args...>::parse(std::tuple<Args...>& tuple,
 
 template<size_t Pos, typename... Args>
 void
-VirtualMachine::SingleArg<float, Pos, Args...>::parse(std::tuple<Args...>& tuple, VirtualMachine::Type* arg)
+CatastrophicFailure::SingleArg<float, Pos, Args...>::parse(std::tuple<Args...>& tuple, CatastrophicFailure::Type* arg)
 {
-  const auto i = dynamic_cast<const VirtualMachine::Float*>(arg);
+  const auto i = dynamic_cast<const CatastrophicFailure::Float*>(arg);
 
   if (!i)
   {
@@ -61,9 +57,9 @@ VirtualMachine::SingleArg<float, Pos, Args...>::parse(std::tuple<Args...>& tuple
 
 template<size_t Pos, typename... Args>
 void
-VirtualMachine::SingleArg<int, Pos, Args...>::parse(std::tuple<Args...>& tuple, VirtualMachine::Type* arg)
+CatastrophicFailure::SingleArg<int, Pos, Args...>::parse(std::tuple<Args...>& tuple, CatastrophicFailure::Type* arg)
 {
-  const auto i = dynamic_cast<const VirtualMachine::Integer*>(arg);
+  const auto i = dynamic_cast<const CatastrophicFailure::Integer*>(arg);
 
   if (!i)
   {
@@ -75,9 +71,9 @@ VirtualMachine::SingleArg<int, Pos, Args...>::parse(std::tuple<Args...>& tuple, 
 
 template<size_t Pos, typename... Args>
 void
-VirtualMachine::SingleArg<Scriptable*, Pos, Args...>::parse(std::tuple<Args...>& tuple, VirtualMachine::Type* arg)
+CatastrophicFailure::SingleArg<Scriptable*, Pos, Args...>::parse(std::tuple<Args...>& tuple, CatastrophicFailure::Type* arg)
 {
-  const auto i = dynamic_cast<const VirtualMachine::Object*>(arg);
+  const auto i = dynamic_cast<const CatastrophicFailure::Object*>(arg);
 
   if (!i)
   {
@@ -89,9 +85,9 @@ VirtualMachine::SingleArg<Scriptable*, Pos, Args...>::parse(std::tuple<Args...>&
 
 template<size_t Pos, typename... Args>
 void
-VirtualMachine::SingleArg<std::string, Pos, Args...>::parse(std::tuple<Args...>& tuple, VirtualMachine::Type* arg)
+CatastrophicFailure::SingleArg<std::string, Pos, Args...>::parse(std::tuple<Args...>& tuple, CatastrophicFailure::Type* arg)
 {
-  const auto i = dynamic_cast<const VirtualMachine::String*>(arg);
+  const auto i = dynamic_cast<const CatastrophicFailure::String*>(arg);
 
   if (!i)
   {
@@ -102,60 +98,60 @@ VirtualMachine::SingleArg<std::string, Pos, Args...>::parse(std::tuple<Args...>&
 }
 
 template<typename... A>
-std::unique_ptr<VirtualMachine::Type>
-VirtualMachine::ReturnVal<void, A...>::exec(std::function<void(A...)> func, const std::tuple<A...>& args)
+std::unique_ptr<CatastrophicFailure::Type>
+CatastrophicFailure::ReturnVal<void, A...>::exec(std::function<void(A...)> func, const std::tuple<A...>& args)
 {
   call(func, args);
   return nullptr;
 }
 
 template<typename... A>
-std::unique_ptr<VirtualMachine::Type>
-VirtualMachine::ReturnVal<bool, A...>::exec(std::function<bool(A...)> func, const std::tuple<A...>& args)
+std::unique_ptr<CatastrophicFailure::Type>
+CatastrophicFailure::ReturnVal<bool, A...>::exec(std::function<bool(A...)> func, const std::tuple<A...>& args)
 {
-  auto ret = std::make_unique<VirtualMachine::Boolean>();
+  auto ret = std::make_unique<CatastrophicFailure::Boolean>();
   ret->m_value = call(func, args);
   return ret;
 }
 
 template<typename... A>
-std::unique_ptr<VirtualMachine::Type>
-VirtualMachine::ReturnVal<float, A...>::exec(std::function<float(A...)> func, const std::tuple<A...>& args)
+std::unique_ptr<CatastrophicFailure::Type>
+CatastrophicFailure::ReturnVal<float, A...>::exec(std::function<float(A...)> func, const std::tuple<A...>& args)
 {
-  auto ret = std::make_unique<VirtualMachine::Float>();
+  auto ret = std::make_unique<CatastrophicFailure::Float>();
   ret->m_value = call(func, args);
   return ret;
 }
 
 template<typename... A>
-std::unique_ptr<VirtualMachine::Type>
-VirtualMachine::ReturnVal<int, A...>::exec(std::function<int(A...)> func, const std::tuple<A...>& args)
+std::unique_ptr<CatastrophicFailure::Type>
+CatastrophicFailure::ReturnVal<int, A...>::exec(std::function<int(A...)> func, const std::tuple<A...>& args)
 {
-  auto ret = std::make_unique<VirtualMachine::Integer>();
+  auto ret = std::make_unique<CatastrophicFailure::Integer>();
   ret->m_value = call(func, args);
   return ret;
 }
 
 template<typename... A>
-std::unique_ptr<VirtualMachine::Type>
-VirtualMachine::ReturnVal<Scriptable*, A...>::exec(std::function<Scriptable*(A...)> func, const std::tuple<A...>& args)
+std::unique_ptr<CatastrophicFailure::Type>
+CatastrophicFailure::ReturnVal<Scriptable*, A...>::exec(std::function<Scriptable*(A...)> func, const std::tuple<A...>& args)
 {
-  auto ret = std::make_unique<VirtualMachine::Object>();
+  auto ret = std::make_unique<CatastrophicFailure::Object>();
   ret->m_value = call(func, args);
   return ret;
 }
 
 template<typename... A>
-std::unique_ptr<VirtualMachine::Type>
-VirtualMachine::ReturnVal<std::string, A...>::exec(std::function<std::string(A...)> func, const std::tuple<A...>& args)
+std::unique_ptr<CatastrophicFailure::Type>
+CatastrophicFailure::ReturnVal<std::string, A...>::exec(std::function<std::string(A...)> func, const std::tuple<A...>& args)
 {
-  auto ret = std::make_unique<VirtualMachine::String>();
+  auto ret = std::make_unique<CatastrophicFailure::String>();
   ret->m_value = call(func, args);
   return ret;
 }
 
 template<std::size_t Current, std::size_t End, typename... Args>
-VirtualMachine::FetchArg<Current, End, Args...>::FetchArg(std::tuple<Args...>& tuple, const std::vector<std::unique_ptr<VirtualMachine::Type>>& args)
+CatastrophicFailure::FetchArg<Current, End, Args...>::FetchArg(std::tuple<Args...>& tuple, const std::vector<std::unique_ptr<CatastrophicFailure::Type>>& args)
 {
   SingleArg<typename std::tuple_element<Current, std::tuple<Args...>>::type, Current, Args...>::parse(tuple, args[Current].get());
 
@@ -164,27 +160,27 @@ VirtualMachine::FetchArg<Current, End, Args...>::FetchArg(std::tuple<Args...>& t
 
 template<std::size_t Current, std::size_t End, typename... Args>
 void
-VirtualMachine::ListArg<Current, End, Args...>::list(std::vector<VirtualMachine::Types>& list)
+CatastrophicFailure::ListArg<Current, End, Args...>::list(std::vector<CatastrophicFailure::Types>& list)
 {
   if (std::is_same<typename std::tuple_element<Current, std::tuple<Args...>>::type, bool>::value)
   {
-    list.push_back(VirtualMachine::Types::BOOLEAN);
+    list.push_back(CatastrophicFailure::Types::BOOLEAN);
   }
   else if (std::is_same<typename std::tuple_element<Current, std::tuple<Args...>>::type, int>::value)
   {
-    list.push_back(VirtualMachine::Types::INTEGER);
+    list.push_back(CatastrophicFailure::Types::INTEGER);
   }
   else if (std::is_same<typename std::tuple_element<Current, std::tuple<Args...>>::type, float>::value)
   {
-    list.push_back(VirtualMachine::Types::FLOAT);
+    list.push_back(CatastrophicFailure::Types::FLOAT);
   }
   else if (std::is_same<typename std::tuple_element<Current, std::tuple<Args...>>::type, Scriptable*>::value)
   {
-    list.push_back(VirtualMachine::Types::OBJECT);
+    list.push_back(CatastrophicFailure::Types::OBJECT);
   }
   else if (std::is_same<typename std::tuple_element<Current, std::tuple<Args...>>::type, std::string>::value)
   {
-    list.push_back(VirtualMachine::Types::STRING);
+    list.push_back(CatastrophicFailure::Types::STRING);
   }
   else
   {
@@ -195,10 +191,10 @@ VirtualMachine::ListArg<Current, End, Args...>::list(std::vector<VirtualMachine:
 }
 
 template<typename R, typename... A, size_t NArgs>
-std::pair<VirtualMachine::ScriptFunction, std::vector<VirtualMachine::Types>>
-VirtualMachine::bind(std::function<R(A...)> func)
+std::pair<CatastrophicFailure::ScriptFunction, std::vector<CatastrophicFailure::Types>>
+CatastrophicFailure::bind(std::function<R(A...)> func)
 {
-  auto function = [func](const std::vector<std::unique_ptr<VirtualMachine::Type>>& args) -> std::unique_ptr<VirtualMachine::Type> {
+  auto function = [func](const std::vector<std::unique_ptr<CatastrophicFailure::Type>>& args) -> std::unique_ptr<CatastrophicFailure::Type> {
 
     if (args.size() != std::tuple_size<std::tuple<A...>>::value)
     {
@@ -214,7 +210,7 @@ VirtualMachine::bind(std::function<R(A...)> func)
     return ReturnVal<R, A...>::exec(func, native_args);
   };
 
-  std::vector<VirtualMachine::Types> list;
+  std::vector<CatastrophicFailure::Types> list;
   ListArg<0, std::tuple_size<std::tuple<A...>>::value, A...>::list(list);
 
   return {function, list};

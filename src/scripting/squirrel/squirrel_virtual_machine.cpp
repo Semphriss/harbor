@@ -299,7 +299,7 @@ SquirrelVirtualMachine::run_code(std::string code, std::string source)
 
 void
 SquirrelVirtualMachine::expose_class(std::string name,
-                                std::vector<ExposableFunction> methods)
+                                std::vector<Function> methods)
 {
   sq_pushroottable(m_vm);
   std::string varname = resolve_name(name, false);
@@ -395,7 +395,7 @@ SquirrelVirtualMachine::expose_instance(std::string classname, std::string name,
 
 void
 SquirrelVirtualMachine::expose_object(std::string name,
-                                      std::vector<ExposableFunction> obj)
+                                      std::vector<Function> obj)
 {
   // The lazy way to protect the stack
   auto top = sq_gettop(m_vm);
@@ -428,7 +428,7 @@ SquirrelVirtualMachine::expose_object(std::string name,
 }
 
 void
-SquirrelVirtualMachine::expose_function(ExposableFunction func)
+SquirrelVirtualMachine::expose_function(Function func)
 {
   m_functions.push_back(func);
 
@@ -698,7 +698,7 @@ SquirrelVirtualMachine::remove_entry(std::string name)
   sq_pop(m_vm, 1);
 }
 
-const VirtualMachine::ExposableFunction*
+const VirtualMachine::Function*
 SquirrelVirtualMachine::get_function_by_name(const std::string& name) const
 {
   for (const auto& f : m_functions)

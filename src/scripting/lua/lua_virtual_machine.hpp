@@ -49,12 +49,12 @@ public:
 
   virtual void run_code(std::string script, std::string source) override;
   virtual void expose_class(std::string name,
-                            std::vector<ExposableFunction> methods) override;
+                            std::vector<Function> methods) override;
   virtual void expose_instance(std::string classname, std::string name,
                                Scriptable* owner) override;
   virtual void expose_object(std::string name,
-                             std::vector<ExposableFunction> obj) override;
-  virtual void expose_function(ExposableFunction func) override;
+                             std::vector<Function> obj) override;
+  virtual void expose_function(Function func) override;
   virtual void expose_bool(std::string name, bool val) override;
   virtual void expose_int(std::string name, int val) override;
   virtual void expose_float(std::string name, float val) override;
@@ -65,7 +65,7 @@ public:
                                         bool func_relative = false) override;
   virtual void remove_entry(std::string name) override;
 
-  const ExposableFunction* get_function_by_name(const std::string& name) const;
+  const Function* get_function_by_name(const std::string& name) const;
 
 private:
   /**
@@ -83,7 +83,7 @@ private:
 private:
   lua_State* m_vm;
   std::string m_last_function_name;
-  std::vector<ExposableFunction> m_functions;
+  std::vector<Function> m_functions;
   bool m_dead;
 
 private:
