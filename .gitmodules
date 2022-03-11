@@ -19,3 +19,6 @@
 [submodule "external/freetype"]
 	path = external/freetype
 	url = https://gitlab.freedesktop.org/freetype/freetype
+[submodule "external/physfs"]
+	path = external/physfs
+	url = https://github.com/icculus/physfs.git

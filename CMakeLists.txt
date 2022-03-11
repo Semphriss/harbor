@@ -63,6 +63,7 @@ option(HARBOR_USE_SCRIPTING_LUA "Compile Lua with Harbor" ON)
 option(HARBOR_USE_VIDEO "Compile the video engines" ON)
 option(HARBOR_USE_VIDEO_SDL "Compile the SDL renderer with Harbor" ON)
 option(HARBOR_USE_VIDEO_OPENGL "Compile the OpenGL renderer with Harbor" ON)
+option(HARBOR_USE_FS "Compile the filesystem manager with PhysFS" ON)
 
 # Dependency install options
 option(HARBOR_INSTALL_SQUIRREL "Install Squirrel alongside Harbor" ON)
@@ -101,12 +102,13 @@ depends(HARBOR_USE_SCRIPTING_SQUIRREL HARBOR_INSTALL_SQUIRREL)
 depends(HARBOR_USE_SCRIPTING_LUA HARBOR_INSTALL_LUA)
 depends(HARBOR_USE_VIDEO HARBOR_INSTALL_SDL_IMAGE)
 depends(HARBOR_USE_VIDEO HARBOR_INSTALL_SDL_TTF)
-depends(HARBOR_INSTALL_SDL_TTF HARBOR_INSTALL_FREETYPE)
+depends(HARBOR_USE_FS HARBOR_INSTALL_PHYSFS)
 depends(HARBOR_INSTALL HARBOR_INSTALL_SQUIRREL)
 depends(HARBOR_INSTALL HARBOR_INSTALL_LUA)
 depends(HARBOR_INSTALL HARBOR_INSTALL_SDL_IMAGE)
 depends(HARBOR_INSTALL HARBOR_INSTALL_SDL_TTF)
-depends(HARBOR_INSTALL HARBOR_INSTALL_FREETYPE)
+depends(HARBOR_INSTALL_SDL_TTF HARBOR_INSTALL_FREETYPE)
+depends(HARBOR_INSTALL HARBOR_INSTALL_PHYSFS)
 
 # ============================================================================
 #    Library and executable generation
@@ -133,6 +135,7 @@ clear_by_option(HARBOR_LIB_FILES HARBOR_USE_SCRIPTING_LUA ${CMAKE_CURRENT_SOURCE
 clear_by_option(HARBOR_LIB_FILES HARBOR_USE_VIDEO ${CMAKE_CURRENT_SOURCE_DIR}/src/video/*)
 clear_by_option(HARBOR_LIB_FILES HARBOR_USE_VIDEO_SDL ${CMAKE_CURRENT_SOURCE_DIR}/src/video/sdl/*)
 clear_by_option(HARBOR_LIB_FILES HARBOR_USE_VIDEO_OPENGL ${CMAKE_CURRENT_SOURCE_DIR}/src/video/gl/*)
+clear_by_option(HARBOR_LIB_FILES HARBOR_USE_FS ${CMAKE_CURRENT_SOURCE_DIR}/src/fs/*)
 
 add_library(harbor_lib ${HARBOR_LIB_FILES})
 target_include_directories(harbor_lib PUBLIC
@@ -413,6 +416,45 @@ if(HARBOR_USE_SCRIPTING_SQUIRREL)
     endif(BUILD_SHARED_LIBS)
   endif(SQUIRREL_FOUND)
 endif(HARBOR_USE_SCRIPTING_SQUIRREL)
+
+if(HARBOR_USE_FS)
+  find_package(PhysFS)
+  if(PHYSFS_FOUND)
+    message(STATUS "Using system libraries for PhysFS: ${PHYSFS_LIBRARIES}")
+    target_link_libraries(harbor_lib PUBLIC ${PHYSFS_LIBRARY})
+    target_include_directories(harbor_lib PUBLIC ${PHYSFS_INCLUDE_DIR})
+  else(PHYSFS_FOUND)
+    message(STATUS "Compiling PhysFS from source")
+
+    option(PHYSFS_BUILD_TEST OFF)
+    option(PHYSFS_BUILD_DOCS OFF)
+    message(STATUS "PHYSFS_BUILD_STATIC=${PHYSFS_BUILD_STATIC}")
+    if(BUILD_SHARED_LIBS)
+      set(PHYSFS_BUILD_SHARED ON)
+      set(PHYSFS_BUILD_STATIC OFF)
+    else(BUILD_SHARED_LIBS)
+      message(STATUS "PHYSFS_BUILD_STATIC=${PHYSFS_BUILD_STATIC}")
+      set(PHYSFS_BUILD_SHARED OFF)
+      message(STATUS "PHYSFS_BUILD_STATIC=${PHYSFS_BUILD_STATIC}")
+      set(PHYSFS_BUILD_STATIC ON)
+      message(STATUS "PHYSFS_BUILD_STATIC=${PHYSFS_BUILD_STATIC}")
+    endif(BUILD_SHARED_LIBS)
+    message(STATUS "PHYSFS_BUILD_STATIC=${PHYSFS_BUILD_STATIC}")
+
+    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/external/physfs)
+
+    if(BUILD_SHARED_LIBS)
+      add_dependencies(harbor_lib physfs)
+      target_link_libraries(harbor_lib PUBLIC physfs)
+    else(BUILD_SHARED_LIBS)
+      add_dependencies(harbor_lib physfs-static)
+      target_link_libraries(harbor_lib PUBLIC physfs-static)
+    endif(BUILD_SHARED_LIBS)
+
+    target_include_directories(harbor_lib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/external/physfs/src)
+
+  endif(PHYSFS_FOUND)
+endif(HARBOR_USE_FS)
 
 if(EMSCRIPTEN)
   target_link_options(harbor_lib PUBLIC -sFULL_ES2=1)
