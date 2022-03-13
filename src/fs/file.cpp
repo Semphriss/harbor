@@ -238,7 +238,12 @@ File::get_os_path(const std::string& point)
 {
   std::vector<std::string> paths;
 
-  paths.push_back(PHYSFS_getRealDir(point.c_str()));
+  const char* realpath = PHYSFS_getRealDir(point.c_str());
+
+  if (!realpath)
+    throw std::runtime_error("File::get_os_path(\"" + point + "\") not found");
+
+  paths.push_back(realpath);
   for (const auto& name : split_path(point))
   {
     paths.push_back(name);
