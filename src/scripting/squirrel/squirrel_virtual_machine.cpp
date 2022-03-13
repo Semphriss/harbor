@@ -138,7 +138,7 @@ SquirrelVirtualMachine::squirrel_call(HSQUIRRELVM vm)
       case Types::OBJECT:
       {
         SQUserPointer obj;
-        if (SQ_FAILED(sq_getinstanceup(vm, argn, &obj, nullptr)))
+        if (SQ_FAILED(sq_getinstanceup(vm, argn, &obj, nullptr, SQFalse)))
         {
           // FIXME: Print the actual type names
           throw std::runtime_error("Call to '" + std::string(func_name)
@@ -672,7 +672,7 @@ SquirrelVirtualMachine::call_function(const std::string& name,
     {
       SQUserPointer sqp;
       // FIXME: Uninitialized variable if call failed
-      sq_getinstanceup(m_vm, -1, &sqp, nullptr);
+      sq_getinstanceup(m_vm, -1, &sqp, nullptr, SQFalse);
       ret.push_back(std::make_unique<Object>(static_cast<Scriptable*>(sqp)));
       break;
     }
