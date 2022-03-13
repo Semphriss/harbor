@@ -256,11 +256,18 @@ SDLWindow::set_status(Status status)
       break;
 
     case Status::FULLSCREEN:
+    {
+      Status old_status = get_status();
+
+      if (old_status != Status::FULLSCREEN)
+        m_status_before_fullscreen = old_status;
+
       if (SDL_SetWindowFullscreen(m_sdl_window, SDL_WINDOW_FULLSCREEN_DESKTOP))
       {
         std::string error(SDL_GetError());
         throw std::runtime_error("Could not make window fullscreen: " + error);
       }
+    }
       break;
   }
 }

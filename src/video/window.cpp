@@ -45,8 +45,28 @@ Window::create_window(VideoSystem vs)
   }
 }
 
+Window::Window() :
+  m_texture_cache(),
+  m_status_before_fullscreen(Status::NORMAL)
+{
+}
+
 void
 Window::flush_texture_cache()
 {
   m_texture_cache.clear();
+}
+
+void
+Window::toggle_fullscreen()
+{
+  if (get_status() == Status::FULLSCREEN)
+  {
+    set_status(m_status_before_fullscreen);
+  }
+  else
+  {
+    // set_status will automatically save the old status
+    set_status(Status::FULLSCREEN);
+  }
 }

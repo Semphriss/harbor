@@ -49,6 +49,7 @@ public:
   static std::unique_ptr<Window> create_window(VideoSystem vs);
 
 public:
+  Window();
   virtual ~Window() = default;
 
   virtual VideoSystem get_type() const = 0;
@@ -78,12 +79,11 @@ public:
   virtual void set_opacity(float opacity) = 0;
 
   void flush_texture_cache();
-
-protected:
-  Window() = default;
+  void toggle_fullscreen();
 
 protected:
   std::unordered_map<std::string, std::unique_ptr<Texture>> m_texture_cache;
+  Status m_status_before_fullscreen;
 
 private:
   Window(const Window&) = delete;
