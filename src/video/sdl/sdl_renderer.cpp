@@ -15,6 +15,7 @@
 //  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #include "video/sdl/sdl_renderer.hpp"
+#include "SDL_surface.h"
 
 #include <stdexcept>
 
@@ -107,8 +108,6 @@ SDLRenderer::draw_texture(const Texture& texture, const Rect& srcrect,
                           static_cast<SDL_BlendMode>(blend));
   SDL_SetTextureAlphaMod(t.get_sdl_texture(),
                          static_cast<Uint8>(color.a * 255.f));
-
-
 
   SDL_Rect src;
   SDL_FRect dst;
@@ -217,6 +216,7 @@ SDLRenderer::draw_text(const std::string& text, const Vector& pos,
   dst.h = dstrect.height();
 
   SDL_RenderCopy(m_sdl_renderer, texture, &src, &dst);
+  SDL_FreeSurface(surface);
 }
 
 void
