@@ -15,6 +15,7 @@
 //  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #include "video/sdl/sdl_renderer.hpp"
+#include "SDL_render.h"
 #include "SDL_surface.h"
 
 #include <stdexcept>
@@ -216,7 +217,7 @@ SDLRenderer::draw_text(const std::string& text, const Vector& pos,
   dst.h = dstrect.height();
 
   SDL_RenderCopy(m_sdl_renderer, texture, &src, &dst);
-  SDL_FreeSurface(surface);
+  SDL_DestroyTexture(texture);
 }
 
 void

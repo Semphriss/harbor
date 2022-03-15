@@ -17,7 +17,11 @@
 #include "video/font.hpp"
 
 #include <algorithm>
+#include <memory>
+#include <stdexcept>
 
+#include "SDL_surface.h"
+#include "SDL_ttf.h"
 #include "make_unique.hpp"
 
 void
@@ -50,7 +54,8 @@ std::vector<std::unique_ptr<Font>> Font::s_fonts;
 Font::Font(const std::string& text, int size) :
   m_name(text),
   m_size(size),
-  m_font(TTF_OpenFont(text.c_str(), size))
+  m_font(TTF_OpenFont(text.c_str(), size)),
+  m_cache()
 {
   if (!m_font)
   {
@@ -65,18 +70,28 @@ Font::~Font()
 }
 
 SDL_Surface*
-Font::get_sdl_surface(const std::string& text) const
+Font::get_sdl_surface(const std::string& text)
 {
-  SDL_Color white;
+  try
+  {
+    return m_cache.at(text).get();
+  }
+  catch(const std::out_of_range&)
+  {
+    SDL_Color white;
 
-  white.r = 255;
-  white.g = 255;
-  white.b = 255;
+    white.r = 255;
+    white.g = 255;
+    white.b = 255;
 #ifndef EMSCRIPTEN
-  white.a = 255;
+    white.a = 255;
 #endif
 
-  return TTF_RenderText_Blended(m_font, text.c_str(), white);
+    auto* s = TTF_RenderText_Blended_Wrapped(m_font, text.c_str(), white, 9999);
+    m_cache.emplace(std::pair<std::string, TextSurface>{text, TextSurface(s, SDL_FreeSurface)});
+
+    return s;
+  }
 }
 
 float

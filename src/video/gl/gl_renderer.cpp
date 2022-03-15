@@ -212,7 +212,6 @@ GLRenderer::draw_text(const std::string& text, const Vector& pos,
   glDisable(GL_TEXTURE_2D);
   glDisable(GL_BLEND);
 
-  SDL_FreeSurface(surface);
   SDL_FreeSurface(image);
 }
 

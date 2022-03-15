@@ -20,6 +20,7 @@
 #include <string>
 #include <memory>
 #include <vector>
+#include <unordered_map>
 
 #include "make_unique.hpp"
 
@@ -31,14 +32,15 @@
 
 #include "util/size.hpp"
 
-#include "util/size.hpp"
-
 /**
  * Video class to handle font files.
  */
 class Font final
 {
   friend class Renderer;
+
+private:
+  typedef std::unique_ptr<SDL_Surface, void(*)(SDL_Surface*)> TextSurface;
 
 public:
   static void flush_fonts();
@@ -52,7 +54,7 @@ public:
   ~Font();
 
 private:
-  SDL_Surface* get_sdl_surface(const std::string& text) const;
+  SDL_Surface* get_sdl_surface(const std::string& text);
 
 public:
   /** @deprecated Use `get_text_size` instead */
@@ -67,6 +69,7 @@ private:
   std::string m_name;
   int m_size;
   TTF_Font* m_font;
+  std::unordered_map<std::string, TextSurface> m_cache;
 
 private:
   Font(const Font&) = delete;
