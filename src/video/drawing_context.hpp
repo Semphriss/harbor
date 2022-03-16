@@ -158,7 +158,7 @@ public:
   void draw_text(const std::string& text, const Vector& pos,
                  Renderer::TextAlign align, const std::string& fontfile,
                  int size, const Color& color, const Renderer::Blend& blend,
-                 int layer);
+                 bool border, int layer); // TODO: Add border/shadow settings
   void draw_line(const Vector& p1, const Vector& p2, const Color& color,
                  const Renderer::Blend& blend, int layer);
   void render(Texture* texture = nullptr) const;

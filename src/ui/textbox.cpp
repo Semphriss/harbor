@@ -174,7 +174,7 @@ Textbox::draw(DrawingContext& context) const
   context.draw_text(m_contents,
                     (contents_rect.top_lft() + contents_rect.bot_lft()) / 2,
                     Renderer::TextAlign::MID_LEFT, theme.font, theme.fontsize,
-                    theme.fg_color, theme.fg_blend, m_layer);
+                    theme.fg_color, theme.fg_blend, theme.font_border, m_layer);
 
   context.pop_transform();
 }

@@ -184,8 +184,41 @@ DrawingContext::draw_text(const std::string& text, const Vector& pos,
                           Renderer::TextAlign align,
                           const std::string& fontfile, int size,
                           const Color& color, const Renderer::Blend& blend,
-                          int layer)
+                          bool border, int layer)
 {
+  if (border)
+  {
+    for (int x = -1; x <= 1; x += 1)
+    {
+      for (int y = -1; y <= 1; y += 1)
+      {
+        auto req = std::make_unique<TextRequest>();
+        req->m_color = Color();
+        req->m_blend = blend;
+        req->m_align = align;
+        req->m_font = fontfile;
+        req->m_pos = pos - get_transform().m_offset + Vector(x, y);
+        req->m_size = size;
+        req->m_text = text;
+        req->m_clip = get_transform().m_clip;
+
+        m_requests[layer].push_back(std::move(req));
+      }
+    }
+
+    auto req = std::make_unique<TextRequest>();
+    req->m_color = Color(0.f, 0.f, 0.f, .75f);
+    req->m_blend = blend;
+    req->m_align = align;
+    req->m_font = fontfile;
+    req->m_pos = pos - get_transform().m_offset + Vector(2.f, 2.f);
+    req->m_size = size;
+    req->m_text = text;
+    req->m_clip = get_transform().m_clip;
+
+    m_requests[layer].push_back(std::move(req));
+  }
+
   auto req = std::make_unique<TextRequest>();
   req->m_color = color * get_transform().m_color;
   req->m_blend = blend;

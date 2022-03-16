@@ -54,6 +54,7 @@ public:
     float round_corners;
     std::string font;
     int fontsize;
+    bool font_border;
   };
 
   struct ThemeSet
