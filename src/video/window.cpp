@@ -17,6 +17,7 @@
 #include "video/window.hpp"
 
 #include "make_unique.hpp"
+#include <string>
 
 #if HARBOR_USE_VIDEO_SDL
 #include "video/sdl/sdl_window.hpp"
@@ -42,6 +43,28 @@ Window::create_window(VideoSystem vs)
 
     default:
       return nullptr;
+  }
+}
+
+std::string
+Window::get_video_system_tag(VideoSystem vs)
+{
+  switch(vs)
+  {
+#if HARBOR_USE_VIDEO_SDL
+    case VideoSystem::SDL:
+      printf("SDL\n");
+      return "SDL";
+#endif
+
+#if HARBOR_USE_VIDEO_OPENGL
+    case VideoSystem::GL:
+      printf("OpenGL\n");
+      return "OpenGL";
+#endif
+
+    default:
+      return "";
   }
 }
 

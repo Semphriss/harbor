@@ -190,7 +190,7 @@ GLRenderer::draw_text(const std::string& text, const Vector& pos,
       break;
 
     case TextAlign::BOTTOM_RIGHT:
-      dst.move(Vector(surface->w, -surface->h));
+      dst.move(Vector(-surface->w, -surface->h));
       break;
   }
 

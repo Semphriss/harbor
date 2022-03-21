@@ -47,6 +47,7 @@ public:
 
 public:
   static std::unique_ptr<Window> create_window(VideoSystem vs);
+  static std::string get_video_system_tag(VideoSystem vs);
 
 public:
   Window();
