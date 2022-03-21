@@ -162,11 +162,11 @@ GLRenderer::draw_text(const std::string& text, const Vector& pos,
       break;
 
     case TextAlign::TOP_MID:
-      dst.move(Vector(surface->w / 2, 0.f));
+      dst.move(Vector(-surface->w / 2, 0.f));
       break;
 
     case TextAlign::TOP_RIGHT:
-      dst.move(Vector(surface->w, 0.f));
+      dst.move(Vector(-surface->w, 0.f));
       break;
 
     case TextAlign::MID_LEFT:
@@ -174,11 +174,11 @@ GLRenderer::draw_text(const std::string& text, const Vector& pos,
       break;
 
     case TextAlign::CENTER:
-      dst.move(Vector(surface->w / 2, -surface->h / 2));
+      dst.move(Vector(-surface->w / 2, -surface->h / 2));
       break;
 
     case TextAlign::MID_RIGHT:
-      dst.move(Vector(surface->w, -surface->h / 2));
+      dst.move(Vector(-surface->w, -surface->h / 2));
       break;
 
     case TextAlign::BOTTOM_LEFT:
@@ -186,7 +186,7 @@ GLRenderer::draw_text(const std::string& text, const Vector& pos,
       break;
 
     case TextAlign::BOTTOM_MID:
-      dst.move(Vector(surface->w / 2, -surface->h));
+      dst.move(Vector(-surface->w / 2, -surface->h));
       break;
 
     case TextAlign::BOTTOM_RIGHT:
