@@ -53,13 +53,11 @@ Window::get_video_system_tag(VideoSystem vs)
   {
 #if HARBOR_USE_VIDEO_SDL
     case VideoSystem::SDL:
-      printf("SDL\n");
       return "SDL";
 #endif
 
 #if HARBOR_USE_VIDEO_OPENGL
     case VideoSystem::GL:
-      printf("OpenGL\n");
       return "OpenGL";
 #endif
 
