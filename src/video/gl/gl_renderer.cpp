@@ -215,6 +215,7 @@ GLRenderer::draw_text(const std::string& text, const Rect& region,
   glDisable(GL_TEXTURE_2D);
   glDisable(GL_BLEND);
 
+  glDeleteTextures(1, &text_texture);
   SDL_FreeSurface(image);
 }
 
