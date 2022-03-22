@@ -47,6 +47,8 @@ public:
   static Font& get_font(const std::string& file, int size);
 
 private:
+  static std::string surface_id(const std::string text, float width);
+
   static std::vector<std::unique_ptr<Font>> s_fonts;
 
 public:

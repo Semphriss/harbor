@@ -49,6 +49,12 @@ Font::get_font(const std::string& file, int size)
   }
 }
 
+std::string
+Font::surface_id(const std::string text, float width)
+{
+  return std::to_string(width) + ":" + text;
+}
+
 std::vector<std::unique_ptr<Font>> Font::s_fonts;
 
 Font::Font(const std::string& text, int size) :
@@ -74,7 +80,7 @@ Font::get_sdl_surface(const std::string& text, float width)
 {
   try
   {
-    return m_cache.at(text).get();
+    return m_cache.at(surface_id(text, width)).get();
   }
   catch(const std::out_of_range&)
   {
@@ -89,8 +95,8 @@ Font::get_sdl_surface(const std::string& text, float width)
 
     auto* s = TTF_RenderText_Blended_Wrapped(m_font, text.c_str(), white,
                                              static_cast<int>(width));
-    m_cache.emplace(std::pair<std::string, TextSurface>{text, TextSurface(s,
-                                                             SDL_FreeSurface)});
+    m_cache.emplace(std::pair<std::string, TextSurface>{surface_id(text, width),
+                                              TextSurface(s, SDL_FreeSurface)});
 
     return s;
   }
