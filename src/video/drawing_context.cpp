@@ -93,8 +93,8 @@ DrawingContext::TextureRequest::render(Renderer& renderer) const
 void
 DrawingContext::TextRequest::render(Renderer& renderer) const
 {
-  renderer.draw_text(m_text, m_pos, m_clip, m_align, m_font, m_size, m_color,
-                     m_blend);
+  renderer.draw_text(m_text, m_region.clipped(m_clip), m_align, m_font, m_size,
+                     m_color, m_blend);
 }
 
 void
@@ -180,7 +180,7 @@ DrawingContext::draw_texture(const std::shared_ptr<Texture>& texture,
 }
 
 void
-DrawingContext::draw_text(const std::string& text, const Vector& pos,
+DrawingContext::draw_text(const std::string& text, const Rect& region,
                           Renderer::TextAlign align,
                           const std::string& fontfile, int size,
                           const Color& color, const Renderer::Blend& blend,
@@ -197,7 +197,7 @@ DrawingContext::draw_text(const std::string& text, const Vector& pos,
         req->m_blend = blend;
         req->m_align = align;
         req->m_font = fontfile;
-        req->m_pos = pos - get_transform().m_offset + Vector(x, y);
+        req->m_region = region.moved(-get_transform().m_offset - Vector(x, y));
         req->m_size = size;
         req->m_text = text;
         req->m_clip = get_transform().m_clip;
@@ -211,7 +211,7 @@ DrawingContext::draw_text(const std::string& text, const Vector& pos,
     req->m_blend = blend;
     req->m_align = align;
     req->m_font = fontfile;
-    req->m_pos = pos - get_transform().m_offset + Vector(2.f, 2.f);
+    req->m_region = region.moved(get_transform().m_offset - Vector(2.f, 2.f));
     req->m_size = size;
     req->m_text = text;
     req->m_clip = get_transform().m_clip;
@@ -224,7 +224,7 @@ DrawingContext::draw_text(const std::string& text, const Vector& pos,
   req->m_blend = blend;
   req->m_align = align;
   req->m_font = fontfile;
-  req->m_pos = pos - get_transform().m_offset;
+  req->m_region = region.moved(get_transform().m_offset);
   req->m_size = size;
   req->m_text = text;
   req->m_clip = get_transform().m_clip;

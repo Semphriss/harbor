@@ -27,7 +27,8 @@ Renderer::get_text_rect(const std::string& font, int size,
                         const std::string& text, const Vector& pos,
                         Renderer::TextAlign align)
 {
-  auto surface = get_font_surface(Font::get_font(font, size), text);
+  // TODO: Actually use this...
+  auto surface = get_font_surface(Font::get_font(font, size), text, 99999);
   Vector corner = pos;
 
   switch(align) {
@@ -75,9 +76,9 @@ Renderer::get_text_rect(const std::string& font, int size,
 }
 
 SDL_Surface*
-Renderer::get_font_surface(Font& font, const std::string& text)
+Renderer::get_font_surface(Font& font, const std::string& text, float width)
 {
-  return font.get_sdl_surface(text);
+  return font.get_sdl_surface(text, width);
 }
 
 void

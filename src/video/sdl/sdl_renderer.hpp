@@ -34,9 +34,8 @@ public:
   virtual void draw_texture(const Texture& texture, const Rect& srcrect,
                             const Rect& dstrect, float angle,
                             const Color& color, const Blend& blend) override;
-  virtual void draw_text(const std::string& text, const Vector& pos,
-                         const Rect& clip, TextAlign align,
-                         const std::string& fontfile, int size,
+  virtual void draw_text(const std::string& text, const Rect& region,
+                         TextAlign align, const std::string& fontfile, int size,
                          const Color& color, const Blend& blend) override;
   virtual void draw_line(const Vector& p1, const Vector& p2, const Color& color,
                          const Blend& blend) override;

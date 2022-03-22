@@ -70,7 +70,7 @@ Font::~Font()
 }
 
 SDL_Surface*
-Font::get_sdl_surface(const std::string& text)
+Font::get_sdl_surface(const std::string& text, float width)
 {
   try
   {
@@ -87,23 +87,13 @@ Font::get_sdl_surface(const std::string& text)
     white.a = 255;
 #endif
 
-    auto* s = TTF_RenderText_Blended_Wrapped(m_font, text.c_str(), white, 9999);
-    m_cache.emplace(std::pair<std::string, TextSurface>{text, TextSurface(s, SDL_FreeSurface)});
+    auto* s = TTF_RenderText_Blended_Wrapped(m_font, text.c_str(), white,
+                                             static_cast<int>(width));
+    m_cache.emplace(std::pair<std::string, TextSurface>{text, TextSurface(s,
+                                                             SDL_FreeSurface)});
 
     return s;
   }
-}
-
-float
-Font::get_text_width(const std::string& text) const
-{
-  return get_text_size(text).w;
-}
-
-float
-Font::get_text_height(const std::string& text) const
-{
-  return get_text_size(text).h;
 }
 
 Size

@@ -127,9 +127,8 @@ SDLRenderer::draw_texture(const Texture& texture, const Rect& srcrect,
 }
 
 void
-SDLRenderer::draw_text(const std::string& text, const Vector& pos,
-                       const Rect& clip, TextAlign align,
-                       const std::string& fontfile, int size,
+SDLRenderer::draw_text(const std::string& text, const Rect& region,
+                       TextAlign align, const std::string& fontfile, int size,
                        const Color& color, const Blend& blend)
 {
   if (!is_drawing())
@@ -143,7 +142,7 @@ SDLRenderer::draw_text(const std::string& text, const Vector& pos,
 
   auto& font = Font::get_font(fontfile, size);
 
-  SDL_Surface* surface = get_font_surface(font, text);
+  SDL_Surface* surface = get_font_surface(font, text, region.width());
   SDL_Texture* texture = SDL_CreateTextureFromSurface(m_sdl_renderer, surface);
 
   SDL_SetTextureColorMod(texture,
@@ -154,8 +153,8 @@ SDLRenderer::draw_text(const std::string& text, const Vector& pos,
   SDL_SetTextureAlphaMod(texture, static_cast<Uint8>(color.a * 255.f));
 
   SDL_Rect dst;
-  dst.x = static_cast<int>(pos.x);
-  dst.y = static_cast<int>(pos.y);
+  dst.x = static_cast<int>(region.x1);
+  dst.y = static_cast<int>(region.y1);
   dst.w = surface->w;
   dst.h = surface->h;
 
@@ -164,45 +163,45 @@ SDLRenderer::draw_text(const std::string& text, const Vector& pos,
       break;
 
     case TextAlign::TOP_MID:
-      dst.x -= surface->w / 2.f;
+      dst.x += (region.width() - surface->w) / 2.f;
       break;
 
     case TextAlign::TOP_RIGHT:
-      dst.x -= surface->w;
+      dst.x += region.width() - surface->w;
       break;
 
     case TextAlign::MID_LEFT:
-      dst.y -= surface->h / 2.f;
+      dst.y += (region.height() - surface->h) / 2.f;
       break;
 
     case TextAlign::CENTER:
-      dst.x -= surface->w / 2.f;
-      dst.y -= surface->h / 2.f;
+      dst.x += (region.width() - surface->w) / 2.f;
+      dst.y += (region.height() - surface->h) / 2.f;
       break;
 
     case TextAlign::MID_RIGHT:
-      dst.x -= surface->w;
-      dst.y -= surface->h / 2.f;
+      dst.x += region.width() - surface->w;
+      dst.y += (region.height() - surface->h) / 2.f;
       break;
 
     case TextAlign::BOTTOM_LEFT:
-      dst.y -= surface->h;
+      dst.y += region.height() - surface->h;
       break;
 
     case TextAlign::BOTTOM_MID:
-      dst.x -= surface->w / 2.f;
-      dst.y -= surface->h;
+      dst.x += (region.width() - surface->w) / 2.f;
+      dst.y += region.height() - surface->h;
       break;
 
     case TextAlign::BOTTOM_RIGHT:
-      dst.x -= surface->w;
-      dst.y -= surface->h;
+      dst.x += region.width() - surface->w;
+      dst.y += region.height() - surface->h;
       break;
   }
 
   Rect srcrect(Vector(), Size(surface->w, surface->h));
   Rect dstrect(Vector(dst.x, dst.y), Size(dst.w, dst.h));
-  srcrect = DrawingContext::clip_src_rect(srcrect, dstrect, clip);
+  srcrect = DrawingContext::clip_src_rect(srcrect, dstrect, region);
 
   SDL_Rect src;
   src.x = static_cast<int>(srcrect.x1);
@@ -210,7 +209,7 @@ SDLRenderer::draw_text(const std::string& text, const Vector& pos,
   src.w = static_cast<int>(srcrect.width());
   src.h = static_cast<int>(srcrect.height());
 
-  dstrect.clip(clip);
+  dstrect.clip(region);
   dst.x = dstrect.x1;
   dst.y = dstrect.y1;
   dst.w = dstrect.width();

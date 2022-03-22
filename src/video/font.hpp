@@ -54,15 +54,9 @@ public:
   ~Font();
 
 private:
-  SDL_Surface* get_sdl_surface(const std::string& text);
+  SDL_Surface* get_sdl_surface(const std::string& text, float width);
 
 public:
-  /** @deprecated Use `get_text_size` instead */
-  float get_text_width(const std::string& text) const;
-
-  /** @deprecated Use `get_text_size` instead */
-  float get_text_height(const std::string& text) const;
-
   Size get_text_size(const std::string& text) const;
 
 private:

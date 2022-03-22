@@ -152,10 +152,10 @@ Textbox::draw(DrawingContext& context) const
 
   // FIXME: The Font class should never have to be used directly, needs refactor
   float w1 = Font::get_font(theme.font, theme.fontsize)
-                  .get_text_width(m_contents.substr(0, m_caret))
+                  .get_text_size(m_contents.substr(0, m_caret)).w
                   + contents_rect.x1;
   float w2 = Font::get_font(theme.font, theme.fontsize)
-                  .get_text_width(m_contents.substr(0, m_caret_2))
+                  .get_text_size(m_contents.substr(0, m_caret_2)).w
                   + contents_rect.x1;
 
   Rect selection(w1, m_rect.y1, w2, m_rect.y2);
@@ -171,10 +171,9 @@ Textbox::draw(DrawingContext& context) const
   context.draw_line(Vector(w1, m_rect.y1), Vector(w1, m_rect.y2),
                     theme.fg_color, theme.fg_blend, m_layer);
 
-  context.draw_text(m_contents,
-                    (contents_rect.top_lft() + contents_rect.bot_lft()) / 2,
-                    Renderer::TextAlign::MID_LEFT, theme.font, theme.fontsize,
-                    theme.fg_color, theme.fg_blend, theme.font_border, m_layer);
+  context.draw_text(m_contents, contents_rect, Renderer::TextAlign::MID_LEFT,
+                    theme.font, theme.fontsize, theme.fg_color, theme.fg_blend,
+                    theme.font_border, m_layer);
 
   context.pop_transform();
 }
@@ -262,7 +261,7 @@ Textbox::adjust_scroll()
   float w = m_rect.width() - theme.left.padding - theme.right.padding;
 
   float scroll = Font::get_font(theme.font, theme.fontsize)
-                                 .get_text_width(m_contents.substr(0, m_caret));
+                                .get_text_size(m_contents.substr(0, m_caret)).w;
 
   m_scroll = Math::clamp(scroll - w, scroll, m_scroll);
 }
@@ -279,7 +278,7 @@ Textbox::get_hit_point(const Vector& p)
 
   while (pos < static_cast<int>(m_contents.size()) &&
           (newdist = std::abs(Font::get_font(theme.font, theme.fontsize)
-          .get_text_width(m_contents.substr(0, pos + 1)) - x)) < dist)
+          .get_text_size(m_contents.substr(0, pos + 1)).w - x)) < dist)
   {
     dist = newdist;
     pos++;

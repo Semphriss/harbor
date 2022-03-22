@@ -122,7 +122,7 @@ public:
     std::string m_text;
     std::string m_font;
     int m_size;
-    Vector m_pos;
+    Rect m_region;
     Renderer::TextAlign m_align;
     Rect m_clip;
   };
@@ -155,7 +155,7 @@ public:
   void draw_texture(const std::shared_ptr<Texture>& texture, const Rect& srcrect,
                     const Rect& dstrect, float angle, const Color& color,
                     const Renderer::Blend& blend, int layer);
-  void draw_text(const std::string& text, const Vector& pos,
+  void draw_text(const std::string& text, const Rect& region,
                  Renderer::TextAlign align, const std::string& fontfile,
                  int size, const Color& color, const Renderer::Blend& blend,
                  bool border, int layer); // TODO: Add border/shadow settings

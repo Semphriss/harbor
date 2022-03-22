@@ -120,9 +120,8 @@ GLRenderer::draw_texture(const Texture& texture, const Rect& srcrect,
 }
 
 void
-GLRenderer::draw_text(const std::string& text, const Vector& pos,
-                       const Rect& /* clip */, TextAlign align,
-                       const std::string& fontfile, int size,
+GLRenderer::draw_text(const std::string& text, const Rect& region,
+                       TextAlign align, const std::string& fontfile, int size,
                        const Color& color, const Blend& blend)
 {
   if (!is_drawing())
@@ -133,7 +132,7 @@ GLRenderer::draw_text(const std::string& text, const Vector& pos,
 
   auto& font = Font::get_font(fontfile, size);
 
-  SDL_Surface* surface = get_font_surface(font, text);
+  SDL_Surface* surface = get_font_surface(font, text, region.width());
   auto* image = SDL_ConvertSurfaceFormat(surface, SDL_PIXELFORMAT_ARGB8888, 0);
 
   glEnable(GL_TEXTURE_2D);
@@ -153,44 +152,48 @@ GLRenderer::draw_text(const std::string& text, const Vector& pos,
   glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 
   // TODO: Support blend mode
+  // TODO: Support clipping
 
-  Rect dst(Vector(static_cast<int>(pos.x), static_cast<int>(pos.y)),
-           Size(surface->w, surface->h));
+  Rect dst(region.top_lft(), Size(surface->w, surface->h));
 
   switch(align) {
     case TextAlign::TOP_LEFT:
       break;
 
     case TextAlign::TOP_MID:
-      dst.move(Vector(-surface->w / 2, 0.f));
+      dst.move(Vector((region.width() - surface->w) / 2.f, 0.f));
       break;
 
     case TextAlign::TOP_RIGHT:
-      dst.move(Vector(-surface->w, 0.f));
+      dst.move(Vector((region.width() - surface->w), 0.f));
       break;
 
     case TextAlign::MID_LEFT:
-      dst.move(Vector(0.f, -surface->h / 2));
+      dst.move(Vector(0.f, (region.height() - surface->h) / 2.f));
       break;
 
     case TextAlign::CENTER:
-      dst.move(Vector(-surface->w / 2, -surface->h / 2));
+      dst.move(Vector((region.width() - surface->w) / 2.f,
+                      (region.height() - surface->h) / 2.f));
       break;
 
     case TextAlign::MID_RIGHT:
-      dst.move(Vector(-surface->w, -surface->h / 2));
+      dst.move(Vector((region.width() - surface->w),
+                      (region.height() - surface->h) / 2.f));
       break;
 
     case TextAlign::BOTTOM_LEFT:
-      dst.move(Vector(0.f, -surface->h));
+      dst.move(Vector(0.f, (region.height() - surface->h)));
       break;
 
     case TextAlign::BOTTOM_MID:
-      dst.move(Vector(-surface->w / 2, -surface->h));
+      dst.move(Vector((region.width() - surface->w) / 2.f,
+                      (region.height() - surface->h)));
       break;
 
     case TextAlign::BOTTOM_RIGHT:
-      dst.move(Vector(-surface->w, -surface->h));
+      dst.move(Vector((region.width() - surface->w),
+                      (region.height() - surface->h)));
       break;
   }
 

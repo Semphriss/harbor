@@ -33,7 +33,7 @@ ButtonLabel::draw(DrawingContext& context) const
   Button::draw(context);
 
   const auto& theme = get_current_theme();
-  context.draw_text(m_label, m_rect.mid(), Renderer::TextAlign::CENTER,
-                    theme.font, theme.fontsize, theme.fg_color, theme.fg_blend,
+  context.draw_text(m_label, m_rect, Renderer::TextAlign::CENTER, theme.font,
+                    theme.fontsize, theme.fg_color, theme.fg_blend,
                     theme.font_border, m_layer);
 }
