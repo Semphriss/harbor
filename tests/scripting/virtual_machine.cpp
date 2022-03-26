@@ -35,38 +35,38 @@ template<typename T, typename V>
 void
 test_type()
 {
-  auto bound = VirtualMachine::bind(std::function<void(T)>([](T){}));
-  std::vector<std::unique_ptr<VirtualMachine::Type>> args;
+  auto bound = VMUtils::bind("", std::function<void(T)>([](T){}));
+  std::vector<std::unique_ptr<VMUtils::Type>> args;
   args.push_back(std::make_unique<V>());
-  bound.first(args);
+  bound.m_function(args);
 }
 
 TEST(Scripting_VirtualMachine_SingleArg, parse)
 {
-  ASSERT_NO_THROW((test_type<bool, VirtualMachine::Boolean>()));
-  ASSERT_NO_THROW((test_type<float, VirtualMachine::Float>()));
-  ASSERT_NO_THROW((test_type<int, VirtualMachine::Integer>()));
-  ASSERT_NO_THROW((test_type<Scriptable*, VirtualMachine::Object>()));
-  ASSERT_NO_THROW((test_type<std::string, VirtualMachine::String>()));
+  ASSERT_NO_THROW((test_type<bool, VMUtils::Boolean>()));
+  ASSERT_NO_THROW((test_type<float, VMUtils::Float>()));
+  ASSERT_NO_THROW((test_type<int, VMUtils::Integer>()));
+  ASSERT_NO_THROW((test_type<Scriptable*, VMUtils::Object>()));
+  ASSERT_NO_THROW((test_type<std::string, VMUtils::String>()));
 
-  ASSERT_THROW((test_type<bool, VirtualMachine::Float>()), std::runtime_error);
-  ASSERT_THROW((test_type<bool, VirtualMachine::Integer>()), std::runtime_error);
-  ASSERT_THROW((test_type<bool, VirtualMachine::Object>()), std::runtime_error);
-  ASSERT_THROW((test_type<bool, VirtualMachine::String>()), std::runtime_error);
-  ASSERT_THROW((test_type<float, VirtualMachine::Boolean>()), std::runtime_error);
-  ASSERT_THROW((test_type<float, VirtualMachine::Integer>()), std::runtime_error);
-  ASSERT_THROW((test_type<float, VirtualMachine::Object>()), std::runtime_error);
-  ASSERT_THROW((test_type<float, VirtualMachine::String>()), std::runtime_error);
-  ASSERT_THROW((test_type<int, VirtualMachine::Boolean>()), std::runtime_error);
-  ASSERT_THROW((test_type<int, VirtualMachine::Float>()), std::runtime_error);
-  ASSERT_THROW((test_type<int, VirtualMachine::Object>()), std::runtime_error);
-  ASSERT_THROW((test_type<int, VirtualMachine::String>()), std::runtime_error);
-  ASSERT_THROW((test_type<Scriptable*, VirtualMachine::Boolean>()), std::runtime_error);
-  ASSERT_THROW((test_type<Scriptable*, VirtualMachine::Float>()), std::runtime_error);
-  ASSERT_THROW((test_type<Scriptable*, VirtualMachine::Integer>()), std::runtime_error);
-  ASSERT_THROW((test_type<Scriptable*, VirtualMachine::String>()), std::runtime_error);
-  ASSERT_THROW((test_type<std::string, VirtualMachine::Boolean>()), std::runtime_error);
-  ASSERT_THROW((test_type<std::string, VirtualMachine::Float>()), std::runtime_error);
-  ASSERT_THROW((test_type<std::string, VirtualMachine::Integer>()), std::runtime_error);
-  ASSERT_THROW((test_type<std::string, VirtualMachine::Object>()), std::runtime_error);
+  ASSERT_THROW((test_type<bool, VMUtils::Float>()), std::runtime_error);
+  ASSERT_THROW((test_type<bool, VMUtils::Integer>()), std::runtime_error);
+  ASSERT_THROW((test_type<bool, VMUtils::Object>()), std::runtime_error);
+  ASSERT_THROW((test_type<bool, VMUtils::String>()), std::runtime_error);
+  ASSERT_THROW((test_type<float, VMUtils::Boolean>()), std::runtime_error);
+  ASSERT_THROW((test_type<float, VMUtils::Integer>()), std::runtime_error);
+  ASSERT_THROW((test_type<float, VMUtils::Object>()), std::runtime_error);
+  ASSERT_THROW((test_type<float, VMUtils::String>()), std::runtime_error);
+  ASSERT_THROW((test_type<int, VMUtils::Boolean>()), std::runtime_error);
+  ASSERT_THROW((test_type<int, VMUtils::Float>()), std::runtime_error);
+  ASSERT_THROW((test_type<int, VMUtils::Object>()), std::runtime_error);
+  ASSERT_THROW((test_type<int, VMUtils::String>()), std::runtime_error);
+  ASSERT_THROW((test_type<Scriptable*, VMUtils::Boolean>()), std::runtime_error);
+  ASSERT_THROW((test_type<Scriptable*, VMUtils::Float>()), std::runtime_error);
+  ASSERT_THROW((test_type<Scriptable*, VMUtils::Integer>()), std::runtime_error);
+  ASSERT_THROW((test_type<Scriptable*, VMUtils::String>()), std::runtime_error);
+  ASSERT_THROW((test_type<std::string, VMUtils::Boolean>()), std::runtime_error);
+  ASSERT_THROW((test_type<std::string, VMUtils::Float>()), std::runtime_error);
+  ASSERT_THROW((test_type<std::string, VMUtils::Integer>()), std::runtime_error);
+  ASSERT_THROW((test_type<std::string, VMUtils::Object>()), std::runtime_error);
 }

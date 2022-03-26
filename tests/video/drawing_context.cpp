@@ -23,7 +23,7 @@
 
 static SDLWindow w;
 
-class MockRenderer :
+class MockRenderer final :
   public Renderer
 {
 public:
@@ -50,12 +50,11 @@ public:
           << ");\n";
   }
 
-  virtual void draw_text(const std::string& text, const Vector& pos,
-                         const Rect& clip, TextAlign align,
-                         const std::string& fontfile, int size,
+  virtual void draw_text(const std::string& text, const Rect& region,
+                         TextAlign align, const std::string& fontfile, int size,
                          const Color& color, const Blend& blend) override
   {
-    m_log << "draw_text(" << text << ", " << pos << ", " << clip << ", "
+    m_log << "draw_text(" << text << ", " << region << ", " << ", "
           << static_cast<int>(align) << ", " << fontfile << ", " << size
           << ", " << color << ", " << static_cast<int>(blend) << ");\n";
   }
@@ -67,12 +66,12 @@ public:
           << static_cast<int>(blend) << ");\n";
   }
 
-  virtual void start_draw(Texture* texture = nullptr)
+  virtual void start_draw(Texture* texture = nullptr) override
   {
     m_log << "start_draw(" << (texture ? "..." : "nullptr") << ");\n";
   }
 
-  virtual void end_draw()
+  virtual void end_draw() override
   {
     m_log << "end_draw();\n";
   }

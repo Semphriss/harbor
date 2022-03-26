@@ -18,9 +18,9 @@
 // In C++, there will always be a way to do anything.
 // However, it's not guaranteed that that way was actually intended.
 
-#ifndef _HEADER_HARBOR_SCRIPTING_CATASTROPHICFAILURE_HPP
+#ifndef _HEADER_HARBOR_SCRIPTING_VMUTILS_HPP
 
-#include "scripting/catastrophic_failure.hpp"
+#include "scripting/vm_utils.hpp"
 
 #else
 
@@ -29,9 +29,9 @@
 
 template<size_t Pos, typename... Args>
 void
-CatastrophicFailure::SingleArg<bool, Pos, Args...>::parse(std::tuple<Args...>& tuple, CatastrophicFailure::Type* arg)
+VMUtils::SingleArg<bool, Pos, Args...>::parse(std::tuple<Args...>& tuple, VMUtils::Type* arg)
 {
-  const auto i = dynamic_cast<const CatastrophicFailure::Boolean*>(arg);
+  const auto i = dynamic_cast<const VMUtils::Boolean*>(arg);
 
   if (!i)
   {
@@ -43,9 +43,9 @@ CatastrophicFailure::SingleArg<bool, Pos, Args...>::parse(std::tuple<Args...>& t
 
 template<size_t Pos, typename... Args>
 void
-CatastrophicFailure::SingleArg<float, Pos, Args...>::parse(std::tuple<Args...>& tuple, CatastrophicFailure::Type* arg)
+VMUtils::SingleArg<float, Pos, Args...>::parse(std::tuple<Args...>& tuple, VMUtils::Type* arg)
 {
-  const auto i = dynamic_cast<const CatastrophicFailure::Float*>(arg);
+  const auto i = dynamic_cast<const VMUtils::Float*>(arg);
 
   if (!i)
   {
@@ -57,9 +57,9 @@ CatastrophicFailure::SingleArg<float, Pos, Args...>::parse(std::tuple<Args...>& 
 
 template<size_t Pos, typename... Args>
 void
-CatastrophicFailure::SingleArg<int, Pos, Args...>::parse(std::tuple<Args...>& tuple, CatastrophicFailure::Type* arg)
+VMUtils::SingleArg<int, Pos, Args...>::parse(std::tuple<Args...>& tuple, VMUtils::Type* arg)
 {
-  const auto i = dynamic_cast<const CatastrophicFailure::Integer*>(arg);
+  const auto i = dynamic_cast<const VMUtils::Integer*>(arg);
 
   if (!i)
   {
@@ -71,9 +71,9 @@ CatastrophicFailure::SingleArg<int, Pos, Args...>::parse(std::tuple<Args...>& tu
 
 template<size_t Pos, typename... Args>
 void
-CatastrophicFailure::SingleArg<Scriptable*, Pos, Args...>::parse(std::tuple<Args...>& tuple, CatastrophicFailure::Type* arg)
+VMUtils::SingleArg<Scriptable*, Pos, Args...>::parse(std::tuple<Args...>& tuple, VMUtils::Type* arg)
 {
-  const auto i = dynamic_cast<const CatastrophicFailure::Object*>(arg);
+  const auto i = dynamic_cast<const VMUtils::Object*>(arg);
 
   if (!i)
   {
@@ -85,9 +85,9 @@ CatastrophicFailure::SingleArg<Scriptable*, Pos, Args...>::parse(std::tuple<Args
 
 template<size_t Pos, typename... Args>
 void
-CatastrophicFailure::SingleArg<std::string, Pos, Args...>::parse(std::tuple<Args...>& tuple, CatastrophicFailure::Type* arg)
+VMUtils::SingleArg<std::string, Pos, Args...>::parse(std::tuple<Args...>& tuple, VMUtils::Type* arg)
 {
-  const auto i = dynamic_cast<const CatastrophicFailure::String*>(arg);
+  const auto i = dynamic_cast<const VMUtils::String*>(arg);
 
   if (!i)
   {
@@ -98,60 +98,60 @@ CatastrophicFailure::SingleArg<std::string, Pos, Args...>::parse(std::tuple<Args
 }
 
 template<typename... A>
-std::unique_ptr<CatastrophicFailure::Type>
-CatastrophicFailure::ReturnVal<void, A...>::exec(std::function<void(A...)> func, const std::tuple<A...>& args)
+std::unique_ptr<VMUtils::Type>
+VMUtils::ReturnVal<void, A...>::exec(std::function<void(A...)> func, const std::tuple<A...>& args)
 {
   call(func, args);
   return nullptr;
 }
 
 template<typename... A>
-std::unique_ptr<CatastrophicFailure::Type>
-CatastrophicFailure::ReturnVal<bool, A...>::exec(std::function<bool(A...)> func, const std::tuple<A...>& args)
+std::unique_ptr<VMUtils::Type>
+VMUtils::ReturnVal<bool, A...>::exec(std::function<bool(A...)> func, const std::tuple<A...>& args)
 {
-  auto ret = std::make_unique<CatastrophicFailure::Boolean>();
+  auto ret = std::make_unique<VMUtils::Boolean>();
   ret->m_value = call(func, args);
   return ret;
 }
 
 template<typename... A>
-std::unique_ptr<CatastrophicFailure::Type>
-CatastrophicFailure::ReturnVal<float, A...>::exec(std::function<float(A...)> func, const std::tuple<A...>& args)
+std::unique_ptr<VMUtils::Type>
+VMUtils::ReturnVal<float, A...>::exec(std::function<float(A...)> func, const std::tuple<A...>& args)
 {
-  auto ret = std::make_unique<CatastrophicFailure::Float>();
+  auto ret = std::make_unique<VMUtils::Float>();
   ret->m_value = call(func, args);
   return ret;
 }
 
 template<typename... A>
-std::unique_ptr<CatastrophicFailure::Type>
-CatastrophicFailure::ReturnVal<int, A...>::exec(std::function<int(A...)> func, const std::tuple<A...>& args)
+std::unique_ptr<VMUtils::Type>
+VMUtils::ReturnVal<int, A...>::exec(std::function<int(A...)> func, const std::tuple<A...>& args)
 {
-  auto ret = std::make_unique<CatastrophicFailure::Integer>();
+  auto ret = std::make_unique<VMUtils::Integer>();
   ret->m_value = call(func, args);
   return ret;
 }
 
 template<typename... A>
-std::unique_ptr<CatastrophicFailure::Type>
-CatastrophicFailure::ReturnVal<Scriptable*, A...>::exec(std::function<Scriptable*(A...)> func, const std::tuple<A...>& args)
+std::unique_ptr<VMUtils::Type>
+VMUtils::ReturnVal<Scriptable*, A...>::exec(std::function<Scriptable*(A...)> func, const std::tuple<A...>& args)
 {
-  auto ret = std::make_unique<CatastrophicFailure::Object>();
+  auto ret = std::make_unique<VMUtils::Object>();
   ret->m_value = call(func, args);
   return ret;
 }
 
 template<typename... A>
-std::unique_ptr<CatastrophicFailure::Type>
-CatastrophicFailure::ReturnVal<std::string, A...>::exec(std::function<std::string(A...)> func, const std::tuple<A...>& args)
+std::unique_ptr<VMUtils::Type>
+VMUtils::ReturnVal<std::string, A...>::exec(std::function<std::string(A...)> func, const std::tuple<A...>& args)
 {
-  auto ret = std::make_unique<CatastrophicFailure::String>();
+  auto ret = std::make_unique<VMUtils::String>();
   ret->m_value = call(func, args);
   return ret;
 }
 
 template<std::size_t Current, std::size_t End, typename... Args>
-CatastrophicFailure::FetchArg<Current, End, Args...>::FetchArg(std::tuple<Args...>& tuple, const std::vector<std::unique_ptr<CatastrophicFailure::Type>>& args)
+VMUtils::FetchArg<Current, End, Args...>::FetchArg(std::tuple<Args...>& tuple, const std::vector<std::unique_ptr<VMUtils::Type>>& args)
 {
   SingleArg<typename std::tuple_element<Current, std::tuple<Args...>>::type, Current, Args...>::parse(tuple, args[Current].get());
 
@@ -160,27 +160,27 @@ CatastrophicFailure::FetchArg<Current, End, Args...>::FetchArg(std::tuple<Args..
 
 template<std::size_t Current, std::size_t End, typename... Args>
 void
-CatastrophicFailure::ListArg<Current, End, Args...>::list(std::vector<CatastrophicFailure::Types>& list)
+VMUtils::ListArg<Current, End, Args...>::list(std::vector<VMUtils::Types>& list)
 {
   if (std::is_same<typename std::tuple_element<Current, std::tuple<Args...>>::type, bool>::value)
   {
-    list.push_back(CatastrophicFailure::Types::BOOLEAN);
+    list.push_back(VMUtils::Types::BOOLEAN);
   }
   else if (std::is_same<typename std::tuple_element<Current, std::tuple<Args...>>::type, int>::value)
   {
-    list.push_back(CatastrophicFailure::Types::INTEGER);
+    list.push_back(VMUtils::Types::INTEGER);
   }
   else if (std::is_same<typename std::tuple_element<Current, std::tuple<Args...>>::type, float>::value)
   {
-    list.push_back(CatastrophicFailure::Types::FLOAT);
+    list.push_back(VMUtils::Types::FLOAT);
   }
   else if (std::is_same<typename std::tuple_element<Current, std::tuple<Args...>>::type, Scriptable*>::value)
   {
-    list.push_back(CatastrophicFailure::Types::OBJECT);
+    list.push_back(VMUtils::Types::OBJECT);
   }
   else if (std::is_same<typename std::tuple_element<Current, std::tuple<Args...>>::type, std::string>::value)
   {
-    list.push_back(CatastrophicFailure::Types::STRING);
+    list.push_back(VMUtils::Types::STRING);
   }
   else
   {
@@ -191,10 +191,10 @@ CatastrophicFailure::ListArg<Current, End, Args...>::list(std::vector<Catastroph
 }
 
 template<typename R, typename... A, size_t NArgs>
-std::pair<CatastrophicFailure::ScriptFunction, std::vector<CatastrophicFailure::Types>>
-CatastrophicFailure::bind(std::function<R(A...)> func)
+VMUtils::Function
+VMUtils::bind(const std::string& name, std::function<R(A...)> func)
 {
-  auto function = [func](const std::vector<std::unique_ptr<CatastrophicFailure::Type>>& args) -> std::unique_ptr<CatastrophicFailure::Type> {
+  auto function = [func](const std::vector<std::unique_ptr<VMUtils::Type>>& args) -> std::unique_ptr<VMUtils::Type> {
 
     if (args.size() != std::tuple_size<std::tuple<A...>>::value)
     {
@@ -210,10 +210,10 @@ CatastrophicFailure::bind(std::function<R(A...)> func)
     return ReturnVal<R, A...>::exec(func, native_args);
   };
 
-  std::vector<CatastrophicFailure::Types> list;
+  std::vector<VMUtils::Types> list;
   ListArg<0, std::tuple_size<std::tuple<A...>>::value, A...>::list(list);
 
-  return {function, list};
+  return {name, function, list};
 }
 
 #endif

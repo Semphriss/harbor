@@ -23,7 +23,7 @@
 #include <unordered_map>
 #include <vector>
 
-#include "scripting/catastrophic_failure.hpp"
+#include "scripting/vm_utils.hpp"
 
 class Scriptable;
 
@@ -31,7 +31,7 @@ class Scriptable;
  * Class that represents a virtual machine for scripting.
  */
 class VirtualMachine :
-  protected CatastrophicFailure
+  protected VMUtils
 {
 public:
   VirtualMachine() = default;

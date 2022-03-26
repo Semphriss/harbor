@@ -107,9 +107,9 @@ TEST(Scripting_Squirrel_SquirrelVirtualMachine, squirrel_call)
   bool e = false;
 
   ASSERT_NO_THROW({
-    vm.expose_function({"test", VirtualMachine::bind(std::function<void()>([&e]{
+    vm.expose_function(VMUtils::bind("test", std::function<void()>([&e]{
       e = true;
-    }))});
+    })));
   });
 
   ASSERT_NO_THROW({
@@ -212,13 +212,13 @@ TEST(Scripting_Squirrel_SquirrelVirtualMachine, expose_class)
 
   ASSERT_NO_THROW({
     vm.expose_class("MyClass", {
-      {"method1", VirtualMachine::bind(std::function<void()>([&a]{
+      VMUtils::bind("method1", std::function<void()>([&a]{
         a = true;
-      }))},
-      {"method2", VirtualMachine::bind(std::function<int(int)>([&b](int c){
+      })),
+      VMUtils::bind("method2", std::function<int(int)>([&b](int c){
         b = c;
         return static_cast<int>(static_cast<float>(b) * 1.7f);
-      }))},
+      })),
     });
   });
 
@@ -247,14 +247,14 @@ TEST(Scripting_Squirrel_SquirrelVirtualMachine, expose_instance)
 
   ASSERT_NO_THROW({
     vm.expose_class("MyClass", {
-      {"method1", VirtualMachine::bind(std::function<void(Scriptable*)>(
+      VMUtils::bind("method1", std::function<void(Scriptable*)>(
         [](Scriptable* obj){
           ASSERT_NE(obj, nullptr);
           auto* st_obj = dynamic_cast<ScriptTest*>(obj);
           ASSERT_NE(st_obj, nullptr);
           st_obj->activate();
         }
-      ))}
+      ))
     });
   });
 
@@ -283,9 +283,9 @@ TEST(Scripting_Squirrel_SquirrelVirtualMachine, expose_object)
 
   ASSERT_NO_THROW({
     vm.expose_object("my_object", {
-      {"method1", VirtualMachine::bind(std::function<void()>([&a](){
+      VMUtils::bind("method1", std::function<void()>([&a](){
         a = true;
-      }))}
+      }))
     });
   });
 
@@ -303,11 +303,11 @@ TEST(Scripting_Squirrel_SquirrelVirtualMachine, expose_function)
   bool a = false;
 
   ASSERT_NO_THROW({
-    vm.expose_function({"method1", VirtualMachine::bind(std::function<void()>(
+    vm.expose_function(VMUtils::bind("method1", std::function<void()>(
       [&a](){
         a = true;
       }
-    ))});
+    )));
   });
 
   ASSERT_NO_THROW({
@@ -411,9 +411,9 @@ TEST(Scripting_Squirrel_SquirrelVirtualMachine, call_function)
   ScriptTest st1, st2, st3;
 
   ASSERT_NO_THROW({
-    vm.expose_function({"method0", VirtualMachine::bind(
+    vm.expose_function(VMUtils::bind("method0",
       std::function<void()>([&a] { a = true; })
-    )});
+    ));
   });
 
   ASSERT_NO_THROW({
@@ -433,7 +433,7 @@ TEST(Scripting_Squirrel_SquirrelVirtualMachine, call_function)
   });
 
   ASSERT_NO_THROW({
-    vm.expose_function({"method2", VirtualMachine::bind(
+    vm.expose_function(VMUtils::bind("method2",
       std::function<int(int, std::string, bool, float, Scriptable*)>(
         [&ss](int i, std::string s, bool b, float f, Scriptable* o){
           std::string oo;
@@ -449,12 +449,12 @@ TEST(Scripting_Squirrel_SquirrelVirtualMachine, call_function)
           return 92;
         }
       )
-    )});
+    ));
   });
 
   ASSERT_NO_THROW({
     vm.expose_class("MyClass", {
-      {"method3", VirtualMachine::bind(
+      VMUtils::bind("method3",
         std::function<Scriptable*(Scriptable*, int, std::string, bool, float)>(
           [&ss](Scriptable* o, int i, std::string s, bool b, float f){
             std::string oo;
@@ -470,8 +470,8 @@ TEST(Scripting_Squirrel_SquirrelVirtualMachine, call_function)
             return o;
           }
         )
-      )},
-      {"activate", VirtualMachine::bind(std::function<void(Scriptable*)>(
+      ),
+      VMUtils::bind("activate", std::function<void(Scriptable*)>(
         [](Scriptable* o){
           if (o)
           {
@@ -481,7 +481,7 @@ TEST(Scripting_Squirrel_SquirrelVirtualMachine, call_function)
             }
           }
         }
-      ))}
+      ))
     });
   });
 
@@ -495,45 +495,45 @@ TEST(Scripting_Squirrel_SquirrelVirtualMachine, call_function)
   });
 
   ASSERT_NO_THROW({
-    std::vector<std::unique_ptr<VirtualMachine::Type>> args;
-    args.push_back(std::make_unique<VirtualMachine::Integer>(2));
-    args.push_back(std::make_unique<VirtualMachine::String>("Hello"));
-    args.push_back(std::make_unique<VirtualMachine::Boolean>(true));
-    args.push_back(std::make_unique<VirtualMachine::Float>(5.6f));
-    args.push_back(std::make_unique<VirtualMachine::Object>(&st1));
+    std::vector<std::unique_ptr<VMUtils::Type>> args;
+    args.push_back(std::make_unique<VMUtils::Integer>(2));
+    args.push_back(std::make_unique<VMUtils::String>("Hello"));
+    args.push_back(std::make_unique<VMUtils::Boolean>(true));
+    args.push_back(std::make_unique<VMUtils::Float>(5.6f));
+    args.push_back(std::make_unique<VMUtils::Object>(&st1));
     auto r1 = vm.call_function("method1", std::move(args));
 
     ASSERT_EQ(r1.size(), 1);
-    auto val = dynamic_cast<VirtualMachine::Boolean*>(r1.back().get());
+    auto val = dynamic_cast<VMUtils::Boolean*>(r1.back().get());
     ASSERT_NE(val, nullptr);
     ASSERT_EQ(val->m_value, true);
   });
 
   ASSERT_NO_THROW({
-    std::vector<std::unique_ptr<VirtualMachine::Type>> args;
-    args.push_back(std::make_unique<VirtualMachine::Integer>(7));
-    args.push_back(std::make_unique<VirtualMachine::String>("World!"));
-    args.push_back(std::make_unique<VirtualMachine::Boolean>(false));
-    args.push_back(std::make_unique<VirtualMachine::Float>(7.8f));
-    args.push_back(std::make_unique<VirtualMachine::Object>(&st2));
+    std::vector<std::unique_ptr<VMUtils::Type>> args;
+    args.push_back(std::make_unique<VMUtils::Integer>(7));
+    args.push_back(std::make_unique<VMUtils::String>("World!"));
+    args.push_back(std::make_unique<VMUtils::Boolean>(false));
+    args.push_back(std::make_unique<VMUtils::Float>(7.8f));
+    args.push_back(std::make_unique<VMUtils::Object>(&st2));
     auto r2 = vm.call_function("method2", std::move(args));
 
     ASSERT_EQ(r2.size(), 1);
-    auto val = dynamic_cast<VirtualMachine::Integer*>(r2.back().get());
+    auto val = dynamic_cast<VMUtils::Integer*>(r2.back().get());
     ASSERT_NE(val, nullptr);
     ASSERT_EQ(val->m_value, 92);
   });
 
   ASSERT_NO_THROW({
-    std::vector<std::unique_ptr<VirtualMachine::Type>> args;
-    args.push_back(std::make_unique<VirtualMachine::Integer>(176));
-    args.push_back(std::make_unique<VirtualMachine::String>("=)"));
-    args.push_back(std::make_unique<VirtualMachine::Boolean>(true));
-    args.push_back(std::make_unique<VirtualMachine::Float>(72.25f));
+    std::vector<std::unique_ptr<VMUtils::Type>> args;
+    args.push_back(std::make_unique<VMUtils::Integer>(176));
+    args.push_back(std::make_unique<VMUtils::String>("=)"));
+    args.push_back(std::make_unique<VMUtils::Boolean>(true));
+    args.push_back(std::make_unique<VMUtils::Float>(72.25f));
     auto r3 = vm.call_function("method3", std::move(args), &st3, true);
 
     ASSERT_EQ(r3.size(), 1);
-    auto val = dynamic_cast<VirtualMachine::Object*>(r3.back().get());
+    auto val = dynamic_cast<VMUtils::Object*>(r3.back().get());
     ASSERT_NE(val, nullptr);
     ASSERT_EQ(val->m_value, &st3);
   });
@@ -554,7 +554,7 @@ TEST(Scripting_Squirrel_SquirrelVirtualMachine, push_instance)
   ScriptTest st1, st2;
 
   ASSERT_NO_THROW({
-    vm.expose_function({"method_no_st", VirtualMachine::bind(
+    vm.expose_function(VMUtils::bind("method_no_st",
       std::function<void(Scriptable*)>([](Scriptable* s){
         if (s)
         {
@@ -564,28 +564,28 @@ TEST(Scripting_Squirrel_SquirrelVirtualMachine, push_instance)
           }
         }
       })
-    )});
+    ));
   });
 
   // No class 'ScriptTest' in VM
   ASSERT_THROW({
-    std::vector<std::unique_ptr<VirtualMachine::Type>> args;
-    args.push_back(std::make_unique<VirtualMachine::Object>(&st1));
+    std::vector<std::unique_ptr<VMUtils::Type>> args;
+    args.push_back(std::make_unique<VMUtils::Object>(&st1));
     vm.call_function("method_no_st", std::move(args));
   }, std::runtime_error);
 
   // 'ScriptTest' is not a classname
   vm.expose_bool("ScriptTest", true);
   ASSERT_THROW({
-    std::vector<std::unique_ptr<VirtualMachine::Type>> args;
-    args.push_back(std::make_unique<VirtualMachine::Object>(&st1));
+    std::vector<std::unique_ptr<VMUtils::Type>> args;
+    args.push_back(std::make_unique<VMUtils::Object>(&st1));
     vm.call_function("method_no_st", std::move(args));
   }, std::runtime_error);
   vm.remove_entry("ScriptTest");
 
   ASSERT_NO_THROW({
     vm.expose_class("ScriptTest", {
-      {"activate", VirtualMachine::bind(std::function<void(Scriptable*)>(
+      VMUtils::bind("activate", std::function<void(Scriptable*)>(
         [](Scriptable* o){
           if (o)
           {
@@ -595,13 +595,13 @@ TEST(Scripting_Squirrel_SquirrelVirtualMachine, push_instance)
             }
           }
         }
-      ))}
+      ))
     });
   });
 
   ASSERT_NO_THROW({
-    std::vector<std::unique_ptr<VirtualMachine::Type>> args;
-    args.push_back(std::make_unique<VirtualMachine::Object>(&st1));
+    std::vector<std::unique_ptr<VMUtils::Type>> args;
+    args.push_back(std::make_unique<VMUtils::Object>(&st1));
     vm.call_function("method_no_st", std::move(args));
   });
 
@@ -610,8 +610,8 @@ TEST(Scripting_Squirrel_SquirrelVirtualMachine, push_instance)
   });
 
   ASSERT_NO_THROW({
-    std::vector<std::unique_ptr<VirtualMachine::Type>> args;
-    args.push_back(std::make_unique<VirtualMachine::Object>(&st2));
+    std::vector<std::unique_ptr<VMUtils::Type>> args;
+    args.push_back(std::make_unique<VMUtils::Object>(&st2));
     vm.call_function("method_no_st", std::move(args));
   });
 }

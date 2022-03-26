@@ -14,8 +14,8 @@
 //  You should have received a copy of the GNU Lesser General Public License
 //  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#ifndef _HEADER_HARBOR_SCRIPTING_CATASTROPHICFAILURE_HPP
-#define _HEADER_HARBOR_SCRIPTING_CATASTROPHICFAILURE_HPP
+#ifndef _HEADER_HARBOR_SCRIPTING_VMUTILS_HPP
+#define _HEADER_HARBOR_SCRIPTING_VMUTILS_HPP
 
 #include <functional>
 #include <memory>
@@ -30,11 +30,11 @@ class Scriptable;
  *
  * The class is not marked `final` as allowing the VirtualMachine class to
  * inherit from it helps avoid typing this class' name at long. This class is
- * (and should remain) empty.
+ * (and should remain) empty of any non-static function or variable.
  *
- * As implied, this file (and its corresponding body) is a catastrophic failure.
+ * This file (and its corresponding body) are a catastrophic failure.
  */
-class CatastrophicFailure
+class VMUtils
 {
   friend class VirtualMachine;
 
@@ -252,17 +252,17 @@ public:
   };
 
 public:
-  CatastrophicFailure() = default;
-  virtual ~CatastrophicFailure() = default;
+  VMUtils() = default;
+  virtual ~VMUtils() = default;
 
   template<typename R, typename... A, size_t NArgs = std::tuple_size<std::tuple<A...>>::value>
-  static std::pair<ScriptFunction, std::vector<Types>> bind(std::function<R(A...)> func);
+  static Function bind(const std::string& name, std::function<R(A...)> func);
 
 private:
-  CatastrophicFailure(const CatastrophicFailure&) = delete;
-  CatastrophicFailure& operator=(const CatastrophicFailure&) = delete;
+  VMUtils(const VMUtils&) = delete;
+  VMUtils& operator=(const VMUtils&) = delete;
 };
 
-#include "scripting/catastrophic_failure.cpp"
+#include "scripting/vm_utils.cpp"
 
 #endif

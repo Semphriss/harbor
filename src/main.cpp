@@ -91,9 +91,10 @@ loop()
     dc.draw_texture(*canvas, Rect(Vector(), canvas->get_size()),
                     Rect(Vector(300, 100), Size(100.f, 150.f)), 25.f,
                     Color(1.f, 1.f, 1.f), Renderer::Blend::ADD, 10);
-    dc.draw_text("Hello, world!", Vector(10, 10), Renderer::TextAlign::TOP_LEFT,
+    dc.draw_text("Hello, world!", Rect(10, 10, 80, 80),
+                 Renderer::TextAlign::TOP_LEFT,
                  DATA_ROOT "/fonts/SuperTux-Medium.ttf", 16, Color(1.f, 1.f, 1.f),
-                 Renderer::Blend::BLEND, 11);
+                 Renderer::Blend::BLEND, true, 11);
 
     g_textbox.draw(dc);
     dc.render();
