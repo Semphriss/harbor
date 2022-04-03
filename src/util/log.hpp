@@ -24,7 +24,7 @@
 #undef ERROR
 #endif
 
-#define log_(LEVEL) if (Log::s_level >= Log::Level::LEVEL)                     \
+#define log_(LEVEL) if (Log::s_log && Log::s_level >= Log::Level::LEVEL)       \
                     Log::log(#LEVEL, __FILE__, __LINE__)
 
 /**
