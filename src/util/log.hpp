@@ -17,6 +17,7 @@
 #ifndef _HEADER_HARBOR_UTIL_LOG_HPP
 #define _HEADER_HARBOR_UTIL_LOG_HPP
 
+#include <cstring>
 #include <iostream>
 
 // MSVC defines an "ERROR" macro, which conflicts with the enum below.
@@ -25,7 +26,7 @@
 #endif
 
 #define log_(LEVEL) if (Log::s_log && Log::s_level >= Log::Level::LEVEL)       \
-                    Log::log(#LEVEL, __FILE__, __LINE__)
+                    Log::log(#LEVEL, crop(__FILE__).c_str(), __LINE__)
 
 /**
  * A log is DEBUG importance if it merely prints information about what the
@@ -163,5 +164,74 @@ public:
   static Level s_level;
   static std::ostream& log(const char* level, const char* file, int line);
 };
+
+/**
+ * Crop the path to the root of the repo from the given line.
+ *
+ * For example, if the project is located at `/home/user/harbor/`, passing
+ * `/home/user/harbor/src/util/log.hpp` will return `src/util/log.hpp`.
+ *
+ * This function is smart enough to handle going back in the directories, for
+ * example if one passes `/home/user/not_the_same_dir_as_harbor/test.cpp`, it
+ * will return `../test.cpp`. It relies on the macro HARBOR_PROJECT_ROOT to do
+ * this. Note that HARBOR_PROJECT_ROOT must be an absolute path to work as
+ * expected. If HARBOR_PROJECT_ROOT is not available, it will fallback to
+ * cutting the path at the last occurence of a folder named `src` or `tests`,
+ * and will not be able to handle backwards traversal (`../`).
+ *
+ * @param line The line to crop; usually the macro `__FILE__`.
+ * @returns The cropped line, AS A C++ STRING. Since it internally uses C++
+ *          strings, returning a C string would cause a mess in memory.
+ * @author Semphris <semphris@protonmail.com>, 2022
+ */
+inline std::string crop(const char* const line)
+{
+#ifdef HARBOR_PROJECT_ROOT
+  if (!strncmp(line, HARBOR_PROJECT_ROOT, strlen(HARBOR_PROJECT_ROOT)))
+  {
+    return line + strlen(HARBOR_PROJECT_ROOT);
+  }
+  else
+  {
+    std::string path = "";
+    const char* l = line;
+    const char* h = HARBOR_PROJECT_ROOT;
+
+    while (*h && *l && *l++ == *h++)
+      ;
+
+    l--;
+
+    while (*h != '\0')
+    {
+      if (*h == '/' || *h == '\\')
+        path += ".." + std::string(1, *h);
+
+      h++;
+    }
+
+    return path + std::string(l);
+  }
+#else
+  const char* ptr = line;
+  const char* scan = line;
+
+  while (strlen(++scan) >= 5)
+  {
+    // FIXME: This uses only Unix-style and Windows-style directory separator
+    if (strncmp(scan, "/src/", 5) == 0 || strncmp(scan, "\\src\\", 5) == 0)
+    {
+      ptr = scan + 1;
+    }
+    else if (strncmp(scan, "/tests/", 7) == 0
+          || strncmp(scan, "\\tests\\", 7) == 0)
+    {
+      ptr = scan + 1;
+    }
+  }
+
+  return ptr;
+#endif
+}
 
 #endif

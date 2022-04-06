@@ -23,7 +23,7 @@ project(harbor)
 
 cmake_minimum_required(VERSION 3.0)
 
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
@@ -147,7 +147,8 @@ target_compile_definitions(harbor_lib PUBLIC HARBOR_USE_SCRIPTING=$<BOOL:${HARBO
                                              HARBOR_USE_SCRIPTING_LUA=$<BOOL:${HARBOR_USE_SCRIPTING_LUA}>
                                              HARBOR_USE_VIDEO=$<BOOL:${HARBOR_USE_VIDEO}>
                                              HARBOR_USE_VIDEO_SDL=$<BOOL:${HARBOR_USE_VIDEO_SDL}>
-                                             HARBOR_USE_VIDEO_OPENGL=$<BOOL:${HARBOR_USE_VIDEO_OPENGL}>)
+                                             HARBOR_USE_VIDEO_OPENGL=$<BOOL:${HARBOR_USE_VIDEO_OPENGL}>
+                                             HARBOR_PROJECT_ROOT="${CMAKE_SOURCE_DIR}/")
 
 # Main executable
 if(HARBOR_BUILD_EXEC)
