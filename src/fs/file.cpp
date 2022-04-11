@@ -169,10 +169,12 @@ std::string
 File::build_os_path(const std::vector<std::string>& names)
 {
   std::string result;
+  std::string sep = PHYSFS_getDirSeparator();
 
   for (const auto& name : names)
   {
-    if (!result.empty())
+    if (!result.empty() && result.substr(result.size() - sep.size()) != sep &&
+        name.substr(0, sep.size()) != sep)
       result += PHYSFS_getDirSeparator();
 
     result += name;
