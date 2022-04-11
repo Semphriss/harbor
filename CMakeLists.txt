@@ -459,7 +459,7 @@ if(HARBOR_USE_FS)
 endif(HARBOR_USE_FS)
 
 if(EMSCRIPTEN)
-  target_link_options(harbor_lib PUBLIC -sFULL_ES2=1)
+  target_link_options(harbor_lib PUBLIC -sLEGACY_GL_EMULATION=1)
 else(EMSCRIPTEN)
   if(HARBOR_USE_VIDEO_OPENGL)
     find_package(OpenGL REQUIRED)
