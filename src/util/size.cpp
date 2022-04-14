@@ -17,6 +17,7 @@
 #include "util/size.hpp"
 
 #include "util/vector.hpp"
+#include <cmath>
 
 Size::Size() :
   w(),
@@ -43,9 +44,15 @@ Size::vector() const
 }
 
 Size
-Size::operator*(const Size& s) const
+Size::floor() const
 {
-  return Size(w * s.w, h * s.h);
+  return Size(std::floor(w), std::floor(h));
+}
+
+Size
+Size::ceil() const
+{
+  return Size(std::ceil(w), std::ceil(h));
 }
 
 Size
@@ -55,15 +62,9 @@ Size::operator*(float f) const
 }
 
 Size
-Size::operator/(float f) const
+Size::operator*(const Size& s) const
 {
-  return Size(w / f, h / f);
-}
-
-Size
-Size::operator/(const Size s) const
-{
-  return Size(w / s.w, h / s.h);
+  return Size(w * s.w, h * s.h);
 }
 
 Size&
@@ -83,9 +84,59 @@ Size::operator*=(const Size& s)
 }
 
 Size
+Size::operator/(float f) const
+{
+  return Size(w / f, h / f);
+}
+
+Size
+Size::operator/(const Size& s) const
+{
+  return Size(w / s.w, h / s.h);
+}
+
+Size&
+Size::operator/=(float f)
+{
+  w /= f;
+  h /= f;
+  return *this;
+}
+
+Size&
+Size::operator/=(const Size& s)
+{
+  w /= s.w;
+  h /= s.h;
+  return *this;
+}
+
+Size
 Size::operator+(const Size& s) const
 {
   return Size(w + s.w, h + s.h);
+}
+
+Size&
+Size::operator+=(const Size& s)
+{
+  w += s.w;
+  h += s.h;
+  return *this;
+}
+
+Size
+Size::operator-(const Size& s) const
+{
+  return Size(w - s.w, h - s.h);
+}
+
+Size&
+Size::operator-=(const Size& s)
+{
+  w -= s.w;
+  h -= s.h;
+  return *this;
 }
 
 bool

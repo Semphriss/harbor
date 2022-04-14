@@ -33,12 +33,16 @@ public:
   float length() const;
 
   Vector floor() const;
+  Vector ceil() const;
 
   Vector operator*(const Vector& v) const;
   Vector operator*(float f) const;
+  Vector& operator*=(const Vector& s);
+  Vector& operator*=(float f);
   Vector operator/(const Vector& v) const;
   Vector operator/(float f) const;
-  Vector& operator*=(const Vector& v);
+  Vector& operator/=(const Vector& s);
+  Vector& operator/=(float f);
   Vector operator+(const Vector& v) const;
   Vector& operator+=(const Vector& v);
   Vector operator-(const Vector& v) const;

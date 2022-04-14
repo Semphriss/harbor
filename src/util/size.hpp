@@ -30,13 +30,21 @@ public:
 
   Vector vector() const;
 
-  Size operator*(const Size& s) const;
+  Size floor() const;
+  Size ceil() const;
+
   Size operator*(float f) const;
-  Size operator/(float f) const;
-  Size operator/(const Size s) const;
+  Size operator*(const Size& s) const;
   Size& operator*=(float f);
   Size& operator*=(const Size& s);
+  Size operator/(float f) const;
+  Size operator/(const Size& s) const;
+  Size& operator/=(float f);
+  Size& operator/=(const Size& s);
   Size operator+(const Size& s) const;
+  Size& operator+=(const Size& s);
+  Size operator-(const Size& s) const;
+  Size& operator-=(const Size& s);
   bool operator==(const Size& v) const;
   bool operator!=(const Size& v) const;
 

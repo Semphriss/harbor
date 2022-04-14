@@ -57,6 +57,12 @@ Vector::floor() const
 }
 
 Vector
+Vector::ceil() const
+{
+  return Vector(std::ceil(x), std::ceil(y));
+}
+
+Vector
 Vector::operator*(const Vector& v) const
 {
   return Vector(x * v.x, y * v.y);
@@ -66,6 +72,22 @@ Vector
 Vector::operator*(float f) const
 {
   return Vector(x * f, y * f);
+}
+
+Vector&
+Vector::operator*=(const Vector& v)
+{
+  x *= v.x;
+  y *= v.y;
+  return *this;
+}
+
+Vector&
+Vector::operator*=(float f)
+{
+  x *= f;
+  y *= f;
+  return *this;
 }
 
 Vector
@@ -81,10 +103,18 @@ Vector::operator/(float f) const
 }
 
 Vector&
-Vector::operator*=(const Vector& v)
+Vector::operator/=(const Vector& v)
 {
-  x *= v.x;
-  y *= v.y;
+  x /= v.x;
+  y /= v.y;
+  return *this;
+}
+
+Vector&
+Vector::operator/=(float f)
+{
+  x /= f;
+  y /= f;
   return *this;
 }
 
