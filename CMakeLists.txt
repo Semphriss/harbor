@@ -184,6 +184,9 @@ if(HARBOR_BUILD_TEST)
     target_include_directories(run_tests PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src/ ${HARBOR_USER_TEST_INCLUDES})
     target_link_libraries(run_tests PUBLIC harbor_lib ${HARBOR_USER_TEST_LINKS})
 
+    enable_testing()
+    add_test(NAME run_tests COMMAND run_tests)
+
     # Coverage
     if(CMAKE_COMPILER_IS_GNUCXX AND HARBOR_COVERAGE)
       foreach(covered_lib "${HARBOR_USER_TEST_COV}")
