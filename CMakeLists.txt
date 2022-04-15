@@ -48,7 +48,7 @@ set(HARBOR_USER_TEST_FILES "" CACHE STRING "User C++ files for the test suite")
 set(HARBOR_USER_TEST_INCLUDES "" CACHE STRING "User headers for the test suite")
 set(HARBOR_USER_TEST_LINKS "" CACHE STRING "User libraries for the test suite")
 set(HARBOR_USER_TEST_COV "harbor_lib" CACHE STRING "Libraries to compile with coverage")
-option(HARBOR_USER_TEST_SKIP_HARBOR "Remove Harbor tests from the suite" OFF)
+set(HARBOR_USER_TEST_SKIP_HARBOR OFF CACHE BOOL "Remove Harbor tests from the suite")
 
 # Installation options
 option(HARBOR_INSTALL "Create install targets" ON)
