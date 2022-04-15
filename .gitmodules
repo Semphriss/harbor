@@ -1,15 +1,15 @@
 [submodule "external/SDL2"]
 	path = external/SDL2
-	url = https://github.com/libsdl-org/SDL.git
+	url = https://github.com/Semphriss/SDL.git
 [submodule "external/gtest"]
 	path = external/gtest
 	url = https://github.com/google/googletest.git
 [submodule "external/SDL2_image"]
 	path = external/SDL2_image
-	url = https://github.com/libsdl-org/SDL_image.git
+	url = https://github.com/Semphriss/SDL_image.git
 [submodule "external/SDL2_ttf"]
 	path = external/SDL2_ttf
-	url = https://github.com/libsdl-org/SDL_ttf.git
+	url = https://github.com/Semphriss/SDL_ttf.git
 [submodule "external/squirrel"]
 	path = external/squirrel
 	url = https://github.com/albertodemichelis/squirrel.git
@@ -21,4 +21,4 @@
 	url = https://gitlab.freedesktop.org/freetype/freetype
 [submodule "external/physfs"]
 	path = external/physfs
-	url = https://github.com/icculus/physfs.git
+	url = https://github.com/Semphriss/physfs.git
