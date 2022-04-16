@@ -409,6 +409,7 @@ if(HARBOR_USE_SCRIPTING_SQUIRREL)
   else(SQUIRREL_FOUND)
     message(STATUS "Compiling Squirrel from source")
 
+    set(SQ_DISABLE_INTERPRETER ON)
     set(SQ_DISABLE_INSTALLER ON)
     if(BUILD_SHARED_LIBS)
       set(DISABLE_STATIC ON)

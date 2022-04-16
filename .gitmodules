@@ -12,7 +12,7 @@
 	url = https://github.com/Semphriss/SDL_ttf.git
 [submodule "external/squirrel"]
 	path = external/squirrel
-	url = https://github.com/albertodemichelis/squirrel.git
+	url = https://github.com/Semphriss/squirrel.git
 [submodule "external/lua"]
 	path = external/lua
 	url = https://github.com/lua/lua.git
