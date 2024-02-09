@@ -29,6 +29,8 @@ public:
 
   virtual void draw(DrawingContext& context) const override;
 
+  void set_label(const std::string& label) { m_label = label; }
+
 private:
   std::string m_label;
 
