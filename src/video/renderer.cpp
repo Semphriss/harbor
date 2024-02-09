@@ -75,7 +75,7 @@ Renderer::get_text_rect(const std::string& font, int size,
 }
 
 SDL_Surface*
-Renderer::get_font_surface(const Font& font, const std::string& text)
+Renderer::get_font_surface(Font& font, const std::string& text)
 {
   return font.get_sdl_surface(text);
 }

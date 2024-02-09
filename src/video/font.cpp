@@ -50,7 +50,8 @@ std::vector<std::unique_ptr<Font>> Font::s_fonts;
 Font::Font(const std::string& text, int size) :
   m_name(text),
   m_size(size),
-  m_font(TTF_OpenFont(text.c_str(), size))
+  m_font(TTF_OpenFont(text.c_str(), size)),
+  m_text_surfaces()
 {
   if (!m_font)
   {
@@ -61,12 +62,19 @@ Font::Font(const std::string& text, int size) :
 
 Font::~Font()
 {
+  for (const auto& text_surface : m_text_surfaces)
+    SDL_FreeSurface(text_surface.second);
+
   TTF_CloseFont(m_font);
 }
 
 SDL_Surface*
-Font::get_sdl_surface(const std::string& text) const
+Font::get_sdl_surface(const std::string& text)
 {
+  auto it = m_text_surfaces.find(text);
+  if (it != m_text_surfaces.end())
+    return it->second;
+
   SDL_Color white;
 
   white.r = 255;
@@ -76,7 +84,9 @@ Font::get_sdl_surface(const std::string& text) const
   white.a = 255;
 #endif
 
-  return TTF_RenderText_Blended(m_font, text.c_str(), white);
+  SDL_Surface* surface = TTF_RenderText_Blended(m_font, text.c_str(), white);
+  m_text_surfaces[text] = surface;
+  return surface;
 }
 
 float
