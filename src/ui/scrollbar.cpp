@@ -183,7 +183,7 @@ Scrollbar::event(const SDL_Event& event)
 
         return true;
       }
-      break;
+      return m_rect.contains(m_mouse_pos);
 
     case SDL_MOUSEWHEEL:
       if (m_rect.contains(m_mouse_pos))
