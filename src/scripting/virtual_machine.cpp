@@ -28,6 +28,8 @@ VirtualMachine::ExposableFunction::ExposableFunction(const std::string& name,
 
 #else
 
+#include <stdexcept>
+
 #include "function_tuple_args.hpp"
 #include "make_unique.hpp"
 
