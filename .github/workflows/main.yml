@@ -36,6 +36,7 @@ jobs:
             libsdl2-dev \
             libsdl2-image-dev \
             libsdl2-ttf-dev \
+            libsdl2-mixer-dev \
             libsquirrel-dev
 
       - name: Install vcpkg dependencies
@@ -47,7 +48,8 @@ jobs:
             lua \
             sdl2 \
             sdl2-image \
-            sdl2-ttf
+            sdl2-ttf \
+            sdl2-mixer
 
       - name: Pull source dependencies
         if: ${{ matrix.dependencies == 'source' }}
