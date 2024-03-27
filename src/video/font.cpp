@@ -50,7 +50,8 @@ std::vector<std::unique_ptr<Font>> Font::s_fonts;
 Font::Font(const std::string& text, int size) :
   m_name(text),
   m_size(size),
-  m_font(TTF_OpenFont(text.c_str(), size))
+  m_font(TTF_OpenFont(text.c_str(), size)),
+  m_text_surfaces()
 {
   if (!m_font)
   {
@@ -61,40 +62,55 @@ Font::Font(const std::string& text, int size) :
 
 Font::~Font()
 {
+  for (const auto& text_surface : m_text_surfaces)
+    SDL_FreeSurface(text_surface.second);
+
   TTF_CloseFont(m_font);
 }
 
 SDL_Surface*
-Font::get_sdl_surface(const std::string& text) const
+Font::get_sdl_surface(const std::string& text)
 {
+  auto it = m_text_surfaces.find(text);
+  if (it != m_text_surfaces.end())
+    return it->second;
+
   SDL_Color white;
 
   white.r = 255;
   white.g = 255;
   white.b = 255;
+#ifndef EMSCRIPTEN
   white.a = 255;
+#endif
 
-  return TTF_RenderText_Blended(m_font, text.c_str(), white);
+  SDL_Surface* surface = TTF_RenderText_Blended(m_font, text.c_str(), white);
+  m_text_surfaces[text] = surface;
+  return surface;
 }
 
 float
 Font::get_text_width(const std::string& text) const
 {
-  SDL_Surface* s = get_sdl_surface(text);
-
-  if (!s)
-    return 0.f;
-
-  return static_cast<float>(s->w);
+  return get_text_size(text).w;
 }
 
 float
 Font::get_text_height(const std::string& text) const
 {
-  SDL_Surface* s = get_sdl_surface(text);
+  return get_text_size(text).h;
+}
 
-  if (!s)
-    return 0.f;
+Size
+Font::get_text_size(const std::string& text) const
+{
+  int w, h;
 
-  return static_cast<float>(s->h);
+  if (TTF_SizeText(m_font, text.c_str(), &w, &h))
+  {
+    throw std::runtime_error("Could not get text dimensions: "
+                             + std::string(TTF_GetError()));
+  }
+
+  return Size(static_cast<float>(w), static_cast<float>(h));
 }

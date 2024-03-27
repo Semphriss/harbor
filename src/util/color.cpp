@@ -39,3 +39,9 @@ Color::Color(const Color& c, float _a) :
   a(_a)
 {
 }
+
+std::ostream& operator<<(std::ostream& stream, const Color& color)
+{
+  return stream << "Color(" << color.r << ", " << color.g << ", " << color.b
+                << ", " << color.a << ")";
+}

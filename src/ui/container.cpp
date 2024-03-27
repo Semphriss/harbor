@@ -110,7 +110,8 @@ Container::set_focused(bool focused, bool call_parent)
   }
   else
   {
-    if (m_focus_index >= 0 && m_focus_index < m_children.size())
+    if (m_focus_index >= 0 &&
+        m_focus_index < static_cast<int>(m_children.size()))
     {
       m_children[m_focus_index]->set_focused(true, false);
     }
@@ -128,7 +129,7 @@ Container::set_focused(bool focused, bool call_parent)
 Control*
 Container::get_focused_child()
 {
-  if (m_focus_index >= 0 && m_focus_index < m_children.size())
+  if (m_focus_index >= 0 && m_focus_index < static_cast<int>(m_children.size()))
   {
     return m_children[m_focus_index].get();
   }
@@ -187,7 +188,7 @@ Container::advance_focus(bool forward)
     if (m_focus_index < -1)
       m_focus_index = -1;
 
-    if (++m_focus_index >= m_children.size())
+    if (++m_focus_index >= static_cast<int>(m_children.size()))
     {
       if (m_parent)
       {
@@ -203,7 +204,8 @@ Container::advance_focus(bool forward)
   }
   else
   {
-    if (m_focus_index == -1 || m_focus_index > m_children.size())
+    if (m_focus_index == -1 ||
+        m_focus_index > static_cast<int>(m_children.size()))
       m_focus_index = m_children.size();
 
     if (--m_focus_index < 0)

@@ -44,6 +44,8 @@ public:
   void clear_items();
   void set_on_changed(std::function<void(int, const T*)> on_changed);
 
+  void update_scrollbar_rect();
+
 private:
   int get_index_at(const Vector& point) const;
   const T* get_item_at(const Vector& point) const;

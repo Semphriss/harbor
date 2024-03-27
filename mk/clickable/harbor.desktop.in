@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Version=1.0
+Name=Harbor
+Exec=harbor
+Icon=
+Terminal=false
+StartupNotify=false
+X-Ubuntu-Touch=true

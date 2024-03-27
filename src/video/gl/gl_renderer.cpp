@@ -121,7 +121,7 @@ GLRenderer::draw_texture(const Texture& texture, const Rect& srcrect,
 
 void
 GLRenderer::draw_text(const std::string& text, const Vector& pos,
-                       const Rect& clip, TextAlign align,
+                       const Rect& /* clip */, TextAlign align,
                        const std::string& fontfile, int size,
                        const Color& color, const Blend& blend)
 {
@@ -286,7 +286,7 @@ GLRenderer::end_draw()
 {
   Renderer::end_draw();
 
-  if (m_target != -1)
+  if (m_target != static_cast<GLuint>(-1))
   {
     GLsizei w = static_cast<GLsizei>(m_glwindow.get_size().w);
     GLsizei h = static_cast<GLsizei>(m_glwindow.get_size().h);
@@ -296,7 +296,7 @@ GLRenderer::end_draw()
 
   glFlush();
 
-  if (m_target == -1)
+  if (m_target == static_cast<GLuint>(-1))
   {
     SDL_GL_SwapWindow(m_glwindow.get_sdl_window());
   }

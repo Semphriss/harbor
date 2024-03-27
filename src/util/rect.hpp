@@ -17,6 +17,9 @@
 #ifndef _HEADER_HARBOR_UTIL_RECT_HPP
 #define _HEADER_HARBOR_UTIL_RECT_HPP
 
+#include <utility>
+#include <ostream>
+
 class Size;
 class Vector;
 
@@ -30,6 +33,7 @@ public:
 
   Rect& move(const Vector& v);
   Rect& clip(const Rect& rect);
+  Rect& fix();
   Rect& set_x1(float x1);
   Rect& set_x2(float x2);
   Rect& set_y1(float y1);
@@ -50,16 +54,22 @@ public:
   Rect clipped(const Rect& rect) const;
   Rect grown(float f) const;
   Rect moved(const Vector& v) const;
+  Rect fixed() const;
   Rect with_x1(float x1) const;
   Rect with_x2(float x2) const;
   Rect with_y1(float y1) const;
   Rect with_y2(float y2) const;
 
+  std::pair<Vector, Vector> clip_line(const Vector& p1, const Vector& p2) const;
+
+  Rect& operator*=(const Size& s);
   Rect operator*(const Size& s) const;
   bool operator==(const Rect& rect) const;
 
 public:
   float x1, y1, x2, y2;
 };
+
+std::ostream& operator<<(std::ostream& stream, const Rect& rect);
 
 #endif

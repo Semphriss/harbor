@@ -17,6 +17,7 @@
 #ifndef _HEADER_HARBOR_UTIL_VECTOR_HPP
 #define _HEADER_HARBOR_UTIL_VECTOR_HPP
 
+#include <cmath>
 #include <ostream>
 
 class Size;
@@ -29,9 +30,13 @@ public:
   Vector(const Size& s);
 
   Size size() const;
+  float length() const;
+
+  Vector floor() const;
 
   Vector operator*(const Vector& v) const;
   Vector operator*(float f) const;
+  Vector operator/(const Vector& v) const;
   Vector operator/(float f) const;
   Vector& operator*=(const Vector& v);
   Vector operator+(const Vector& v) const;
@@ -39,6 +44,7 @@ public:
   Vector operator-(const Vector& v) const;
   Vector& operator-=(const Vector& v);
   Vector operator-() const;
+  Vector operator%(float f) const;
   bool operator==(const Vector& v) const;
   bool operator!=(const Vector& v) const;
 

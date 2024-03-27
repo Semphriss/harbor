@@ -38,12 +38,20 @@ public:
 
   const std::string& get_contents() const;
 
+  /** Puts text at given caret location, replacing any selected text */
+  void put_text(const std::string& text);
+  /**
+   * Delete selected text if any, else delete the character before the caret if
+   * @p front is false or after the caret if @p front is true
+   */
+  void backspace(bool front = false);
+
 private:
   const Theme& get_current_theme() const;
-  /** Puts text at given caret location, replacing any selected text */
-  void put_text(std::string text);
-  /** Delete selected text if any, else delete the character before the caret */
-  void backspace();
+  /** Sets m_scoll to a value which makes the principal caret visible */
+  void adjust_scroll();
+  /** Returns the caret position corresponding to the on-screen point given */
+  int get_hit_point(const Vector& p);
 
 private:
   std::string m_contents;
@@ -51,6 +59,7 @@ private:
   int m_caret_2;
   Vector m_mouse_pos;
   bool m_clicking;
+  float m_scroll;
 
 private:
   Textbox(const Textbox&) = delete;

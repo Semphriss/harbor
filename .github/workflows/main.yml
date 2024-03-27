@@ -1,0 +1,103 @@
+name: main
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        build_type: [Debug, Release]
+        #dependencies: [system, vcpkg, source]
+        dependencies: [system]
+        include:
+          - build_type: Debug
+            coverage: ON
+
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+          submodules: false
+
+      - name: Install tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential cmake git libgl1-mesa-dev \
+            lcov
+
+      - name: Install system dependencies
+        if: ${{ matrix.dependencies == 'system' }}
+        run: |
+          sudo apt-get install -y \
+            libgtest-dev \
+            liblua5.1-0-dev \
+            libsdl2-dev \
+            libsdl2-image-dev \
+            libsdl2-ttf-dev \
+            libsdl2-mixer-dev \
+            libsquirrel-dev
+
+      - name: Install vcpkg dependencies
+        if: ${{ matrix.dependencies == 'vcpkg' }}
+        run: |
+          vcpkg integrate install
+          vcpkg install --triplet x64-linux \
+            gtest \
+            lua \
+            sdl2 \
+            sdl2-image \
+            sdl2-ttf \
+            sdl2-mixer
+
+      - name: Pull source dependencies
+        if: ${{ matrix.dependencies == 'source' }}
+        run: |
+          git submodule update --init --recursive
+
+      - name: Build
+        env:
+          BUILD_TYPE: ${{ matrix.build_type }}
+          VCPKG: ${{ matrix.dependencies == 'vcpkg' && '-DCMAKE_TOOLCHAIN_FILE=/usr/local/share/vcpkg/scripts/buildsystems/vcpkg.cmake' || '' }}
+        run: |
+          git submodule update --init --recursive external/squirrel
+          mkdir build
+          cd build
+          cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DWARNINGS=ON -DWERROR=ON $VCPKG ..
+          make VERBOSE=1
+
+      - name: Run tests
+        working-directory: build
+        run: ./run_tests
+
+      - name: Make coverage
+        if: ${{ matrix.coverage }}
+        working-directory: build
+        run: |
+          lcov --capture --directory . --exclude '/usr/*' --output-file coverage.info
+          mkdir coverage
+          cd coverage
+          genhtml ../coverage.info
+          zip coverage.zip ./*
+
+      - name: Package
+        working-directory: build
+        run: cpack -G TGZ
+
+      - name: Upload build
+        uses: actions/upload-artifact@v2
+        with:
+          name: "Harbor_x64-linux_${{ matrix.build_type }}_${{ matrix.dependencies }}"
+          path: build/*.tar.gz
+          if-no-files-found: ignore
+
+      - name: Upload coverage
+        uses: actions/upload-artifact@v2
+        if: ${{ matrix.coverage }}
+        with:
+          name: "Harbor_coverage"
+          path: build/coverage/coverage.zip
+          if-no-files-found: ignore

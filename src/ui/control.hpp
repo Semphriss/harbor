@@ -80,6 +80,8 @@ public:
   const ThemeSet& get_theme() const;
   const Rect& get_rect() const;
   bool is_focused() const;
+  bool is_disabled() const;
+  void set_disabled(bool disabled);
 
   Container* get_parent() const;
 

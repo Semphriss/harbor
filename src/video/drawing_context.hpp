@@ -50,10 +50,10 @@ public:
     void scale(const Size& scale);
     void clip(const Rect& rect);
 
-  private:
+  public:
     Vector m_offset;
     Size m_scale;
-    Rect m_clip; //< TODO: Implement clipping for hte transform
+    Rect m_clip;
   };
 
   /**

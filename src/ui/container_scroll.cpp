@@ -198,7 +198,7 @@ ContainerScroll::advance_focus(bool forward)
       if (m_focus_index < -1)
         m_focus_index = -1;
 
-      if (++m_focus_index >= m_children.size())
+      if (++m_focus_index >= static_cast<int>(m_children.size()))
       {
         m_selected_scrollbar = 1;
       }
@@ -217,7 +217,8 @@ ContainerScroll::advance_focus(bool forward)
         m_selected_scrollbar = 0;
       }
 
-      if (m_focus_index == -1 || m_focus_index > m_children.size())
+      if (m_focus_index == -1 ||
+          m_focus_index > static_cast<int>(m_children.size()))
         m_focus_index = m_children.size();
 
       if (--m_focus_index < 0)

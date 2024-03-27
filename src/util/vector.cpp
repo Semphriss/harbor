@@ -16,6 +16,8 @@
 
 #include "util/vector.hpp"
 
+#include <cmath>
+
 #include "util/size.hpp"
 
 Vector::Vector() :
@@ -42,6 +44,18 @@ Vector::size() const
   return Size(*this);
 }
 
+float
+Vector::length() const
+{
+  return std::sqrt(x * x + y * y);
+}
+
+Vector
+Vector::floor() const
+{
+  return Vector(std::floor(x), std::floor(y));
+}
+
 Vector
 Vector::operator*(const Vector& v) const
 {
@@ -52,6 +66,12 @@ Vector
 Vector::operator*(float f) const
 {
   return Vector(x * f, y * f);
+}
+
+Vector
+Vector::operator/(const Vector& v) const
+{
+  return Vector(x / v.x, y / v.y);
 }
 
 Vector
@@ -100,6 +120,12 @@ Vector
 Vector::operator-() const
 {
   return Vector(-x, -y);
+}
+
+Vector
+Vector::operator%(float f) const
+{
+  return Vector(std::fmod(x, f), std::fmod(y, f));
 }
 
 bool

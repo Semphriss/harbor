@@ -34,12 +34,13 @@ Listbox<T>::Listbox(float item_height, const ThemeSet& scroll_theme, int layer,
   Control(layer, rect, theme, parent),
   m_items(),
   m_selected(-1),
-  m_scrollbar(nullptr, m_rect.height(), 0.f, false, 1, m_layer,
-              m_rect.with_x1(m_rect.x2 - 10.f), scroll_theme, nullptr),
+  m_scrollbar(nullptr, 0.f, 0.f, false, 1, m_layer,
+              Rect(), scroll_theme, nullptr),
   m_item_height(item_height),
   m_mouse_pos(0, 0),
   m_mouse_button_pressed(0)
 {
+  update_scrollbar_rect();
 }
 
 template<typename T>
@@ -53,27 +54,27 @@ Listbox<T>::event(const SDL_Event& event)
   {
     case SDL_MOUSEBUTTONUP:
     {
-      int mask;
+      int mask = 0;
       switch (event.button.button)
       {
         case SDL_BUTTON_LEFT:
-          mask = 0b00001;
+          mask = 0x01;
           break;
 
         case SDL_BUTTON_RIGHT:
-          mask = 0b00010;
+          mask = 0x02;
           break;
 
         case SDL_BUTTON_MIDDLE:
-          mask = 0b00100;
+          mask = 0x04;
           break;
 
         case SDL_BUTTON_X1:
-          mask = 0b01000;
+          mask = 0x08;
           break;
 
         case SDL_BUTTON_X2:
-          mask = 0b10000;
+          mask = 0x10;
           break;
       }
 
@@ -87,27 +88,27 @@ Listbox<T>::event(const SDL_Event& event)
 
     case SDL_MOUSEBUTTONDOWN:
     {
-      int mask;
+      int mask = 0;
       switch (event.button.button)
       {
         case SDL_BUTTON_LEFT:
-          mask = 0b00001;
+          mask = 0x01;
           break;
 
         case SDL_BUTTON_RIGHT:
-          mask = 0b00010;
+          mask = 0x02;
           break;
 
         case SDL_BUTTON_MIDDLE:
-          mask = 0b00100;
+          mask = 0x04;
           break;
 
         case SDL_BUTTON_X1:
-          mask = 0b01000;
+          mask = 0x08;
           break;
 
         case SDL_BUTTON_X2:
-          mask = 0b10000;
+          mask = 0x10;
           break;
       }
 
@@ -159,7 +160,7 @@ Listbox<T>::event(const SDL_Event& event)
     case SDL_MOUSEWHEEL:
       if (m_rect.contains(m_mouse_pos))
       {
-        m_scrollbar.set_progress(m_scrollbar.get_progress() - event.wheel.y * 10);
+        m_scrollbar.set_progress(m_scrollbar.get_progress() - event.wheel.y * 20);
         return true;
       }
       return false;
@@ -190,7 +191,7 @@ Listbox<T>::draw(DrawingContext& context) const
 
   context.push_transform();
   context.get_transform().clip(m_rect);
-  context.get_transform().move(Vector(0, m_scrollbar.get_progress()));
+  context.get_transform().move(Vector(0, -m_scrollbar.get_progress()));
 
   const T* selected = get_selected_item();
   const T* hovered = get_item_at(m_mouse_pos);
@@ -300,6 +301,7 @@ Listbox<T>::remove_item(const T& item)
         m_on_changed(m_selected, nullptr);
     }
 
+    m_scrollbar.set_total(m_item_height * m_items.size());
     return true;
   }
 
@@ -331,6 +333,7 @@ template<typename T>
 void
 Listbox<T>::clear_items()
 {
+  m_selected = -1;
   m_items.clear();
   m_scrollbar.set_total(0.f);
 }
@@ -372,6 +375,14 @@ Listbox<T>::get_item_at(const Vector& point) const
   {
     return nullptr;
   }
+}
+
+template<typename T>
+void
+Listbox<T>::update_scrollbar_rect()
+{
+  m_scrollbar.get_rect() = m_rect.with_x1(m_rect.x2 - 5.f);
+  m_scrollbar.set_cover(m_rect.height());
 }
 
 template<typename T>

@@ -20,10 +20,13 @@
 #include <string>
 #include <memory>
 #include <vector>
+#include <unordered_map>
 
 #include "make_unique.hpp"
 
 #include "SDL_ttf.h"
+
+#include "util/size.hpp"
 
 /**
  * Video class to handle font files.
@@ -44,16 +47,22 @@ public:
   ~Font();
 
 private:
-  SDL_Surface* get_sdl_surface(const std::string& text) const;
+  SDL_Surface* get_sdl_surface(const std::string& text);
 
 public:
+  /** @deprecated Use `get_text_size` instead */
   float get_text_width(const std::string& text) const;
+
+  /** @deprecated Use `get_text_size` instead */
   float get_text_height(const std::string& text) const;
+
+  Size get_text_size(const std::string& text) const;
 
 private:
   std::string m_name;
   int m_size;
   TTF_Font* m_font;
+  std::unordered_map<std::string, SDL_Surface*> m_text_surfaces;
 
 private:
   Font(const Font&) = delete;

@@ -59,8 +59,7 @@ public:
                             TextAlign align);
 
 protected:
-  static SDL_Surface* get_font_surface(const Font& font,
-                                       const std::string& text);
+  static SDL_Surface* get_font_surface(Font& font, const std::string& text);
 
 public:
   virtual ~Renderer() = default;
