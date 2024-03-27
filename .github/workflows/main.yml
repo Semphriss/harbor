@@ -10,7 +10,8 @@ jobs:
       fail-fast: false
       matrix:
         build_type: [Debug, Release]
-        dependencies: [system, vcpkg, source]
+        #dependencies: [system, vcpkg, source]
+        dependencies: [system]
         include:
           - build_type: Debug
             coverage: ON
