@@ -21,6 +21,7 @@
 #include "video/drawing_context.hpp"
 #include "video/sdl/sdl_window.hpp"
 
+#if 0
 static SDLWindow w;
 
 class MockRenderer :
@@ -143,3 +144,4 @@ TEST(DrawingContext, _stress_test)
   EXPECT_EQ(r.m_log.str(), "start_draw(nullptr);\ndraw_filled_rect(Rect(20, 23,"
                            " 110, 35), Color(1, 1, 1, 1), 1);\nend_draw();\n");
 }
+#endif

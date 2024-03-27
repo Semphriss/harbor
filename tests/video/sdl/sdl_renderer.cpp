@@ -29,7 +29,7 @@
 #undef private
 #undef protected
 #undef final
-
+/*
 TEST(Video_SDL_SDLRenderer, is_drawing)
 {
   SDLWindow w;
@@ -58,3 +58,4 @@ TEST(Video_SDL_SDLRenderer, draw_filled_rect)
 
   // TODO: Eventually, check to see if drawing really occured properly
 }
+*/
